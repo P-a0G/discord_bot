@@ -42,11 +42,10 @@ async def on_message(message):
             await message.channel.send("Format invalide, utiliser: '!set birthday DD/MM/YYYY User'.")
             return
 
-        if not 0 < day < 32:
-            await message.channel.send("Mettre la date au format: DD/MM/YYYY")
-            return
-        if not 0 < mounth < 13:
-            await message.channel.send("Mettre la date au format: DD/MM/YYYY")
+        try:
+            datetime.datetime(year, mounth, day)
+        except:
+            await message.channel.send("Date incorrecte, utiliser: '!set birthday DD/MM/YYYY User'.")
             return
 
         anniversaries[user] = {
