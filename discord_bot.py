@@ -10,7 +10,7 @@ intents.message_content = True
 
 client = discord.Client(intents=intents)
 
-anniversary_dict_path = "anniversary.json"
+anniversary_dict_path = "files/anniversary.json"
 if os.path.exists(anniversary_dict_path):
     anniversaries = read_json(anniversary_dict_path)
 else:
@@ -89,8 +89,8 @@ async def on_message(message):
             file = discord.File(file_pth)
             await message.channel.send(file=file)
 
-# token = read_json("tokens.json")["Flash_bot"]
-token = read_json("tokens.json")["debug"]
+# token = read_json("files/tokens.json")["Flash_bot"]
+token = read_json("files/tokens.json")["debug"]
 client.run(token)
 
 
