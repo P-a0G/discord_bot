@@ -1,5 +1,5 @@
 import discord
-from utils import is_valid_url, extract_from_url, get_size
+from utils import is_valid_url, extract_from_url, get_size, read_json
 
 intents = discord.Intents.default()
 intents.members = True
@@ -55,8 +55,8 @@ async def on_message(message):
             file = discord.File(file_pth)
             await message.channel.send(file=file)
 
-# token = 'MTA4Mjc4MDI2NDQwMjUyMjIyMw.GXuGLV.iXcIubo2aZeME90gAxVm60aNtTZ18pXm6oBhMo'  # Flash_bot
-token = 'MTE5MjA4MTgwMDQ4NzUwMTgzNA.G-Cvw5.YVLzVSEjr9mENfLnoKEgr0AIRlPJEoWc8pNiXE'  # Debug_bot
+# token = read_json("tokens.json")["Flash_bot"]
+token = read_json("tokens.json")["debug"]
 client.run(token)
 
 
