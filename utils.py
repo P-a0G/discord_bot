@@ -187,6 +187,19 @@ def get_size(file_pth):
     return round(os.path.getsize(file_pth) / 1048576, 2)
 
 
+def show_message_info(message):
+    print("message:", message)
+    print("id:", message.id)
+    print("channel:", message.channel)
+    print("type:", message.type)
+
+    print("author:")
+    print("\t id:", message.author.id)
+    print("\t name:", message.author.name)
+
+    print("content:", message.content)
+
+
 if __name__ == '__main__':
     # music_url = r'https://www.youtube.com/watch?v=bvSVwW4Zomw&list=PL3osQJLUr9gKXtj5zF5g-15vcliM0im0Q&index=26'
     #
