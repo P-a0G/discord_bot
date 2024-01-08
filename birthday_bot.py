@@ -5,6 +5,8 @@ from utils import read_json, write_json
 import datetime
 import random
 
+
+# todo faire une classe bot
 intents = discord.Intents.default()
 intents.members = True
 intents.message_content = True
@@ -33,21 +35,17 @@ async def birthday_check():
     today = datetime.date.today()
 
     # Iterate through registered birthdays
-    for user_id, birthday_date in anniversaries.items():
+    for user_id_or_name, birthday_date in anniversaries.items():
         # Check if it's the user's birthday
         if today.day == birthday_date["day"] and today.month == birthday_date["mounth"]:
-            user = bot.get_guild(my_guild_id).get_member(my_id)
-            print("user:", user)
-            if user:
-                print(user.id, user.name)
+            user = bot.get_guild(my_guild_id).get_member(user_id_or_name)
 
             if user:
                 print(f"\t\tIt's {user.name} Birthday ! 🎉🎂")
                 channel = bot.get_guild(my_guild_id).get_channel(int(id_file["birthday_channel_id"]))
                 await channel.send(f"Bon Anniv' {user.mention}! 🎉🎂")
-                await send_message_to_me(f"It's {user.name} Birthday ! 🎉🎂")
             else:
-                print(f"\t\tIt's {user_id} Birthday ! 🎉🎂")
+                print(f"\t\tIt's {user_id_or_name} Birthday ! 🎉🎂")
                 await send_message_to_me(f"It's {user_id} Birthday ! 🎉🎂")
 
 
@@ -115,6 +113,17 @@ async def register_birthday(ctx, birthday_date, user=None):
         ]
     )
     await ctx.send(message)
+
+
+@bot.command(name='show_all', help='Register your birthday')
+async def show_all(ctx):
+    for user_id_or_name, birthday_date in anniversaries.items():
+        user = bot.get_guild(my_guild_id).get_member(user_id_or_name)
+
+        if user:
+            await ctx.send(f"\t{user.name}: {birthday_date['day']}/{birthday_date['mounth']}")
+        else:
+            await ctx.send(f"\t{user_id_or_name}: {birthday_date['day']}/{birthday_date['mounth']}")
 
 
 if __name__ == '__main__':
