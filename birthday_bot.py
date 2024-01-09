@@ -46,7 +46,7 @@ async def birthday_check():
                 await channel.send(f"Bon Anniv' {user.mention}! 🎉🎂")
             else:
                 print(f"\t\tIt's {user_id_or_name} Birthday ! 🎉🎂")
-                await send_message_to_me(f"It's {user_id} Birthday ! 🎉🎂")
+                await send_message_to_me(f"It's {user_id_or_name} Birthday ! 🎉🎂")
 
 
 async def send_message_to_me(message):
@@ -60,10 +60,14 @@ async def send_message_to_me(message):
 @bot.command(name='set_birthday', help='Register your birthday')
 async def register_birthday(ctx, birthday_date, user=None):
     try:
-        day, mounth, year = birthday_date.split("/")
+        if len(birthday_date.split("/")) == 3:
+            day, mounth, year = birthday_date.split("/")
+            year = int(year)
+        else:
+            day, mounth = birthday_date.split("/")
+            year = None
         day = int(day)
         mounth = int(mounth)
-        year = int(year)
 
     except ValueError:
         await ctx.send("Format invalide, utiliser: '!set birthday DD/MM/YYYY User'.")
@@ -84,9 +88,11 @@ async def register_birthday(ctx, birthday_date, user=None):
     print(f"Save birthday: user={user}, date={day}/{mounth}/{year}")
     anniversaries[user] = {
         "day": day,
-        "mounth": mounth,
-        "year": year
+        "mounth": mounth
     }
+    if year is not None:
+        anniversaries[user]["year"] = year
+
     write_json(anniversary_dict_path, anniversaries)
     message = random.choice(
         [
