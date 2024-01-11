@@ -99,6 +99,7 @@ async def register_birthday(ctx, birthday_date, user=None):
         guild_id = ctx.guild.id
     else:
         print(f"Save birthday: user={user}, date={day}/{mounth}/{year}")
+        await ctx.send(f"Save birthday: user={user}, date={day}/{mounth}/{year}")
         guild_id = "0"
 
     if str(guild_id) not in anniversaries.keys():
@@ -112,6 +113,10 @@ async def register_birthday(ctx, birthday_date, user=None):
         anniversaries[guild_id][user]["year"] = year
 
     write_json(anniversary_dict_path, anniversaries)
+
+    if guild_id == "0":
+        return
+
     message = random.choice(
         [
             "Félicitations ! 🎉 Tu as officiellement marqué ta place dans le calendrier ! 📅",
