@@ -1,7 +1,7 @@
 import os
 import discord
 from discord.ext import commands, tasks
-from utils import read_json, write_json, show_message_info
+from utils import read_json, write_json  #, show_message_info
 import datetime
 import random
 
@@ -39,7 +39,11 @@ async def birthday_check():
         for user_id_or_name, birthday_date in anniversaries[guild_id].items():
             # Check if it's the user's birthday
             if today.day == birthday_date["day"] and today.month == birthday_date["mounth"]:
-                user = bot.get_guild(guild_id).get_member(user_id_or_name)
+                try:
+                    user_id_or_name = int(user_id_or_name)
+                    user = bot.get_guild(guild_id).get_member(user_id_or_name)
+                except:
+                    user = None
 
                 if user:
                     print(f"\t\tIt's {user.name} Birthday ! 🎉🎂")
@@ -85,7 +89,7 @@ async def register_birthday(ctx, birthday_date, user=None):
     if user is not None and ctx.author.id != my_id:  # enregistrement perso pour les mp
         return
     else:
-        user = ctx.author.id
+        user = str(ctx.author.id)
 
     print(f"Save birthday: guild={ctx.guild.id} user={user}, date={day}/{mounth}/{year}")
 
@@ -139,11 +143,11 @@ async def show_all(ctx):
                 await ctx.send(f"\t{user_id_or_name}: {birthday_date['day']}/{birthday_date['mounth']}")
 
 
-@bot.event
-async def on_message(message):
-    if message.content.startswith("!"):
-        await bot.process_commands(message)
-    show_message_info(message)
+# @bot.event
+# async def on_message(message):
+#     if message.content.startswith("!"):
+#         await bot.process_commands(message)
+#     show_message_info(message)
 
 
 if __name__ == '__main__':
