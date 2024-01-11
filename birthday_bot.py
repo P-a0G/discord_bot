@@ -109,7 +109,7 @@ async def register_birthday(ctx, birthday_date, user=None):
         "mounth": mounth
     }
     if year is not None:
-        anniversaries[user]["year"] = year
+        anniversaries[guild_id][user]["year"] = year
 
     write_json(anniversary_dict_path, anniversaries)
     message = random.choice(
