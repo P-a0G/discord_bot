@@ -35,18 +35,19 @@ async def birthday_check():
     today = datetime.date.today()
 
     # Iterate through registered birthdays
-    for user_id_or_name, birthday_date in anniversaries.items():
-        # Check if it's the user's birthday
-        if today.day == birthday_date["day"] and today.month == birthday_date["mounth"]:
-            user = bot.get_guild(my_guild_id).get_member(user_id_or_name)
+    for guild_id in anniversaries.keys():
+        for user_id_or_name, birthday_date in anniversaries[guild_id].items():
+            # Check if it's the user's birthday
+            if today.day == birthday_date["day"] and today.month == birthday_date["mounth"]:
+                user = bot.get_guild(guild_id).get_member(user_id_or_name)
 
-            if user:
-                print(f"\t\tIt's {user.name} Birthday ! 🎉🎂")
-                channel = bot.get_guild(my_guild_id).get_channel(int(id_file["birthday_channel_id"]))
-                await channel.send(f"Bon Anniv' {user.mention}! 🎉🎂")
-            else:
-                print(f"\t\tIt's {user_id_or_name} Birthday ! 🎉🎂")
-                await send_message_to_me(f"It's {user_id_or_name} Birthday ! 🎉🎂")
+                if user:
+                    print(f"\t\tIt's {user.name} Birthday ! 🎉🎂")
+                    channel = bot.get_guild(guild_id).get_channel(int(id_file["birthday_channel_id"]))
+                    await channel.send(f"Bon Anniv' {user.mention}! 🎉🎂")
+                else:
+                    print(f"\t\tIt's {user_id_or_name} Birthday ! 🎉🎂")
+                    await send_message_to_me(f"It's {user_id_or_name} Birthday ! 🎉🎂")
 
 
 async def send_message_to_me(message):
@@ -85,8 +86,12 @@ async def register_birthday(ctx, birthday_date, user=None):
         else:
             user = ctx.author.id
 
-    print(f"Save birthday: user={user}, date={day}/{mounth}/{year}")
-    anniversaries[user] = {
+    print(f"Save birthday: guild={ctx.guild.id} user={user}, date={day}/{mounth}/{year}")
+
+    if ctx.guild.id not in anniversaries.keys():
+        anniversaries[ctx.guild.id] = {}
+
+    anniversaries[ctx.guild.id][user] = {
         "day": day,
         "mounth": mounth
     }
@@ -123,13 +128,14 @@ async def register_birthday(ctx, birthday_date, user=None):
 
 @bot.command(name='show_all', help='Register your birthday')
 async def show_all(ctx):
-    for user_id_or_name, birthday_date in anniversaries.items():
-        user = bot.get_guild(my_guild_id).get_member(user_id_or_name)
+    for guild_id in anniversaries.keys():
+        for user_id_or_name, birthday_date in anniversaries[guild_id].items():
+            user = bot.get_guild(my_guild_id).get_member(user_id_or_name)
 
-        if user:
-            await ctx.send(f"\t{user.name}: {birthday_date['day']}/{birthday_date['mounth']}")
-        else:
-            await ctx.send(f"\t{user_id_or_name}: {birthday_date['day']}/{birthday_date['mounth']}")
+            if user:
+                await ctx.send(f"\t{user.name}: {birthday_date['day']}/{birthday_date['mounth']}")
+            else:
+                await ctx.send(f"\t{user_id_or_name}: {birthday_date['day']}/{birthday_date['mounth']}")
 
 
 if __name__ == '__main__':
