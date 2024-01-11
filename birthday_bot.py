@@ -89,7 +89,8 @@ async def register_birthday(ctx, birthday_date, user=None):
     if user is not None and ctx.author.id != my_id:  # enregistrement perso pour les mp
         return
     else:
-        user = str(ctx.author.id)
+        if ctx.author.id is not None:
+            user = str(ctx.author.id)
 
     print(f"Save birthday: guild={ctx.guild.id} user={user}, date={day}/{mounth}/{year}")
 
