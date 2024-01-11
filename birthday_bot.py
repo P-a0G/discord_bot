@@ -82,18 +82,17 @@ async def register_birthday(ctx, birthday_date, user=None):
         await ctx.send("Date incorrecte, utiliser: '!set birthday DD/MM/YYYY'.")
         return
 
-    if ctx.author.id != my_id:
-        if user is not None:
-            return
-        else:
-            user = ctx.author.id
+    if user is not None and ctx.author.id != my_id:  # enregistrement perso pour les mp
+        return
+    else:
+        user = ctx.author.id
 
     print(f"Save birthday: guild={ctx.guild.id} user={user}, date={day}/{mounth}/{year}")
 
-    if ctx.guild.id not in anniversaries.keys():
-        anniversaries[ctx.guild.id] = {}
+    if str(ctx.guild.id) not in anniversaries.keys():
+        anniversaries[str(ctx.guild.id)] = {}
 
-    anniversaries[ctx.guild.id][user] = {
+    anniversaries[str(ctx.guild.id)][user] = {
         "day": day,
         "mounth": mounth
     }
