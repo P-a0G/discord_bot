@@ -94,12 +94,17 @@ async def register_birthday(ctx, birthday_date, user=None):
             return
         user = str(ctx.author.id)
 
-    print(f"Save birthday: guild={ctx.guild.id} user={user}, date={day}/{mounth}/{year}")
+    if ctx.guild is not None:
+        print(f"Save birthday: guild={ctx.guild.id} user={user}, date={day}/{mounth}/{year}")
+        guild_id = ctx.guild.id
+    else:
+        print(f"Save birthday: user={user}, date={day}/{mounth}/{year}")
+        guild_id = "0"
 
-    if str(ctx.guild.id) not in anniversaries.keys():
-        anniversaries[str(ctx.guild.id)] = {}
+    if str(guild_id) not in anniversaries.keys():
+        anniversaries[guild_id] = {}
 
-    anniversaries[str(ctx.guild.id)][user] = {
+    anniversaries[guild_id][user] = {
         "day": day,
         "mounth": mounth
     }
