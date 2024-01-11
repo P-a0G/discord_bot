@@ -1,7 +1,7 @@
 import os
 import discord
 from discord.ext import commands, tasks
-from utils import read_json, write_json
+from utils import read_json, write_json, show_message_info
 import datetime
 import random
 
@@ -43,7 +43,8 @@ async def birthday_check():
 
                 if user:
                     print(f"\t\tIt's {user.name} Birthday ! 🎉🎂")
-                    channel = bot.get_guild(guild_id).get_channel(int(id_file["birthday_channel_id"]))
+                    channel_id = int(id_file["birthday_channel_id"][guild_id])
+                    channel = bot.get_guild(guild_id).get_channel(channel_id)
                     await channel.send(f"Bon Anniv' {user.mention}! 🎉🎂")
                 else:
                     print(f"\t\tIt's {user_id_or_name} Birthday ! 🎉🎂")
@@ -60,24 +61,25 @@ async def send_message_to_me(message):
 
 @bot.command(name='set_birthday', help='Register your birthday')
 async def register_birthday(ctx, birthday_date, user=None):
-    try:
-        if len(birthday_date.split("/")) == 3:
-            day, mounth, year = birthday_date.split("/")
-            year = int(year)
-        else:
-            day, mounth = birthday_date.split("/")
-            year = None
-        day = int(day)
-        mounth = int(mounth)
-
-    except ValueError:
-        await ctx.send("Format invalide, utiliser: '!set birthday DD/MM/YYYY User'.")
+    if len(birthday_date.split("/")) == 2:
+        day, mounth = birthday_date.split("/")
+        year = None
+    elif len(birthday_date.split("/")) == 3:
+        day, mounth, year = birthday_date.split("/")
+        year = int(year)
+    else:
+        await ctx.send("Format invalide, utiliser: '!set birthday DD/MM/YYYY'.")
         return
+    day = int(day)
+    mounth = int(mounth)
 
     try:
-        datetime.datetime(year, mounth, day)
+        if year is None:
+            datetime.datetime(2000, mounth, day)
+        else:
+            datetime.datetime(year, mounth, day)
     except:
-        await ctx.send("Date incorrecte, utiliser: '!set birthday DD/MM/YYYY User'.")
+        await ctx.send("Date incorrecte, utiliser: '!set birthday DD/MM/YYYY'.")
         return
 
     if ctx.author.id != my_id:
@@ -136,6 +138,13 @@ async def show_all(ctx):
                 await ctx.send(f"\t{user.name}: {birthday_date['day']}/{birthday_date['mounth']}")
             else:
                 await ctx.send(f"\t{user_id_or_name}: {birthday_date['day']}/{birthday_date['mounth']}")
+
+
+@bot.event
+async def on_message(message):
+    if message.content.startswith("!"):
+        await bot.process_commands(message)
+    show_message_info(message)
 
 
 if __name__ == '__main__':
