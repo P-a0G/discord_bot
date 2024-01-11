@@ -86,11 +86,13 @@ async def register_birthday(ctx, birthday_date, user=None):
         await ctx.send("Date incorrecte, utiliser: '!set birthday DD/MM/YYYY'.")
         return
 
-    if user is not None and ctx.author.id != my_id:  # enregistrement perso pour les mp
-        return
-    else:
-        if ctx.author.id is not None:
+    if ctx.author.id == my_id:
+        if user is None:
             user = str(ctx.author.id)
+    else:
+        if user is not None:  # enregistrement perso pour les mp
+            return
+        user = str(ctx.author.id)
 
     print(f"Save birthday: guild={ctx.guild.id} user={user}, date={day}/{mounth}/{year}")
 
