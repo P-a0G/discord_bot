@@ -6,7 +6,6 @@ import datetime
 import random
 
 
-# todo faire une classe bot
 intents = discord.Intents.default()
 intents.members = True
 intents.message_content = True
@@ -41,14 +40,14 @@ async def birthday_check():
             if today.day == birthday_date["day"] and today.month == birthday_date["mounth"]:
                 try:
                     user_id_or_name = int(user_id_or_name)
-                    user = bot.get_guild(guild_id).get_member(user_id_or_name)
+                    user = bot.get_guild(int(guild_id)).get_member(user_id_or_name)
                 except:
                     user = None
 
                 if user:
                     print(f"\t\tIt's {user.name} Birthday ! 🎉🎂")
                     channel_id = int(id_file["birthday_channel_id"][guild_id])
-                    channel = bot.get_guild(guild_id).get_channel(channel_id)
+                    channel = bot.get_guild(int(guild_id)).get_channel(channel_id)
                     await channel.send(f"Bon Anniv' {user.mention}! 🎉🎂")
                 else:
                     print(f"\t\tIt's {user_id_or_name} Birthday ! 🎉🎂")
@@ -168,6 +167,6 @@ if __name__ == '__main__':
     my_id = int(id_file["my_id"])
     token = read_json("files/tokens.json")["birthday_bot"]
     my_guild_id = int(id_file["guild_id"])
-    birthday_channel_id = int(id_file["birthday_channel_id"])  # todo set channel with a command
+    # todo set birthday wish channel with a command
 
     bot.run(token)
