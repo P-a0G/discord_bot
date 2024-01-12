@@ -145,9 +145,15 @@ async def register_birthday(ctx, birthday_date, user=None):
 
 @bot.command(name='show_all', help='Register your birthday')
 async def show_all(ctx):
+    if ctx.author.id != my_id:
+        return
+
     for guild_id in anniversaries.keys():
         for user_id_or_name, birthday_date in anniversaries[guild_id].items():
-            user = bot.get_guild(my_guild_id).get_member(user_id_or_name)
+            try:
+                user = bot.get_guild(int(guild_id)).get_member(int(user_id_or_name))
+            except:
+                user = None
 
             if user:
                 await ctx.send(f"\t{user.name}: {birthday_date['day']}/{birthday_date['mounth']}")
