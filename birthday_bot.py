@@ -48,10 +48,45 @@ async def birthday_check():
                     print(f"\t\tIt's {user.name} Birthday ! 🎉🎂")
                     channel_id = int(id_file["birthday_channel_id"][guild_id])
                     channel = bot.get_guild(int(guild_id)).get_channel(channel_id)
-                    await channel.send(f"Bon Anniv' {user.mention}! 🎉🎂")
+                    await channel.send(get_birthday_message(user))
                 else:
                     print(f"\t\tIt's {user_id_or_name} Birthday ! 🎉🎂")
                     await send_message_to_me(f"It's {user_id_or_name} Birthday ! 🎉🎂")
+
+
+def get_birthday_message(user):
+    return random.choice([
+        f"Joyeux anniversaire, {user.mention} champion(e) du monde de la naissance! 🎉🏆 Que cette journée soit aussi épique que toi! @everyone",
+        f"Bon anniversaire, {user.mention} ! 🎂 Aujourd'hui, tu es la vedette, alors fais briller tes bougies comme une star! ✨🕯️ @everyone",
+        f"Hé {user.mention}, joyeux anniversaire! 🎉 Espérons que tu reçoives plus de cadeaux que de notifications Facebook aujourd'hui! 🎁📱 @everyone",
+        f"Bonne fête, {user.mention}! 🥳 Aujourd'hui, tu es officiellement plus âgé(e), mais ça ne compte pas tant que tu es toujours jeune d'esprit! 🧓➡️👶 @everyone",
+        f"Joyeux anniversaire, {user.mention}! 🎈 N'oublie pas que vieillir est obligatoire, mais grandir est facultatif! 🎉🎂 @everyone",
+        f"Bon anniv, {user.mention}! 🎉 Souviens-toi, plus tu vieillis, plus tu deviens un classique vintage! 🚗🍷 @everyone",
+        f"Hé {user.mention}, c'est ta journée spéciale! 🎂 Profite-en pour manger autant de gâteau que possible sans culpabilité! 🍰😋 @everyone",
+        f"Joyeux anniversaire, {user.mention}! 🎊 Si tu étais une bougie, tu éclairerais toute la planète avec ta brillance! 🌍✨ @everyone",
+        f"Bon anniversaire, superhéros/superhéroïne {user.mention}! 🎉 Aujourd'hui, tu as le pouvoir de faire ce que tu veux (tant que c'est amusant)! 💪😄 @everyone",
+        f"Hé p'tit(e) chanceux(se) {user.mention}, joyeux anniversaire! 🎂 Que la journée soit aussi géniale que toi et remplie de rires contagieux! 😄🎈 @everyone",
+        f"C'est le grand jour, {user.mention}! Joyeux anniversaire, notre source préférée de bonne humeur! 🎉🌈 @everyone",
+        f"Joyeux anniversaire, {user.mention}! On t'aime plus que le gâteau d'anniversaire lui-même! 🎂💖 @everyone",
+        f"Bonne fête, {user.mention}! Aujourd'hui, tu es la rockstar de la fête! 🤘🎸 @everyone",
+        f"Hé {user.mention}, joyeux anniversaire! On espère que ta journée est aussi incroyable que toi! 🚀😄 @everyone",
+        f"Bon anniversaire, {user.mention}! Que la force de la joie soit avec toi aujourd'hui! 🌟😄 @everyone",
+        f"Hé toi, {user.mention}! Joyeux anniversaire! On te décerne la médaille d'honneur de la bonne humeur! 🏅😊 @everyone",
+        f"Bonne fête, {user.mention}! Aujourd'hui, tu es le chef de la fête, alors profite bien de ton règne! 🎉👑 @everyone",
+        f"Joyeux anniversaire, {user.mention}! Que ta journée soit aussi pétillante que du champagne! 🍾✨ @everyone",
+        f"Bon anniversaire, {user.mention}! Souviens-toi, tu n'es pas vieux, tu es classique! 🎉🎩 @everyone",
+        f"Hé {user.mention}, c'est ton jour! Joyeux anniversaire! On espère que tu reçois plus de câlins que de cadeaux! 🤗🎁 @everyone",
+        f"Bonne fête, {user.mention}! Aujourd'hui, tu es la star, alors brille aussi fort que les étoiles! 🌠😊 @everyone",
+        f"Joyeux anniversaire, {user.mention}! On te souhaite une journée remplie de rires et de moments inoubliables! 😄🎈 @everyone",
+        f"Bon anniversaire, {user.mention}! Que cette année soit pleine de surprises aussi géniales que toi! 🎁🎉 @everyone",
+        f"Hé {user.mention}, c'est le moment de faire la fête! Joyeux anniversaire! 🥳🎂 @everyone",
+        f"Bonne fête, {user.mention}! Que la magie de ton anniversaire opère et t'apporte bonheur et sourires! ✨😄 @everyone",
+        f"Joyeux anniversaire, {user.mention}! On espère que ta journée est aussi exceptionnelle que toi! 🌟🎉 @everyone",
+        f"Bon anniversaire, {user.mention}! Profite bien de chaque instant et que cette journée te réserve des surprises incroyables! 🎊😊 @everyone",
+        f"Hé toi, {user.mention}! C'est le moment de célébrer! Joyeux anniversaire! 🎉🥂 @everyone",
+        f"Bonne fête, {user.mention}! Que cette année t'apporte encore plus de rires et de succès! 😄🎂 @everyone",
+        f"Joyeux anniversaire, {user.mention}! On te souhaite une année pleine de moments joyeux et de nouvelles aventures! 🎉🌟 @everyone"
+    ])
 
 
 async def send_message_to_me(message):
