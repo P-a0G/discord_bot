@@ -84,7 +84,7 @@ def extract_from_url(url, output_dir=r"musics/", add_tags=False):
     title = title.replace("  ", " ")
     # title = title.replace(" ", "_")
     title = title.strip()
-    filename = title + ".mp3"
+    filename = title + ".webm"
 
     yt = YouTube(url)
 
