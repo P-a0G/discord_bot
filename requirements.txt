@@ -5,3 +5,5 @@ pytube
 mutagen
 # logging
 # urllib
+moviepy
+ffmpeg
