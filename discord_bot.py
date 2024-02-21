@@ -14,6 +14,9 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 subscribed_to_music = dict()
 
 
+# todo autocompletion cf: https://www.youtube.com/watch?v=zSzFHxOkCfo&ab_channel=RichardSchwabe
+
+
 @bot.event
 async def on_ready():
     print('Bot is ready to go!')
@@ -55,7 +58,7 @@ async def on_message(message):
         await bot.process_commands(message)
         return
 
-    show_message_info(message)
+    # show_message_info(message)
 
     if not (str(message.channel) == "Direct Message with Unknown User" or "bot" in str(message.channel)):
         return
@@ -67,7 +70,7 @@ async def on_message(message):
         await message.channel.send('Downloading file to mp3....')
 
         try:
-            file_pth = extract_from_url(message.content, add_tags=False)
+            file_pth = extract_from_url(message.content, add_tags=True)
         except ValueError as e:
             await message.channel.send(f'\t\tSorry I couldn\'t get the music')
             await message.channel.send(f'Error: {e}')
@@ -85,6 +88,11 @@ async def on_message(message):
             file = discord.File(file_pth)
             await message.channel.send(file=file)
 
+# @bot.event
+# async def on_message(message):
+#     if message.content.startswith("!"):
+#         await bot.process_commands(message)
+#     show_message_info(message)
 
 if __name__ == '__main__':
     # token = read_json("files/tokens.json")["Flash_bot"]
