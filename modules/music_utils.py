@@ -193,8 +193,8 @@ def extract_from_url(url, output_dir=r"musics/", add_tags=True):
         print("Didn't add tags")
 
     if os.path.exists("files/history.csv"):
-        with open("files/history.csv", "a") as f:
-            f.write(";".join([title, author, album, year, img is None, url]))
+        with open("files/history.csv", "a", encoding="utf-8") as f:
+            f.write(";".join([str(e) for e in [title, author, album, year, img is None, url]]) + "\n")
 
     return audio_file_path
 
