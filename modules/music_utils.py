@@ -23,18 +23,45 @@ def extract_with_bs(url):
     return title, soup
 
 
-def get_metadata(title):
+def extract_author_and_music(title):
+    # Split the title by '-' or '|' assuming the author name is before this separator
+    split_title = title.split('-')  # You can also use '|' or any other separator if applicable
+    if len(split_title) > 1:
+        author_name = split_title[0].strip()
+        music_name = split_title[1].strip()
+        return author_name, music_name
+    else:
+        split_title = title.split('|')
+        if len(split_title) > 1:
+            author_name = split_title[0].strip()
+            music_name = split_title[1].strip()
+            return author_name, music_name
+
+    # If no separator found, assume the whole title is the music name
+    return None, title.strip()
+
+
+def get_video_author(youtube_url):  # todo
+    response = requests.get(youtube_url)
+    soup = BeautifulSoup(response.text, 'html.parser')
+    # Assuming the author's name is in the <a> tag with class="yt-simple-endpoint style-scope yt-formatted-string"
+    author_tag = soup.find('a', class_='yt-simple-endpoint style-scope yt-formatted-string')
+    if author_tag:
+        return author_tag.text
+    else:
+        return None
+
+
+def get_metadata(title, url):
     # getting title of the film and author name from YT video title
-    author = None
-    if "-" in title:
-        author, title = title.split("-")[:2]
-        title = title.strip()
-        author = author.strip()
-    print("\tauthor:", author)
-    print("\ttitle:", title)
+    author, title = extract_author_and_music(title)
 
     if title.lower() == "youtube":
-        title = author.split(" (")[0]
+        title = author
+        author = None
+
+    if author is None:
+        author = get_video_author(url)
 
     chars_to_remove = "\\/:*?\"<>|\',"
     for c in chars_to_remove:
@@ -45,7 +72,14 @@ def get_metadata(title):
     title = title.strip()
     filename = title + ".webm"
 
-    return title, author, filename
+    # getting year
+    yt = YouTube(url)
+    year = yt.publish_date
+
+    # getting album  # todo
+    album = None
+
+    return title, author, filename, year, album
 
 
 def get_music_with_pytube(url, audio_file_path):
@@ -98,10 +132,14 @@ def get_music_with_bs(soup, audio_file_path):
 
     logging.info(f' >> File saved in {audio_file_path}')
 
+    return audio_file_path
+
+
+def get_img_with_bs(soup):
     image_url = soup.find("meta", property="og:image")["content"]
     print("image url:", image_url)
 
-    return audio_file_path
+    return image_url
 
 
 def extract_from_url(url, output_dir=r"musics/", add_tags=True):
@@ -110,7 +148,7 @@ def extract_from_url(url, output_dir=r"musics/", add_tags=True):
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
 
-    title, author, filename = get_metadata(title)
+    title, author, filename, year, album = get_metadata(title, url)
 
     audio_file_path = os.path.join(output_dir, filename)
 
@@ -133,13 +171,22 @@ def extract_from_url(url, output_dir=r"musics/", add_tags=True):
 
     # add metadata
     if add_tags:
+        img_url = get_img_with_bs(soup)
+
+        response = requests.get(img_url)
+        if response.status_code != 200:
+            print("Failed to download image")
+            img = None
+        else:
+            img = response.content
+
         add_metadata(
             file_path=audio_file_path,
             title=title,
             artist=author,
-            album=None,  # todo
-            year=None,  # todo
-            img=None  # image_url  # todo debug
+            album=album,
+            year=year,
+            img=img
         )
         logging.info(f' >> File saved in {os.path.join(output_dir, filename)} with metadata')
     else:
