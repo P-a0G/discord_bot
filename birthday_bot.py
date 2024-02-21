@@ -1,7 +1,7 @@
 import os
 import discord
 from discord.ext import commands, tasks
-from utils import read_json, write_json  #, show_message_info
+from modules.utils import read_json, write_json  #, show_message_info
 import datetime
 import random
 

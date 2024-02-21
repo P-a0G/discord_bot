@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
-from utils import *
+from modules.utils import read_json, is_valid_url, get_size
+from modules.music_utils import extract_from_url
 
 intents = discord.Intents.default()
 intents.members = True
