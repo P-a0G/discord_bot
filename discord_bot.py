@@ -74,6 +74,7 @@ async def on_message(message):
         except ValueError as e:
             await message.channel.send(f'\t\tSorry I couldn\'t get the music')
             await message.channel.send(f'Error: {e}')
+            file_pth = None
 
         if file_pth is None:
             await message.channel.send(f'\t\tSorry I couldn\'t get the music')
