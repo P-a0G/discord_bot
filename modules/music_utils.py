@@ -192,6 +192,10 @@ def extract_from_url(url, output_dir=r"musics/", add_tags=True):
     else:
         print("Didn't add tags")
 
+    if os.path.exists("files/history.csv"):
+        with open("files/history.csv", "a") as f:
+            f.write(";".join([title, author, album, year, img is None, url]))
+
     return audio_file_path
 
 
@@ -225,7 +229,7 @@ def add_metadata(file_path, title, artist, album, year, img=None):
 
     audiofile.tag.save()
 
-    print("\t> set tags done")
+    print("\t> set tags:", f'title:{title}, artist:{artist}, album:{album}, year:{year}')
 
     if img is not None:
         audiofile.tag.images.set(ImageFrame.FRONT_COVER, img, 'image/jpeg')
