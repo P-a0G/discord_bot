@@ -170,13 +170,13 @@ def extract_from_url(url, output_dir=r"musics/", add_tags=True):
         add_tags = False  # need file to be mp3 to add metadata
 
     # add metadata
+    img = None
     if add_tags:
         img_url = get_img_with_bs(soup)
 
         response = requests.get(img_url)
         if response.status_code != 200:
             print("Failed to download image")
-            img = None
         else:
             img = response.content
 
