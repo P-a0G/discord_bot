@@ -7,3 +7,4 @@ mutagen
 # urllib
 moviepy
 ffmpeg
+eyed3
