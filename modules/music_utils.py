@@ -237,3 +237,12 @@ def add_metadata(file_path, title, artist, album, year, img=None):
         audiofile.tag.save()
 
         print("\t> set img done")
+
+
+def delete_music(filename):
+    if os.path.exists(filename):
+        os.remove(filename)
+
+    webm_file = filename.replace(".mp3", ".webm")
+    if os.path.exists(webm_file):
+        os.remove(webm_file)

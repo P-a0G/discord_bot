@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 from modules.utils import read_json, is_valid_url, get_size
-from modules.music_utils import extract_from_url
+from modules.music_utils import extract_from_url, delete_music
 
 intents = discord.Intents.default()
 intents.members = True
@@ -88,6 +88,8 @@ async def on_message(message):
         else:
             file = discord.File(file_pth)
             await message.channel.send(file=file)
+
+        delete_music()
 
 # @bot.event
 # async def on_message(message):
