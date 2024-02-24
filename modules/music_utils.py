@@ -161,13 +161,14 @@ def extract_from_url(url, output_dir=r"musics/", add_tags=True):
         print("[Error] couldn't get the music")
         return None
 
-    try:
-        output_path = audio_file_path.replace(".webm", ".mp3")
-        convert_webm_to_mp3(audio_file_path, output_path)
-        audio_file_path = output_path
-    except:
-        print("\t[Error] Couldn't convert webm to mp3")
-        add_tags = False  # need file to be mp3 to add metadata
+    if add_tags:
+        try:
+            output_path = audio_file_path.replace(".webm", ".mp3")
+            convert_webm_to_mp3(audio_file_path, output_path)
+            audio_file_path = output_path
+        except:
+            print("\t[Error] Couldn't convert webm to mp3")
+            add_tags = False  # need file to be mp3 to add metadata
 
     # add metadata
     img = None
@@ -192,11 +193,15 @@ def extract_from_url(url, output_dir=r"musics/", add_tags=True):
     else:
         print("Didn't add tags")
 
-    if os.path.exists("files/history.csv"):
-        with open("files/history.csv", "a", encoding="utf-8") as f:
-            f.write(";".join([str(e) for e in [title, author, album, year, img is None, url]]) + "\n")
+    add_file_to_history(title, author, album, year, img, url)
 
     return audio_file_path
+
+
+def add_file_to_history(title, author, album, year, img, url, history_pth="files/history.csv"):
+    if os.path.exists(history_pth):
+        with open(history_pth, "a", encoding="utf-8") as f:
+            f.write(";".join([str(e) for e in [title, author, album, year, img is None, url]]) + "\n")
 
 
 def convert_webm_to_mp3(input_file, output_file):
