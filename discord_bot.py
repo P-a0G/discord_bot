@@ -89,7 +89,7 @@ async def on_message(message):
             file = discord.File(file_pth)
             await message.channel.send(file=file)
 
-        delete_music(file)
+        delete_music(file_pth)
 
 # @bot.event
 # async def on_message(message):
