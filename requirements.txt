@@ -1,10 +1,16 @@
 discord.py
-requests
-beautifulsoup4
-pytube
+requests~=2.29.0
+beautifulsoup4~=4.12.2
+pytube~=15.0.0
 mutagen
 # logging
 # urllib
-moviepy
+moviepy~=1.0.3
 ffmpeg
-eyed3
+eyed3~=0.9.7
+pytest~=8.0.1
+numpy~=1.26.4
+torch~=2.1.2
+transformers~=4.37.0.dev0
+discord~=2.2.3
+python-dotenv~=1.0.1
