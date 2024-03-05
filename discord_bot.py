@@ -2,6 +2,8 @@ import discord
 from discord.ext import commands
 from modules.utils import read_json, is_valid_url, get_size
 from modules.music_utils import extract_from_url, delete_music
+from modules.google_utils import get_channel_id, get_all_musics_from_channel
+import os
 
 intents = discord.Intents.default()
 intents.members = True
@@ -17,8 +19,35 @@ subscribed_to_music = dict()
 # todo autocompletion cf: https://www.youtube.com/watch?v=zSzFHxOkCfo&ab_channel=RichardSchwabe
 
 
+async def check_for_new_musics():
+    if os.path.exists("files/file.txt"):
+        with open("files/file.txt", "r") as f:
+            artists = f.readlines()
+    else:
+        artists = []
+
+    if os.path.exists("files/last_update.txt"):
+        with open("files/last_update.txt", "r") as f:
+            last_update = f.read().strip()
+    else:
+        last_update = -1
+
+    for artist in artists:
+        artist_id = get_channel_id(artist)
+        if artist_id is None:
+            print("Couldn't get id for", artist)
+            continue
+
+        # todo
+
+
+    print("")
+
+
 @bot.event
 async def on_ready():
+    await check_for_new_musics()
+
     print('Bot is ready to go!')
 
     # if not test_loop.is_running():
