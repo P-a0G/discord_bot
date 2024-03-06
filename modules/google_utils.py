@@ -60,7 +60,7 @@ def get_first_youtube_response_url(search_string):
     return video_id_to_url(video_id)
 
 
-def get_channel_videos(channel_id, first_page=False, filter_by_duration=True):
+def get_channel_videos(channel_id, first_page=False, filter_by_duration=True, n_max=50):
     videos = []
     next_page_token = None
 
@@ -85,7 +85,7 @@ def get_channel_videos(channel_id, first_page=False, filter_by_duration=True):
         videos.extend(response['items'])
         next_page_token = response.get('nextPageToken')
 
-        if first_page or not next_page_token:
+        if first_page or not next_page_token or len(videos) >= n_max:
             break
 
     if filter_by_duration:
@@ -153,7 +153,7 @@ def get_all_musics_from_channel(channel_id):
     video_titles = list()
 
     # Get the list of videos from the channel
-    videos = get_channel_videos(channel_id)
+    videos = get_channel_videos(channel_id, n_max=50)
 
     # Print video information
     for i, video in enumerate(videos):
