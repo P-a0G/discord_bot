@@ -2,8 +2,9 @@ import discord
 from discord.ext import commands
 from modules.utils import read_json, is_valid_url, get_size
 from modules.music_utils import extract_from_url, delete_music
-from modules.google_utils import get_channel_id, get_all_musics_from_channel
+from modules.google_utils import get_channel_id, get_all_musics_from_channel, get_channel_videos, video_id_to_url
 import os
+import datetime
 
 intents = discord.Intents.default()
 intents.members = True
@@ -20,17 +21,22 @@ subscribed_to_music = dict()
 
 
 async def check_for_new_musics():
-    if os.path.exists("files/file.txt"):
-        with open("files/file.txt", "r") as f:
-            artists = f.readlines()
+    if os.path.exists("files/subscribed_artists.txt"):
+        with open("files/subscribed_artists.txt", "r") as f:
+            artists = [a.strip() for a in f.readlines()]
     else:
         artists = []
 
-    if os.path.exists("files/last_update.txt"):
+    try:
         with open("files/last_update.txt", "r") as f:
-            last_update = f.read().strip()
-    else:
-        last_update = -1
+            last_update = datetime.datetime.strptime(f.read().strip(), "%Y-%m-%dT%H:%M:%SZ")
+    except:
+        print("\t[Error] couldn't get last update")
+        return 0
+
+    if last_update.date() == datetime.date.today():
+        print("\tCheck was done today, wait for tomorrow")
+        return 1
 
     for artist in artists:
         artist_id = get_channel_id(artist)
@@ -38,14 +44,36 @@ async def check_for_new_musics():
             print("Couldn't get id for", artist)
             continue
 
-        # todo
+        videos = get_channel_videos(artist_id, first_page=True)
 
+        for v in videos:
+            video_id = v['id']['videoId']
+            published_at = v['snippet']['publishedAt']
 
-    print("")
+            published_datetime = datetime.datetime.strptime(published_at, "%Y-%m-%dT%H:%M:%SZ")
+
+            if published_datetime > last_update:
+                video_url = video_id_to_url(video_id)
+                file_pth = extract_from_url(video_url, add_tags=True)
+                file = discord.File(file_pth)
+
+                print("\t\tNew released video downloaded:", file_pth)
+
+                await send_message_to_me(file, is_file=True)
+
+                # delete_music(file_pth)
+
+    print("[Update done]")
+    current_datetime = datetime.datetime.now()
+    formatted_datetime = current_datetime.strftime("%Y-%m-%dT%H:%M:%SZ")
+    with open("files/last_update.txt", "w") as file:
+        file.write(formatted_datetime)
 
 
 @bot.event
 async def on_ready():
+    await check_for_new_musics()
+
     print('Bot is ready to go!')
 
     # if not test_loop.is_running():
@@ -60,6 +88,61 @@ async def set_music_dict(ctx):
         user = bot.get_guild(ctx.guild.id).get_member(ctx.author.id)
 
         await user.send("Music set done")
+
+
+@bot.command(name='sub')
+async def set_music_dict(ctx, channel_name):
+    channel_name = channel_name.strip().replace(" ", "")
+
+    if os.path.exists("files/subscribed_artists.txt"):
+        with open("files/subscribed_artists.txt", "r") as f:
+            artists = [a.strip() for a in f.readlines()]
+    else:
+        artists = []
+
+    if channel_name in artists:
+        await ctx.send("Had it already ;)")
+        return
+
+    if ctx.author.id != my_id:
+        await ctx.send("Sorry you can't do that, ask moderator for permission.")
+        return
+
+    channel_id = get_channel_id(channel_name)
+    if channel_id is not None:
+        with open("files/subscribed_artists.txt", "a") as f:
+            f.write(channel_name + "\n")
+        await ctx.send(f"Registered {channel_name}")
+
+    else:
+        await ctx.send(f"Sorry, I didn't find {channel_name} corresponding id.")
+
+
+@bot.command(name='unsub')
+async def set_music_dict(ctx, channel_name):
+    channel_name = channel_name.strip().replace(" ", "")
+
+    if os.path.exists("files/subscribed_artists.txt"):
+        with open("files/subscribed_artists.txt", "r") as f:
+            artists = [a.strip() for a in f.readlines()]
+    else:
+        artists = []
+
+    if channel_name in artists:
+        await ctx.send(f"Removing {channel_name} from subscribed list")
+
+    else:
+        await ctx.send(f"{channel_name} wasn't in subscribed list")
+        return
+
+    artists.remove(channel_name)
+    artists.sort()
+
+    with open("files/subscribed_artists.txt", "w") as f:
+        for a in artists:
+            f.write(a + "\n")
+
+    await ctx.send(f"Done !")
 
 
 @bot.command(name='get')
@@ -95,14 +178,16 @@ async def get_all_musics_from(ctx, channel_name):
     await ctx.send(f"Done 😎")
 
 
-async def send_message_to_me(message):
-    for guild_id, user_id in subscribed_to_music.keys():
-        if user_id == int(id_file["my_id"]) and guild_id == int(id_file["guild_id"]):
-            user = bot.get_guild(guild_id).get_member(user_id)
+async def send_message_to_me(message, is_file=False):
+    user = bot.get_guild(int(id_file["guild_id"])).get_member(int(id_file["my_id"]))
 
-            await user.send(message)
+    if user:
+        if is_file:
+            await user.send(file=message)
         else:
-            print("[Error] Couldn't send mp to me")
+            await user.send(message)
+    else:
+        print("[Error] Couldn't send message to me")
 
 
 async def send_message_to_sub(message):

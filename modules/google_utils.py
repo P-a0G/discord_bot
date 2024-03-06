@@ -46,7 +46,7 @@ def get_first_youtube_response_url(search_string):
     return video_id_to_url(video_id)
 
 
-def get_channel_videos(channel_id, first_page=False):
+def get_channel_videos(channel_id, first_page=False, filter_by_duration=True):
     videos = []
     next_page_token = None
 
@@ -74,20 +74,40 @@ def get_channel_videos(channel_id, first_page=False):
         if first_page or not next_page_token:
             break
 
+    if filter_by_duration:
+        return [v for v in videos if is_duration_in_range(
+            get_video_duration(
+                v.get('id', {}).get('videoId', -1)
+            )
+        )]
+
     return videos
 
 
 def get_video_duration(video_id):
+    if video_id == -1:
+        return 0
+
     response = youtube.videos().list(
         part="contentDetails",
         id=video_id
     ).execute()
 
+    if not response:
+        return 0
+
+    if "items" not in response.keys():
+        return 0
+
     duration = response["items"][0]["contentDetails"]["duration"]
+
     return duration
 
 
 def is_duration_in_range(duration_str, min_minutes=2, max_minutes=6):
+    if isinstance(duration_str, int):
+        duration_str = str(duration_str)
+
     # Remove "PT" prefix
     duration_str = duration_str[2:]
 
