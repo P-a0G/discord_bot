@@ -137,7 +137,7 @@ def get_music_with_bs(soup, audio_file_path):
 
 def get_img_with_bs(soup):
     image_url = soup.find("meta", property="og:image")["content"]
-    print("image url:", image_url)
+    # print("image url:", image_url)
 
     return image_url
 
@@ -214,11 +214,11 @@ def add_metadata(file_path, title, artist, album, year, img=None):
 
     if audiofile is None:
         # If the automatic format detection fails, try specifying the format
-        print("\ttrying to specify format")
+        print("\tTrying to specify format")
         audiofile = eyed3.load(file_path, tag_version=eyed3.id3.ID3_V2_3)
 
     if audiofile is None:
-        print("\tFailed to load audio file.")
+        print("\t[Error] Failed to load audio file.")
         return None
 
     if audiofile.tag is None:
