@@ -24,6 +24,20 @@ def get_channel_id(channel_username):
         else:
             channel_id = None
 
+    if channel_id is None:
+        search_response = youtube.search().list(
+            q=channel_username,
+            part="id",
+            maxResults=1
+        ).execute()
+
+        try:
+            channel_id = search_response['items'][0]['id']['channelId']
+        except:
+            channel_id = None
+
+        if channel_id:
+            print("yeah got it!", channel_username, channel_id)
     return channel_id
 
 
@@ -159,12 +173,21 @@ def get_all_musics_from_channel(channel_id):
 
 
 if __name__ == '__main__':
-    # Example usage:
-    channel_id = get_channel_id("Martin Garrix")  # Martin Garrix's channel ID
+    # # Example usage:
+    # channel_id = get_channel_id("Martin Garrix")  # Martin Garrix's channel ID
+    #
+    # urls, titles = get_all_musics_from_channel(channel_id)
+    # if channel_id:
+    #     for i in range(len(titles)):
+    #         print(i, titles[i], urls[i])
 
-    urls, titles = get_all_musics_from_channel(channel_id)
-    if channel_id:
-        for i in range(len(titles)):
-            print(i, titles[i], urls[i])
+    # channel_id = "UC3ifTl5zKiCAhHIBQYcaTeg"  # proximity?
+    #
+    # videos = get_channel_videos(channel_id, first_page=True, filter_by_duration=True)
+    #
+    # for v in videos:
+    #     print("video:", v)
 
+
+    print(get_first_youtube_response_url("Proximity"))
 
