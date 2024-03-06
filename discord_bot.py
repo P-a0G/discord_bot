@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from modules.utils import read_json, is_valid_url, get_size
 from modules.music_utils import extract_from_url, delete_music
+from modules.google_utils import get_all_musics_from_channel, get_channel_id
 
 intents = discord.Intents.default()
 intents.members = True
@@ -33,6 +34,39 @@ async def set_music_dict(ctx):
         user = bot.get_guild(ctx.guild.id).get_member(ctx.author.id)
 
         await user.send("Music set done")
+
+
+@bot.command(name='get')
+async def get_all_musics_from(ctx, channel_name):
+    if ctx.author.id != my_id:
+        return
+
+    await ctx.send(f"Ok let's get a bunch of musics 😁")
+    channel_id = get_channel_id(channel_name)
+
+    urls, titles = get_all_musics_from_channel(channel_id)
+    await ctx.send(f"I found {len(urls)} musics!")
+    if channel_id:
+        for i in range(len(titles)):
+            try:
+                file_pth = extract_from_url(urls[i], add_tags=True)
+            except ValueError as e:
+                await ctx.send(f'\t\tSorry I couldn\'t get {titles[i]}')
+                await ctx.send(f'Error: {e}')
+                file_pth = None
+
+            if file_pth is None:
+                await ctx.send(f'\t\tSorry I couldn\'t get {titles[i]}')
+                continue
+
+            file_size = get_size(file_pth)
+            if file_size < 8:
+                file = discord.File(file_pth)
+                await ctx.send(file=file)
+
+            delete_music(file_pth)
+
+    await ctx.send(f"Done 😎")
 
 
 async def send_message_to_me(message):
@@ -99,6 +133,7 @@ async def on_message(message):
 
 if __name__ == '__main__':
     # token = read_json("files/tokens.json")["Flash_bot"]
+    my_id = int(id_file["my_id"])
     token = read_json("files/tokens.json")["debug"]
     bot.run(token)
 

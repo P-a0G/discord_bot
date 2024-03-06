@@ -1,9 +1,9 @@
 import googleapiclient.discovery
 from googleapiclient.errors import HttpError
-from utils import read_json
+from modules.utils import read_json
 
 # Set your API key
-api_key = read_json("../files/tokens.json")["google_debug"]
+api_key = read_json("./files/tokens.json")["google_debug"]
 
 # Set up the YouTube Data API client
 youtube = googleapiclient.discovery.build("youtube", "v3", developerKey=api_key)
@@ -46,11 +46,11 @@ def get_first_youtube_response_url(search_string):
     return video_id_to_url(video_id)
 
 
-def get_channel_videos(channel_id):
+def get_channel_videos(channel_id, first_page=False):
     videos = []
     next_page_token = None
 
-    while True:  # todo optimize
+    while True:
         try:
             response = youtube.search().list(
                 part="snippet",
@@ -71,7 +71,7 @@ def get_channel_videos(channel_id):
         videos.extend(response['items'])
         next_page_token = response.get('nextPageToken')
 
-        if not next_page_token:
+        if first_page or not next_page_token:
             break
 
     return videos
