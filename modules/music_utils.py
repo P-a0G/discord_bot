@@ -229,6 +229,8 @@ def add_metadata(file_path, title, artist, album, year, img=None):
 
     if album is not None:
         audiofile.tag.album = album
+    elif artist is not None:
+        audiofile.tag.album = artist
     if year is not None:
         audiofile.tag.year = year
 
