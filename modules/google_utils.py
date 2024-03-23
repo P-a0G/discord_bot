@@ -36,8 +36,6 @@ def get_channel_id(channel_username):
         except:
             channel_id = None
 
-        if channel_id:
-            print("yeah got it!", channel_username, channel_id)
     return channel_id
 
 
