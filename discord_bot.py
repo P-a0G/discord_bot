@@ -59,7 +59,7 @@ async def check_for_new_musics():
 
                 print("\t\tNew released video downloaded:", file_pth)
 
-                await send_message_to_me(f'New music from: {artist}')
+                await send_message_to_me(f'{video_url}')
 
                 await send_message_to_me(file, is_file=True)
 
