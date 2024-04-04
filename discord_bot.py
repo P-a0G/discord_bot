@@ -54,7 +54,7 @@ async def check_for_new_musics():
 
             if published_datetime > last_update:
                 video_url = video_id_to_url(video_id)
-                file_pth = extract_from_url(video_url, add_tags=True)
+                file_pth = extract_from_url(video_url, add_tags=True, album=artist)
                 file = discord.File(file_pth)
 
                 print("\t\tNew released video downloaded:", file_pth)
