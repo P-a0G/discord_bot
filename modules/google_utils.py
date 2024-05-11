@@ -58,12 +58,12 @@ def get_first_youtube_response_url(search_string):
     return video_id_to_url(video_id)
 
 
-def get_channel_videos(channel_id, first_page=False, filter_by_duration=True, n_max=5000):
+def get_channel_videos(channel_id, filter_by_duration=True, n_max=10):
     # Request the list of videos from the specified channel
     request = youtube.search().list(
         part='snippet',
         channelId=channel_id,
-        maxResults=50  # Adjust this as needed, maximum is 50
+        maxResults=n_max  # Adjust this as needed, maximum is 50
     )
 
     response = request.execute()
@@ -178,7 +178,7 @@ if __name__ == '__main__':
 
     # channel_id = "UC3ifTl5zKiCAhHIBQYcaTeg"  # proximity?
     #
-    # videos = get_channel_videos(channel_id, first_page=True, filter_by_duration=True)
+    # videos = get_channel_videos(channel_id, filter_by_duration=True)
     #
     # for v in videos:
     #     print("video:", v)
