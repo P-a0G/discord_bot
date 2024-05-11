@@ -58,38 +58,33 @@ def get_first_youtube_response_url(search_string):
     return video_id_to_url(video_id)
 
 
-def get_channel_videos(channel_id, first_page=False, filter_by_duration=True, n_max=50):
+def get_channel_videos(channel_id, first_page=False, filter_by_duration=True, n_max=5000):
+    # Request the list of videos from the specified channel
+    request = youtube.search().list(
+        part='snippet',
+        channelId=channel_id,
+        maxResults=50  # Adjust this as needed, maximum is 50
+    )
+
+    response = request.execute()
+
+    # Process the response to extract video details
     videos = []
-    next_page_token = None
-
-    while True:
-        try:
-            response = youtube.search().list(
-                part="snippet",
-                channelId=channel_id,
-                maxResults=100,  # Maximum results per page (can be adjusted)
-                order="date",  # Order by date published
-                pageToken=next_page_token
-            ).execute()
-
-        except HttpError as e:
-            error_reason = e._get_reason()
-            if "quota" in error_reason.lower():
-                print("API quota limit exceeded. Please try again later.")
-            else:
-                print("An error occurred:", error_reason)
-            break
-
-        videos.extend(response['items'])
-        next_page_token = response.get('nextPageToken')
-
-        if first_page or not next_page_token or len(videos) >= n_max:
-            break
+    for item in response['items']:
+        # print("item:", item)
+        title = item.get("snippet", {}).get("title")
+        video_id = item.get("id", {}).get("videoId")
+        if title is not None and video_id is not None:
+            video = {
+                'title': title,
+                'videoId': video_id
+            }
+            videos.append(video)
 
     if filter_by_duration:
         return [v for v in videos if is_duration_in_range(
             get_video_duration(
-                v.get('id', {}).get('videoId', -1)
+                v.get('videoId', -1)
             )
         )]
 
@@ -153,11 +148,13 @@ def get_all_musics_from_channel(channel_id):
     # Get the list of videos from the channel
     videos = get_channel_videos(channel_id, n_max=50)
 
+    if not videos:
+        return [], []
     # Print video information
     for i, video in enumerate(videos):
         try:
-            video_title = video['snippet']['title']
-            video_id = video['id']['videoId']
+            video_title = video['title']
+            video_id = video['videoId']
         except:
             continue
         duration = get_video_duration(video_id)
