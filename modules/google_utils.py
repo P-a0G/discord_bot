@@ -58,12 +58,13 @@ def get_first_youtube_response_url(search_string):
     return video_id_to_url(video_id)
 
 
-def get_channel_videos(channel_id, filter_by_duration=True, n_max=10):
+def get_channel_videos(artist_name, filter_by_duration=True, n_max=50):
     # Request the list of videos from the specified channel
     request = youtube.search().list(
+        q=artist_name,
         part='snippet',
-        channelId=channel_id,
-        maxResults=n_max  # Adjust this as needed, maximum is 50
+        maxResults=n_max,  # Adjust this as needed, maximum is 50
+        type='video'
     )
 
     response = request.execute()
@@ -71,13 +72,14 @@ def get_channel_videos(channel_id, filter_by_duration=True, n_max=10):
     # Process the response to extract video details
     videos = []
     for item in response['items']:
-        # print("item:", item)
         title = item.get("snippet", {}).get("title")
+        published_at = item.get("snippet", {}).get("publishedAt")
         video_id = item.get("id", {}).get("videoId")
         if title is not None and video_id is not None:
             video = {
                 'title': title,
-                'videoId': video_id
+                'videoId': video_id,
+                'publishedAt': published_at
             }
             videos.append(video)
 
@@ -141,12 +143,12 @@ def is_duration_in_range(duration_str, min_minutes=2, max_minutes=6):
     return min_minutes <= total_minutes <= max_minutes
 
 
-def get_all_musics_from_channel(channel_id):
+def get_all_musics_from_channel(artist_name):
     videos_urls = list()
     video_titles = list()
 
     # Get the list of videos from the channel
-    videos = get_channel_videos(channel_id, n_max=50)
+    videos = get_channel_videos(artist_name, n_max=50)
 
     if not videos:
         return [], []
