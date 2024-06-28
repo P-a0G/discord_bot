@@ -39,22 +39,21 @@ async def check_for_new_musics():
         return 1
 
     for artist in artists:
-        artist_id = get_channel_id(artist)
-        if artist_id is None:
-            print("Couldn't get id for", artist)
-            continue
-
-        videos = get_channel_videos(artist_id, first_page=True)
+        videos = get_channel_videos(artist)
 
         for v in videos:
-            video_id = v['id']['videoId']
-            published_at = v['snippet']['publishedAt']
+            video_id = v['videoId']
+            published_at = v['publishedAt']
 
             published_datetime = datetime.datetime.strptime(published_at, "%Y-%m-%dT%H:%M:%SZ")
 
             if published_datetime > last_update:
                 video_url = video_id_to_url(video_id)
                 file_pth = extract_from_url(video_url, add_tags=True, album=artist)
+                if not file_pth or not os.path.exists(file_pth):
+                    print("Didn't get", video_url)
+                    continue
+
                 file = discord.File(file_pth)
 
                 print("\t\tNew released video downloaded:", file_pth)
@@ -77,6 +76,8 @@ async def on_ready():
     await check_for_new_musics()
 
     print('Bot is ready to go!')
+
+    # await bot.close()
 
     # if not test_loop.is_running():
     #     test_loop.start()
@@ -153,29 +154,26 @@ async def get_all_musics_from(ctx, channel_name):
         return
 
     await ctx.send(f"Ok let's get a bunch of musics 😁")
-    channel_id = get_channel_id(channel_name)
-
-    urls, titles = get_all_musics_from_channel(channel_id)
+    urls, titles = get_all_musics_from_channel(channel_name)
     await ctx.send(f"I found {len(urls)} musics!")
-    if channel_id:
-        for i in range(len(titles)):
-            try:
-                file_pth = extract_from_url(urls[i], add_tags=True)
-            except ValueError as e:
-                await ctx.send(f'\t\tSorry I couldn\'t get {titles[i]}')
-                await ctx.send(f'Error: {e}')
-                file_pth = None
+    for i in range(len(titles)):
+        print("url:", urls[i])
+        try:
+            file_pth = extract_from_url(urls[i], add_tags=True)
+        except ValueError as e:
+            await ctx.send(f'Error: {e}')
+            file_pth = None
 
-            if file_pth is None:
-                await ctx.send(f'\t\tSorry I couldn\'t get {titles[i]}')
-                continue
+        if file_pth is None:
+            await ctx.send(f'\t\tSorry I couldn\'t get {titles[i]}')
+            continue
 
-            file_size = get_size(file_pth)
-            if file_size < 8:
-                file = discord.File(file_pth)
-                await ctx.send(file=file)
+        file_size = get_size(file_pth)
+        if file_size < 8:
+            file = discord.File(file_pth)
+            await ctx.send(file=file)
 
-            delete_music(file_pth)
+        delete_music(file_pth)
 
     await ctx.send(f"Done 😎")
 
@@ -243,6 +241,7 @@ async def on_message(message):
 #     if message.content.startswith("!"):
 #         await bot.process_commands(message)
 #     show_message_info(message)
+
 
 if __name__ == '__main__':
     # token = read_json("files/tokens.json")["Flash_bot"]
