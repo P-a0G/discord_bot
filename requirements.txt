@@ -10,7 +10,7 @@ ffmpeg
 eyed3~=0.9.7
 pytest~=8.0.1
 numpy~=1.26.4
-torch~=2.1.2
+torch~=2.2.0
 transformers~=4.42.3
 discord~=2.2.3
 python-dotenv~=1.0.1
