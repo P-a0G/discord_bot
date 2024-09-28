@@ -116,16 +116,18 @@ def get_img_with_bs(soup):
     return image_url
 
 
-def extract_from_url(url, output_dir=r"musics/", add_tags=True, album=None):
+def extract_from_url(url, output_dir=r"musics/", add_tags=True, auth=None):
     title, soup = extract_with_bs(url)
 
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
 
-    title, author, filename, year, alb = get_metadata(title, url)
+    title, author, filename, year, album = get_metadata(title, url)
 
-    if alb is not None:
-        album = alb
+    if album is None:
+        album = auth
+    if author is not None:
+        author = auth
 
     audio_file_path = os.path.join(output_dir, filename)
 
