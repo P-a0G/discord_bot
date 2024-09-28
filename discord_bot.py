@@ -159,7 +159,7 @@ async def get_all_musics_from(ctx, channel_name):
     for i in range(len(titles)):
         print("url:", urls[i])
         try:
-            file_pth = extract_from_url(urls[i], add_tags=True)
+            file_pth = extract_from_url(urls[i], add_tags=True, album=channel_name)
         except ValueError as e:
             await ctx.send(f'Error: {e}')
             file_pth = None

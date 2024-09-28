@@ -1,5 +1,4 @@
 import googleapiclient.discovery
-from googleapiclient.errors import HttpError
 from modules.utils import read_json
 
 # Set your API key

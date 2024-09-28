@@ -1,7 +1,6 @@
 import os
 import requests
 import logging
-import urllib.parse
 from bs4 import BeautifulSoup
 from pytube import YouTube
 from pytube.exceptions import VideoUnavailable
