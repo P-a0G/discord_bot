@@ -158,7 +158,7 @@ def get_all_musics_from_channel(artist_name):
     videos = get_channel_videos(artist_name, n_max=50)
 
     if not videos:
-        return [], []
+        return []
     # Print video information
     for i, video in enumerate(videos):
         if "title" not in video.keys() or "videoId" not in video.keys():
