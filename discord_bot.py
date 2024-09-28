@@ -149,12 +149,17 @@ async def set_music_dict(ctx, channel_name):
 
 
 @bot.command(name='get')
-async def get_all_musics_from(ctx, channel_name):
+async def get_all_musics_from(ctx, channel_name, n_max=10):
     if ctx.author.id != my_id:
         return
 
     await ctx.send(f"Ok let's get a bunch of musics 😁")
-    urls, titles = get_all_musics_from_channel(channel_name)
+    videos = get_all_musics_from_channel(channel_name)
+
+    videos = sorted(videos, key=lambda v: v["view_count"], reverse=True)[:n_max]
+
+    urls = [video["url"] for video in videos]
+    titles = [video["title"] for video in videos]
     await ctx.send(f"I found {len(urls)} musics!")
     for i in range(len(titles)):
         print("url:", urls[i])
@@ -171,6 +176,7 @@ async def get_all_musics_from(ctx, channel_name):
         file_size = get_size(file_pth)
         if file_size < 8:
             file = discord.File(file_pth)
+            await ctx.send(f"{channel_name}: {videos[i]['title']} - {'{:,}'.format(videos[i]['view_count']).replace(',', ' ')} views")
             await ctx.send(file=file)
 
         delete_music(file_pth)

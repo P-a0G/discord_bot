@@ -1,11 +1,17 @@
 import googleapiclient.discovery
 from modules.utils import read_json
+from pytube import YouTube
 
 # Set your API key
 api_key = read_json("./files/tokens.json")["google_debug"]
 
 # Set up the YouTube Data API client
 youtube = googleapiclient.discovery.build("youtube", "v3", developerKey=api_key)
+
+
+def get_view_nb(video_url):
+    yt = YouTube(video_url)
+    return yt.views
 
 
 def get_channel_id(channel_username):
@@ -15,7 +21,8 @@ def get_channel_id(channel_username):
     if channel_info["pageInfo"]["totalResults"] > 0:
         channel_id = channel_info["items"][0]["id"]
     else:
-        channel_info = youtube.channels().list(forUsername=channel_username.strip().replace(" ", ""), part="id").execute()
+        channel_info = youtube.channels().list(forUsername=channel_username.strip().replace(" ", ""),
+                                               part="id").execute()
 
         if channel_info["pageInfo"]["totalResults"] > 0:
             channel_id = channel_info["items"][0]["id"]
@@ -58,9 +65,11 @@ def get_first_youtube_response_url(search_string):
 
 
 def get_channel_videos(artist_name, filter_by_duration=True, n_max=50):
+    artist_id = get_channel_id(artist_name)
+
     # Request the list of videos from the specified channel
     request = youtube.search().list(
-        q=artist_name,
+        channelId=artist_id,  # q=artist_name  # for results based on regex
         part='snippet',
         maxResults=n_max,  # Adjust this as needed, maximum is 50
         type='video'
@@ -74,11 +83,13 @@ def get_channel_videos(artist_name, filter_by_duration=True, n_max=50):
         title = item.get("snippet", {}).get("title")
         published_at = item.get("snippet", {}).get("publishedAt")
         video_id = item.get("id", {}).get("videoId")
+        view_count = get_view_nb(video_id_to_url(video_id))
         if title is not None and video_id is not None:
             video = {
                 'title': title,
                 'videoId': video_id,
-                'publishedAt': published_at
+                'publishedAt': published_at,
+                'view_count': view_count
             }
             videos.append(video)
 
@@ -143,9 +154,6 @@ def is_duration_in_range(duration_str, min_minutes=2, max_minutes=6):
 
 
 def get_all_musics_from_channel(artist_name):
-    videos_urls = list()
-    video_titles = list()
-
     # Get the list of videos from the channel
     videos = get_channel_videos(artist_name, n_max=50)
 
@@ -153,19 +161,15 @@ def get_all_musics_from_channel(artist_name):
         return [], []
     # Print video information
     for i, video in enumerate(videos):
-        try:
-            video_title = video['title']
-            video_id = video['videoId']
-        except:
+        if "title" not in video.keys() or "videoId" not in video.keys():
             continue
-        duration = get_video_duration(video_id)
+        video["duration"] = get_video_duration(video['videoId'])
 
         # getting files between 2 and 6 min
-        if is_duration_in_range(duration):
-            video_titles.append(video_title)
-            videos_urls.append(video_id_to_url(video_id))
+        if is_duration_in_range(video["duration"]):
+            video["url"] = video_id_to_url(video['videoId'])
 
-    return videos_urls, video_titles
+    return videos
 
 
 if __name__ == '__main__':
@@ -184,6 +188,4 @@ if __name__ == '__main__':
     # for v in videos:
     #     print("video:", v)
 
-
-    print(get_first_youtube_response_url("Proximity"))
-
+    pass
