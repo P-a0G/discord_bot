@@ -64,18 +64,29 @@ def get_first_youtube_response_url(search_string):
     return video_id_to_url(video_id)
 
 
-def get_channel_videos(artist_name, filter_by_duration=True, n_max=50):
+def get_channel_videos(artist_name, filter_by_duration=True, n_max=50):  # todo add publishedAfter arg for daily update in youtube.search()
     artist_id = get_channel_id(artist_name)
 
     # Request the list of videos from the specified channel
     request = youtube.search().list(
-        channelId=artist_id,  # q=artist_name  # for results based on regex
+        channelId=artist_id,
         part='snippet',
         maxResults=n_max,  # Adjust this as needed, maximum is 50
         type='video'
     )
 
     response = request.execute()
+
+    if len(response['items']) == 0:
+        print(" > Didn't get musics with channel id, using q mode")
+        request = youtube.search().list(
+            q=artist_name,  # for results based on regex
+            part='snippet',
+            maxResults=n_max,
+            type='video'
+        )
+
+        response = request.execute()
 
     # Process the response to extract video details
     videos = []
@@ -173,13 +184,14 @@ def get_all_musics_from_channel(artist_name):
 
 
 if __name__ == '__main__':
-    # # Example usage:
-    # channel_id = get_channel_id("Martin Garrix")  # Martin Garrix's channel ID
-    #
-    # urls, titles = get_all_musics_from_channel(channel_id)
-    # if channel_id:
-    #     for i in range(len(titles)):
-    #         print(i, titles[i], urls[i])
+    # Example usage:
+    channel_id = get_channel_id("davidguetta")  # Martin Garrix's channel ID
+    print("channel id:", channel_id)
+
+    videos = get_all_musics_from_channel("davidguetta")
+    if channel_id:
+        for i, v in enumerate(videos):
+            print(i, v["title"], v["view_count"])
 
     # channel_id = "UC3ifTl5zKiCAhHIBQYcaTeg"  # proximity?
     #
