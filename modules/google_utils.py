@@ -16,32 +16,25 @@ def get_view_nb(video_url):
 
 def get_channel_id(channel_username):
     # Request channel information
-    channel_info = youtube.channels().list(forUsername=channel_username, part="id").execute()
-
-    if channel_info["pageInfo"]["totalResults"] > 0:
-        channel_id = channel_info["items"][0]["id"]
-    else:
-        channel_info = youtube.channels().list(forUsername=channel_username.strip().replace(" ", ""),
-                                               part="id").execute()
-
-        if channel_info["pageInfo"]["totalResults"] > 0:
-            channel_id = channel_info["items"][0]["id"]
-
-        else:
-            channel_id = None
-
-    if channel_id is None:
+    try:
         search_response = youtube.search().list(
             q=channel_username,
-            part="id",
-            maxResults=1
+            part="snippet",
+            maxResults=1,
+            type="channel"
         ).execute()
+    except HttpError as e:
+        # Check if the error code is 403 (Forbidden)
+        if e.resp.status == 403:
+            print(e)
+            raise PermissionError("Quota exceeded or permission denied.")
+        else:
+            raise  # Re-raise other exceptions if it's not a 403 error
 
-        try:
-            channel_id = search_response['items'][0]['id']['channelId']
-        except:
-            channel_id = None
+    channel_id = search_response.get('items', [{}])[0].get('id', {}).get('channelId', None)
 
+    if channel_id is None:
+        print(f"Didn't get id for '{channel_username}'")
     return channel_id
 
 
