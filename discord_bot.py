@@ -39,7 +39,7 @@ async def check_for_new_musics():
         return 1
 
     for artist in artists:
-        videos = get_channel_videos(artist)
+        videos = get_channel_videos(artist, last_update=last_update)
 
         for v in videos:
             video_id = v['videoId']
@@ -49,7 +49,7 @@ async def check_for_new_musics():
 
             if published_datetime > last_update:
                 video_url = video_id_to_url(video_id)
-                file_pth = extract_from_url(video_url, add_tags=True, album=artist)
+                file_pth = extract_from_url(video_url, add_tags=True, auth=artist)
                 if not file_pth or not os.path.exists(file_pth):
                     print("Didn't get", video_url)
                     continue

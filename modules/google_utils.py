@@ -64,21 +64,30 @@ def get_first_youtube_response_url(search_string):
     return video_id_to_url(video_id)
 
 
-def get_channel_videos(artist_name, filter_by_duration=True, n_max=50):  # todo add publishedAfter arg for daily update in youtube.search()
+def get_channel_videos(artist_name, filter_by_duration=True, n_max=50, last_update: "datetime"=None):
+    print(f" >>> Get {artist_name} <<<")
     artist_id = get_channel_id(artist_name)
 
-    # Request the list of videos from the specified channel
-    request = youtube.search().list(
-        channelId=artist_id,
-        part='snippet',
-        maxResults=n_max,  # Adjust this as needed, maximum is 50
-        type='video'
-    )
-
+    if last_update is not None:
+        # Request the list of videos from the specified channel
+        request = youtube.search().list(
+            channelId=artist_id,
+            part='snippet',
+            maxResults=n_max,  # Adjust this as needed, maximum is 50
+            type='video',
+            publishedAfter=last_update.isoformat() + 'Z',
+        )
+    else:
+        request = youtube.search().list(
+            channelId=artist_id,
+            part='snippet',
+            maxResults=n_max,  # Adjust this as needed, maximum is 50
+            type='video',
+        )
     response = request.execute()
 
-    if len(response['items']) == 0:
-        print(" > Didn't get musics with channel id, using q mode")
+    if last_update is None and len(response['items']) == 0:
+        print(f" > Didn't get musics with channel id, using q mode {artist_name}")
         request = youtube.search().list(
             q=artist_name,  # for results based on regex
             part='snippet',
@@ -129,7 +138,10 @@ def get_video_duration(video_id):
     if "items" not in response.keys():
         return 0
 
-    duration = response["items"][0]["contentDetails"]["duration"]
+    try:
+        duration = response["items"][0]["contentDetails"]["duration"]
+    except ValueError as e:
+        print(f"Error with: {video_id_to_url(video_id)}\n{e}")
 
     return duration
 
