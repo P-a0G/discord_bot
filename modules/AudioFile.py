@@ -157,7 +157,7 @@ class AudioFile:
         add_tags = True
         try:
             self.convert_webm_to_mp3()
-        except Exception as e:
+        except Exception:
             print("\t[Error] Couldn't convert webm to mp3")
             print("Didn't add tags")
             add_tags = False  # need file to be mp3 to add metadata

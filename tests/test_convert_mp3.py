@@ -1,5 +1,3 @@
-import pytest
-from context import blabla  # todo
 
 
 def test_get_music():  # todo

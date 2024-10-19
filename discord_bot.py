@@ -134,7 +134,7 @@ async def set_music_dict(ctx, channel_name):
         for a in artists:
             f.write(a + "\n")
 
-    await ctx.send(f"Done !")
+    await ctx.send("Done !")
 
 
 @bot.command(name='get')
@@ -142,7 +142,7 @@ async def get_all_musics_from(ctx, channel_name, n_max=10):
     if ctx.author.id != my_id:
         return
 
-    await ctx.send(f"Ok let's get a bunch of musics 😁")
+    await ctx.send("Ok let's get a bunch of musics 😁")
     musics = MusicChannel(channel_name).get_all()[:n_max]
 
     await ctx.send(f"I found {len(musics)} musics!")
@@ -158,7 +158,7 @@ async def get_all_musics_from(ctx, channel_name, n_max=10):
 
         audio_file.delete()
 
-    await ctx.send(f"Done 😎")
+    await ctx.send("Done 😎")
 
 
 async def send_message_to_me(message, is_file=False):
@@ -200,13 +200,13 @@ async def on_message(message):
         audio_file = extract_from_url(message.content)
 
         if audio_file.path is None:
-            await message.channel.send(f'\t\tSorry I couldn\'t get the music')
+            await message.channel.send('\t\tSorry I couldn\'t get the music')
             return
 
         await message.channel.send(f'\t\tFile saved locally, size = {audio_file.size}Mo')
 
         if audio_file.size > 8:
-            await message.channel.send(f'File is too large to be sent')
+            await message.channel.send('File is too large to be sent')
         else:
             file = discord.File(audio_file.path)
             await message.channel.send(file=file)
