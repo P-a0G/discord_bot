@@ -11,3 +11,11 @@ repos:
         args: [ "--fix=lf" ]
       - id: pretty-format-json
         args: [ "--autofix", "--no-ensure-ascii", "--no-sort-keys" ]
+
+  - repo: local
+    hooks:
+      - id: check-commit-message
+        name: Commitizen Conventional Commits Check
+        entry: cz check --commit-msg-file
+        language: system
+        stages: [ commit-msg ]
