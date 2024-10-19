@@ -1,5 +1,5 @@
-from modules.google_utils import execute_request, extract_from_url as extract_from_url_request
 from modules.AudioFile import AudioFile
+from modules.google_utils import execute_request, extract_from_url as extract_from_url_request
 from modules.utils import is_duration_in_range
 
 
@@ -48,7 +48,7 @@ class MusicChannel:
 
         return self.get_videos_from_request(response, order_by_views=True)
 
-    def get_last_update(self, last_update: "datetime"):
+    def get_last_update(self, last_update):  # last_update: datetime.datetime
         request_params = {
             'channelId': self.idx,
             'part': 'snippet',

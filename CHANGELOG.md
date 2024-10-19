@@ -11,7 +11,4 @@
 ### Fix
 
 - Fix channel_id request
-- Fix channel_id request
-- debug
-- debug
 - correct metadata

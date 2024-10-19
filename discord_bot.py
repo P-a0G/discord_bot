@@ -1,9 +1,11 @@
+import datetime
+import os
+
 import discord
 from discord.ext import commands
-from modules.utils import read_json, is_valid_url
+
 from modules.MusicChannel import MusicChannel, extract_from_url
-import os
-import datetime
+from modules.utils import read_json, is_valid_url
 
 intents = discord.Intents.default()
 intents.members = True
@@ -29,7 +31,7 @@ async def check_for_new_musics():
     try:
         with open("files/last_update.txt", "r") as f:
             last_update = datetime.datetime.strptime(f.read().strip(), "%Y-%m-%dT%H:%M:%SZ")
-    except:
+    except Exception:
         print("\t[Error] couldn't get last update")
         return 0
 
@@ -83,7 +85,7 @@ async def set_music_dict(ctx):
 
 
 @bot.command(name='sub')
-async def set_music_dict(ctx, channel_name):
+async def subscribe(ctx, channel_name):
     channel_name = channel_name.strip().replace(" ", "")
 
     if os.path.exists("files/subscribed_artists.txt"):
@@ -100,7 +102,7 @@ async def set_music_dict(ctx, channel_name):
         await ctx.send("Sorry you can't do that, ask moderator for permission.")
         return
 
-    channel_id = get_channel_id(channel_name)
+    channel_id = MusicChannel(channel_name).idx
     if channel_id is not None:
         with open("files/subscribed_artists.txt", "a") as f:
             f.write(channel_name + "\n")
@@ -111,7 +113,7 @@ async def set_music_dict(ctx, channel_name):
 
 
 @bot.command(name='unsub')
-async def set_music_dict(ctx, channel_name):
+async def unsubscribe(ctx, channel_name):
     channel_name = channel_name.strip().replace(" ", "")
 
     if os.path.exists("files/subscribed_artists.txt"):
