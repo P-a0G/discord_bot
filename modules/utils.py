@@ -2,7 +2,6 @@ import json
 import numpy as np
 import urllib.parse
 import logging
-import os
 
 logging.basicConfig(encoding='utf-8', level=logging.INFO)
 
@@ -31,7 +30,6 @@ def convert(o):
 
 
 def is_valid_url(url):
-    print("url?", url)
     # Parse the URL using urllib.parse
     parsed_url = urllib.parse.urlparse(url)
 
@@ -44,8 +42,34 @@ def is_valid_url(url):
         return 0
 
 
-def get_size(file_pth):
-    return round(os.path.getsize(file_pth) / 1048576, 2)
+def is_duration_in_range(duration_str, min_minutes=2, max_minutes=6):
+    if isinstance(duration_str, int):
+        duration_str = str(duration_str)
+
+    # Remove "PT" prefix
+    duration_str = duration_str[2:]
+
+    # Initialize variables
+    hours = 0
+    minutes = 0
+    seconds = 0
+
+    # Extract hours, minutes, and seconds
+    if 'H' in duration_str:
+        hours_str, duration_str = duration_str.split('H')
+        hours = int(hours_str)
+    if 'M' in duration_str:
+        minutes_str, duration_str = duration_str.split('M')
+        minutes = int(minutes_str)
+    if 'S' in duration_str:
+        seconds_str = duration_str.split('S')[0]
+        seconds = int(seconds_str)
+
+    # Calculate total duration in minutes
+    total_minutes = hours * 60 + minutes + seconds / 60
+
+    # Check if duration is within the range
+    return min_minutes <= total_minutes <= max_minutes
 
 
 def show_message_info(message):

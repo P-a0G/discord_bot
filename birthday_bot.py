@@ -1,10 +1,11 @@
-import os
-import discord
-from discord.ext import commands, tasks
-from modules.utils import read_json, write_json  #, show_message_info
 import datetime
+import os
 import random
 
+import discord
+from discord.ext import commands, tasks
+
+from modules.utils import read_json, write_json  # , show_message_info
 
 intents = discord.Intents.default()
 intents.members = True
@@ -41,7 +42,7 @@ async def birthday_check():
                 try:
                     user_id_or_name = int(user_id_or_name)
                     user = bot.get_guild(int(guild_id)).get_member(user_id_or_name)
-                except:
+                except Exception:
                     user = None
 
                 if user:
@@ -116,7 +117,7 @@ async def register_birthday(ctx, birthday_date, user=None):
             datetime.datetime(2000, mounth, day)
         else:
             datetime.datetime(year, mounth, day)
-    except:
+    except Exception:
         await ctx.send("Date incorrecte, utiliser: '!set birthday DD/MM/YYYY'.")
         return
 
@@ -187,7 +188,7 @@ async def show_all(ctx):
         for user_id_or_name, birthday_date in anniversaries[guild_id].items():
             try:
                 user = bot.get_guild(int(guild_id)).get_member(int(user_id_or_name))
-            except:
+            except Exception:
                 user = None
 
             if user:

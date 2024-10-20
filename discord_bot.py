@@ -1,10 +1,11 @@
+import datetime
+import os
+
 import discord
 from discord.ext import commands
-from modules.utils import read_json, is_valid_url, get_size
-from modules.music_utils import extract_from_url, delete_music
-from modules.google_utils import get_channel_id, get_all_musics_from_channel, get_channel_videos, video_id_to_url
-import os
-import datetime
+
+from modules.MusicChannel import MusicChannel, extract_from_url
+from modules.utils import read_json, is_valid_url
 
 intents = discord.Intents.default()
 intents.members = True
@@ -30,7 +31,7 @@ async def check_for_new_musics():
     try:
         with open("files/last_update.txt", "r") as f:
             last_update = datetime.datetime.strptime(f.read().strip(), "%Y-%m-%dT%H:%M:%SZ")
-    except:
+    except Exception:
         print("\t[Error] couldn't get last update")
         return 0
 
@@ -39,30 +40,20 @@ async def check_for_new_musics():
         return 1
 
     for artist in artists:
-        videos = get_channel_videos(artist, last_update=last_update)
+        videos = MusicChannel(artist).get_last_update(last_update=last_update)
 
         for v in videos:
-            video_id = v['videoId']
-            published_at = v['publishedAt']
+            if not v.path or not os.path.exists(v.path):
+                print("Didn't get", v.url)
+                continue
 
-            published_datetime = datetime.datetime.strptime(published_at, "%Y-%m-%dT%H:%M:%SZ")
+            file = discord.File(v.path)
+            print("\t\tNew released video downloaded:", v.path)
 
-            if published_datetime > last_update:
-                video_url = video_id_to_url(video_id)
-                file_pth = extract_from_url(video_url, add_tags=True, auth=artist)
-                if not file_pth or not os.path.exists(file_pth):
-                    print("Didn't get", video_url)
-                    continue
+            await send_message_to_me(f'{v.url}')
+            await send_message_to_me(file, is_file=True)
 
-                file = discord.File(file_pth)
-
-                print("\t\tNew released video downloaded:", file_pth)
-
-                await send_message_to_me(f'{video_url}')
-
-                await send_message_to_me(file, is_file=True)
-
-                # delete_music(file_pth)
+            v.delete()
 
     print("[Update done]")
     current_datetime = datetime.datetime.now()
@@ -94,7 +85,7 @@ async def set_music_dict(ctx):
 
 
 @bot.command(name='sub')
-async def set_music_dict(ctx, channel_name):
+async def subscribe(ctx, channel_name):
     channel_name = channel_name.strip().replace(" ", "")
 
     if os.path.exists("files/subscribed_artists.txt"):
@@ -111,7 +102,7 @@ async def set_music_dict(ctx, channel_name):
         await ctx.send("Sorry you can't do that, ask moderator for permission.")
         return
 
-    channel_id = get_channel_id(channel_name)
+    channel_id = MusicChannel(channel_name).idx
     if channel_id is not None:
         with open("files/subscribed_artists.txt", "a") as f:
             f.write(channel_name + "\n")
@@ -122,7 +113,7 @@ async def set_music_dict(ctx, channel_name):
 
 
 @bot.command(name='unsub')
-async def set_music_dict(ctx, channel_name):
+async def unsubscribe(ctx, channel_name):
     channel_name = channel_name.strip().replace(" ", "")
 
     if os.path.exists("files/subscribed_artists.txt"):
@@ -145,7 +136,7 @@ async def set_music_dict(ctx, channel_name):
         for a in artists:
             f.write(a + "\n")
 
-    await ctx.send(f"Done !")
+    await ctx.send("Done !")
 
 
 @bot.command(name='get')
@@ -153,35 +144,23 @@ async def get_all_musics_from(ctx, channel_name, n_max=10):
     if ctx.author.id != my_id:
         return
 
-    await ctx.send(f"Ok let's get a bunch of musics 😁")
-    videos = get_all_musics_from_channel(channel_name)
+    await ctx.send("Ok let's get a bunch of musics 😁")
+    musics = MusicChannel(channel_name).get_all()[:n_max]
 
-    videos = sorted(videos, key=lambda v: v["view_count"], reverse=True)[:n_max]
-
-    urls = [video["url"] for video in videos]
-    titles = [video["title"] for video in videos]
-    await ctx.send(f"I found {len(urls)} musics!")
-    for i in range(len(titles)):
-        print("url:", urls[i])
-        try:
-            file_pth = extract_from_url(urls[i], add_tags=True, auth=channel_name)
-        except ValueError as e:
-            await ctx.send(f'Error: {e}')
-            file_pth = None
-
-        if file_pth is None:
-            await ctx.send(f'\t\tSorry I couldn\'t get {titles[i]}')
+    await ctx.send(f"I found {len(musics)} musics!")
+    for audio_file in musics:
+        if audio_file.path is None:
+            await ctx.send(f'\t\tSorry I couldn\'t get {audio_file.title}')
             continue
 
-        file_size = get_size(file_pth)
-        if file_size < 8:
-            file = discord.File(file_pth)
-            await ctx.send(f"{channel_name}: {videos[i]['title']} - {'{:,}'.format(videos[i]['view_count']).replace(',', ' ')} views")
+        if audio_file.size < 8:
+            file = discord.File(audio_file.path)
+            await ctx.send(f"{channel_name}: {audio_file.title} - {'{:,}'.format(audio_file.view_count).replace(',', ' ')} views")
             await ctx.send(file=file)
 
-        delete_music(file_pth)
+        audio_file.delete()
 
-    await ctx.send(f"Done 😎")
+    await ctx.send("Done 😎")
 
 
 async def send_message_to_me(message, is_file=False):
@@ -220,27 +199,21 @@ async def on_message(message):
     if is_valid_url(message.content):
         await message.channel.send('Downloading file to mp3....')
 
-        try:
-            file_pth = extract_from_url(message.content, add_tags=True)
-        except ValueError as e:
-            await message.channel.send(f'\t\tSorry I couldn\'t get the music')
-            await message.channel.send(f'Error: {e}')
-            file_pth = None
+        audio_file = extract_from_url(message.content)
 
-        if file_pth is None:
-            await message.channel.send(f'\t\tSorry I couldn\'t get the music')
+        if audio_file.path is None:
+            await message.channel.send('\t\tSorry I couldn\'t get the music')
             return
 
-        file_size = get_size(file_pth)
-        await message.channel.send(f'\t\tFile saved locally, size = {file_size}Mo')
+        await message.channel.send(f'\t\tFile saved locally, size = {audio_file.size}Mo')
 
-        if file_size > 8:
-            await message.channel.send(f'File is too large to be sent')
+        if audio_file.size > 8:
+            await message.channel.send('File is too large to be sent')
         else:
-            file = discord.File(file_pth)
+            file = discord.File(audio_file.path)
             await message.channel.send(file=file)
 
-        delete_music(file_pth)
+            audio_file.delete()
 
 # @bot.event
 # async def on_message(message):
