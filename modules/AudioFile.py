@@ -1,10 +1,12 @@
-import requests
 import os
+
 import eyed3
+import requests
 from eyed3.id3.frames import ImageFrame
+from moviepy.editor import AudioFileClip
 from pytube import YouTube
 from pytube.exceptions import VideoUnavailable
-from moviepy.editor import AudioFileClip
+
 from modules.google_utils import execute_request, execute_request_video
 
 
@@ -91,7 +93,6 @@ class AudioFile:
         return self._size
 
     def download_audio(self):
-        print("trying to download audio", self.url)
         try:
             audio_streams = self.yt.streams.filter(only_audio=True, mime_type="audio/webm")
             if not audio_streams:
@@ -101,7 +102,7 @@ class AudioFile:
             print(f"Video {self.url} is unavailable.")
             return 0
         except Exception as e:
-            print(f' >> Error trying to get audio_streams: {e}')
+            print(f' >> Error trying to get audio_streams: {e} url: {self.url}')
             return 0
 
         best_audio = audio_streams[-1]
