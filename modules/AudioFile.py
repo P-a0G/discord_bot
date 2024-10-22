@@ -13,7 +13,7 @@ from modules.google_utils import execute_request, execute_request_video
 class AudioFile:
     def __init__(self, item, artist: str, output_dir=r"musics/"):
         # todo add logger
-        self.idx = item.get("id", {}).get("videoId") or item.get("id")
+        self.idx = item.get("id") if isinstance(item.get("id"), str) else item.get("id", {}).get("videoId")
         self.url = "https://www.youtube.com/watch?v=" + str(self.idx)
         self.title = self.convert_title(item.get("snippet", {}).get("title"))
         self.year = int((item.get("snippet", {}).get("publishedAt"))[:4])
