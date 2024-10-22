@@ -12,3 +12,4 @@ numpy~=1.26.4
 # transformers~=4.42.3
 discord~=2.2.3
 python-dotenv~=1.0.1
+google-api-python-client
