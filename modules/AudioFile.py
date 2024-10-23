@@ -4,7 +4,7 @@ import eyed3
 import requests
 from eyed3.id3.frames import ImageFrame
 from moviepy.editor import AudioFileClip
-from pytube import YouTube
+from pytubefix import YouTube
 from pytube.exceptions import VideoUnavailable
 
 from modules.google_utils import execute_request, execute_request_video
@@ -92,11 +92,12 @@ class AudioFile:
             self._size = round(os.path.getsize(self.path) / 1048576, 2)
         return self._size
 
-    def download_audio(self):
+    def download_audio(self, output_dir=r"musics/"):
         try:
             audio_streams = self.yt.streams.filter(only_audio=True, mime_type="audio/webm")
             if not audio_streams:
                 print("No audio streams found.")
+                return 0
 
         except VideoUnavailable:
             print(f"Video {self.url} is unavailable.")
@@ -107,7 +108,9 @@ class AudioFile:
 
         best_audio = audio_streams[-1]
 
-        best_audio.download(filename=self.path)
+        best_audio.download(output_path=output_dir ,filename=self.title + ".webm")
+
+        self.path = os.path.join(output_dir, self.title + ".webm")
 
         print(f' >> File saved in {self.path}')
 
@@ -146,13 +149,10 @@ class AudioFile:
                 f.write(";".join([str(e) for e in [self.title, self.artist, self.album, self.year, self.image is None, self.url]]) + "\n")
 
     def download(self, output_dir=r"musics/"):
-        self.path = os.path.join(output_dir, self.title + ".webm")
-
         got_music = self.download_audio()
 
         if not got_music:
             print("[Error] couldn't get the music")
-            self.path = None
             return None
 
         add_tags = True
