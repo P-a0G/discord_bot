@@ -2,10 +2,11 @@ import os
 
 import eyed3
 import requests
+from bs4 import BeautifulSoup
 from eyed3.id3.frames import ImageFrame
 from moviepy.editor import AudioFileClip
-from pytubefix import YouTube
 from pytube.exceptions import VideoUnavailable
+from pytubefix import YouTube
 
 from modules.google_utils import execute_request, execute_request_video
 
@@ -18,7 +19,8 @@ class AudioFile:
         self.title = self.convert_title(item.get("snippet", {}).get("title"))
         self.year = int((item.get("snippet", {}).get("publishedAt"))[:4])
         self.artist = artist if artist else item.get('snippet', {}).get('channelTitle')
-        self.image_url = item.get('snippet', {}).get('thumbnails', {}).get('default', {}).get('url')
+        self.image_url = self.get_img_url() or item.get('snippet', {}).get('thumbnails', {}).get('default', {}).get(
+            'url')
         self.path = None
         self._size = 0
         self._album = None
@@ -73,6 +75,17 @@ class AudioFile:
         if self._album is None:
             self._album = self.artist
         return self._album
+
+    def get_img_url(self):
+        response = requests.get(self.url)
+        if response.status_code != 200:
+            print(f"\t\tDidn't get high quality image")
+            return None
+        html_content = response.text
+        soup = BeautifulSoup(html_content, "html.parser")
+        image_url = soup.find("meta", property="og:image")["content"]
+
+        return image_url
 
     @property
     def image(self):
