@@ -79,7 +79,7 @@ class AudioFile:
     def get_img_url(self):
         response = requests.get(self.url)
         if response.status_code != 200:
-            print(f"\t\tDidn't get high quality image")
+            print("\t\tDidn't get high quality image")
             return None
         html_content = response.text
         soup = BeautifulSoup(html_content, "html.parser")
