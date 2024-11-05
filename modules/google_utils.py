@@ -1,5 +1,8 @@
+import re
+
 import googleapiclient.discovery
 from googleapiclient.errors import HttpError
+
 from modules.utils import read_json
 
 api_key = read_json("./files/tokens.json")["google_debug"]
@@ -30,8 +33,14 @@ def execute_request_video(request_params):
             raise
 
 
+def get_video_id(url):
+    # Regular expression to match video IDs in both URL formats
+    match = re.search(r"(?:v=|\/)([0-9A-Za-z_-]{11})", url)
+    return match.group(1) if match else None
+
+
 def extract_from_url(url):
-    video_id = url.split("v=")[-1].split("&")[0]  # Handles standard URL format
+    video_id = get_video_id(url)
 
     response = youtube.videos().list(
         part='snippet',
