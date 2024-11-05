@@ -1,3 +1,18 @@
+## 1.1.1 (2024-11-05)
+
+### Fix
+
+- update id extraction from url
+- handling errors
+- couldn't download some musics
+- couldn't download some musics
+- fix error with private message convertor
+
+### Refactor
+
+- bring back high quality image metadata
+- bring back high quality image metadata
+
 ## 1.1.0 (2024-10-19)
 
 ### Feat
