@@ -72,6 +72,14 @@ class MusicChannel:
 
 
 def extract_from_url(url):
-    audio_file = AudioFile(extract_from_url_request(url)["items"][0], "")
+    response = extract_from_url_request(url)
+    if len(response["items"]) == 0:
+        print(f"Error couldn't get {url}")
+        return AudioFile({}, "")
+    audio_file = AudioFile(response["items"][0], "")
     return audio_file
 
+
+if __name__ == '__main__':
+    url = ""
+    extract_from_url(url)

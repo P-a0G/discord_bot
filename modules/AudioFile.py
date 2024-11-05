@@ -17,25 +17,28 @@ class AudioFile:
         self.idx = item.get("id") if isinstance(item.get("id"), str) else item.get("id", {}).get("videoId")
         self.url = "https://www.youtube.com/watch?v=" + str(self.idx)
         self.title = self.convert_title(item.get("snippet", {}).get("title"))
-        self.year = int((item.get("snippet", {}).get("publishedAt"))[:4])
-        self.artist = artist if artist else item.get('snippet', {}).get('channelTitle')
+        self.year = int((item.get("snippet", {}).get("publishedAt", "0000"))[:4])
+        self.artist = artist if artist else item.get('snippet', {}).get('channelTitle', None)
         self.image_url = self.get_img_url() or item.get('snippet', {}).get('thumbnails', {}).get('default', {}).get(
-            'url')
+            'url', None)
         self.path = None
         self._size = 0
         self._album = None
         self._image = None
         self._duration = None
         self._view_count = None
-        self.yt = YouTube(self.url)
+        self.yt = YouTube(self.url) if self.idx is not None else None
 
-        self.download(output_dir=output_dir)
+        if self.idx is not None:
+            self.download(output_dir=output_dir)
 
     def __repr__(self):
         return f"AudioFile(title='{self.title}', artist='{self.artist}', album='{self.album}', year={self.year})"
 
     @staticmethod
     def convert_title(title):
+        if title is None:
+            return None
         chars_to_remove = "\\/:*?\"<>|\',"
         for c in chars_to_remove:
             title = title.replace(c, "")
@@ -77,6 +80,8 @@ class AudioFile:
         return self._album
 
     def get_img_url(self):
+        if self.idx is None:
+            return None
         response = requests.get(self.url)
         if response.status_code != 200:
             print("\t\tDidn't get high quality image")
