@@ -1,3 +1,9 @@
+## 1.1.2 (2024-11-06)
+
+### Fix
+
+- heartbeat blocked warning
+
 ## 1.1.1 (2024-11-05)
 
 ### Fix
