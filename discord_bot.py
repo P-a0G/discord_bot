@@ -1,5 +1,7 @@
+import asyncio
 import datetime
 import os
+from concurrent.futures import ThreadPoolExecutor
 
 import discord
 from discord.ext import commands
@@ -139,13 +141,18 @@ async def unsubscribe(ctx, channel_name):
     await ctx.send("Done !")
 
 
+executor = ThreadPoolExecutor()
+
+
 @bot.command(name='get')
 async def get_all_musics_from(ctx, channel_name, n_max=10):
     if ctx.author.id != my_id:
         return
 
     await ctx.send("Ok let's get a bunch of musics 😁")
-    musics = MusicChannel(channel_name).get_all()[:n_max]
+    loop = asyncio.get_event_loop()
+    musics = await loop.run_in_executor(executor, MusicChannel(channel_name).get_all)
+    musics = musics[:n_max]
 
     await ctx.send(f"I found {len(musics)} musics!")
     for audio_file in musics:
@@ -155,7 +162,8 @@ async def get_all_musics_from(ctx, channel_name, n_max=10):
 
         if audio_file.size < 8:
             file = discord.File(audio_file.path)
-            await ctx.send(f"{channel_name}: {audio_file.title} - {'{:,}'.format(audio_file.view_count).replace(',', ' ')} views")
+            await ctx.send(
+                f"{channel_name}: {audio_file.title} - {'{:,}'.format(audio_file.view_count).replace(',', ' ')} views")
             await ctx.send(file=file)
 
         audio_file.delete()
