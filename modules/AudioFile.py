@@ -26,7 +26,7 @@ class AudioFile:
         self._album = None
         self._image = None
         self._duration = None
-        self._view_count = None
+        self._view_count = None if "statistics" not in item else int(item.get("statistics", {}).get("viewCount", None))
         self.yt = YouTube(self.url) if self.idx is not None else None
 
         if self.idx is not None:
@@ -59,7 +59,7 @@ class AudioFile:
                 response = execute_request_video(request_params)
 
                 self._view_count = int(response['items'][0]['statistics']['viewCount'])
-            except:
+            except Exception:
                 self._view_count = 0
                 print("\t[Error] Couldn't get view count")
         return self._view_count
@@ -204,3 +204,14 @@ class AudioFile:
             os.remove(webm_path)
 
         self.path = None
+
+
+if __name__ == '__main__':
+    idx = "IYzSVlTNucs"
+    request_params = {
+        'part': "snippet, statistics",
+        'id': idx
+    }
+    response = execute_request_video(request_params)
+
+    print(response)

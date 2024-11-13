@@ -41,7 +41,8 @@ class MusicChannel:
             'channelId': self.idx,
             'part': "snippet",
             'maxResults': self.n_max_get,
-            'type': "video"
+            'type': "video",
+            'order': "viewCount"
         }
 
         response = execute_request(request_params)
@@ -83,3 +84,5 @@ def extract_from_url(url):
 if __name__ == '__main__':
     url = ""
     extract_from_url(url)
+
+    MusicChannel("Avicii").get_all()
