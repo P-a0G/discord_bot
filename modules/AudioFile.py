@@ -8,7 +8,7 @@ from moviepy.editor import AudioFileClip
 from pytube.exceptions import VideoUnavailable
 from pytubefix import YouTube
 
-from modules.google_utils import execute_request, execute_request_video
+from modules.google_utils import execute_request_video
 
 
 class AudioFile:
@@ -55,9 +55,13 @@ class AudioFile:
                 'part': "statistics",
                 'id': self.idx
             }
-            response = execute_request(request_params)
+            try:
+                response = execute_request_video(request_params)
 
-            self._view_count = int(response['items'][0]['statistics']['viewCount'])
+                self._view_count = int(response['items'][0]['statistics']['viewCount'])
+            except:
+                self._view_count = 0
+                print("\t[Error] Couldn't get view count")
         return self._view_count
 
     @property
