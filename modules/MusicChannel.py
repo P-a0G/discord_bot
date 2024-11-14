@@ -40,12 +40,17 @@ class MusicChannel:
         request_params = {
             'channelId': self.idx,
             'part': "snippet",
-            'maxResults': self.n_max_get,
+            'maxResults': self.n_max_get // 2,
             'type': "video",
-            'order': "viewCount"
+            'order': "viewCount",
+            'videoDuration': 'medium'
         }
 
         response = execute_request(request_params)
+
+        request_params['videoDuration'] = 'short'
+
+        response['items'] += execute_request(request_params)['items']
 
         return self.get_videos_from_request(response, order_by_views=True)
 
@@ -61,15 +66,11 @@ class MusicChannel:
 
         response = execute_request(request_params)
 
-        files = [f for f in self.get_videos_from_request(response) if is_duration_in_range(f.duration)]
-
         request_params['videoDuration'] = 'medium'
 
-        response = execute_request(request_params)
+        response['items'] += execute_request(request_params)["items"]
 
-        files += [f for f in self.get_videos_from_request(response) if is_duration_in_range(f.duration)]
-
-        return files
+        return [f for f in self.get_videos_from_request(response) if is_duration_in_range(f.duration)]
 
 
 def extract_from_url(url):

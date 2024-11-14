@@ -30,7 +30,7 @@ class AudioFile:
         self.yt = YouTube(self.url) if self.idx is not None else None
 
         if self.idx is not None:
-            self.download(output_dir=output_dir)
+            self.download(output_dir=output_dir)  # todo block download when getting all musics from channel and download only when needed
 
     def __repr__(self):
         return f"AudioFile(title='{self.title}', artist='{self.artist}', album='{self.album}', year={self.year})"
