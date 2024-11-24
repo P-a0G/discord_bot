@@ -136,7 +136,7 @@ class AudioFile:
 
         best_audio.download(output_path=output_dir, filename=self.title + ".webm")
 
-        self.path = os.path.join(output_dir, self.title + ".webm")
+        self._path = os.path.join(output_dir, self.title + ".webm")
 
         print(f' >> File saved in {self.path}')
 
@@ -146,7 +146,7 @@ class AudioFile:
         output_path = self.path.replace(".webm", ".mp3")
         audio = AudioFileClip(self.path)
         audio.write_audiofile(output_path)
-        self.path = output_path
+        self._path = output_path
 
     def add_metadata(self):
         audiofile = eyed3.load(self.path)
