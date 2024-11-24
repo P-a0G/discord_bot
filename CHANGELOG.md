@@ -1,3 +1,9 @@
+## 1.1.9 (2024-11-24)
+
+### Fix
+
+- handling m4a files instead of webm files
+
 ## 1.1.8 (2024-11-24)
 
 ### Fix
