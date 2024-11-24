@@ -139,7 +139,7 @@ class AudioFile:
             self._path = None
             return 0
 
-        print(f' >> File saved in {self.path}')
+        print(f' >> File saved in {self._path}')
 
         return 1
 
