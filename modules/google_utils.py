@@ -15,8 +15,8 @@ def execute_request(request_params):
         return response
     except HttpError as e:
         if e.resp.status == 403:
-            print(e)
-            raise PermissionError("Quota exceeded or permission denied.")
+            print("Quota exceeded or permission denied.")
+            return {}
         else:
             raise
 

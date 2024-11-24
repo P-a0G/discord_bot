@@ -48,9 +48,12 @@ class MusicChannel:
 
         response = execute_request(request_params)
 
+        if response == {}:
+            return []
+
         request_params['videoDuration'] = 'short'
 
-        response['items'] += execute_request(request_params)['items']
+        response['items'] += execute_request(request_params).get('items', [])
 
         return self.get_videos_from_request(response, order_by_views=True)
 
@@ -66,16 +69,19 @@ class MusicChannel:
 
         response = execute_request(request_params)
 
+        if response == {}:
+            return []
+
         request_params['videoDuration'] = 'medium'
 
-        response['items'] += execute_request(request_params)["items"]
+        response['items'] += execute_request(request_params).get('items', [])
 
         return [f for f in self.get_videos_from_request(response) if is_duration_in_range(f.duration)]
 
 
 def extract_from_url(url):
     response = extract_from_url_request(url)
-    if len(response["items"]) == 0:
+    if len(response.get("items", 0)) == 0:
         print(f"Error couldn't get {url}")
         return AudioFile({}, "")
     audio_file = AudioFile(response["items"][0], "")
