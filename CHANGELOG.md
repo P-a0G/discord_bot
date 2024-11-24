@@ -1,3 +1,10 @@
+## 1.1.4 (2024-11-24)
+
+### Refactor
+
+- download at the end
+- get all now uses video duration to avoid long answer time
+
 ## 1.1.3 (2024-11-13)
 
 ### Fix
