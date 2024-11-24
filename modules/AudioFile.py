@@ -208,7 +208,7 @@ class AudioFile:
         if os.path.exists(webm_path):
             os.remove(webm_path)
 
-        self.path = None
+        self._path = None
 
 
 if __name__ == '__main__':
