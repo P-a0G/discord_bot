@@ -184,7 +184,7 @@ class AudioFile:
 
         add_tags = True
         try:
-            self.convert_audio_to_mp3(extension=self._path.split(".")[-1])
+            self.convert_audio_to_mp3(extension="." + self._path.split(".")[-1])
         except Exception as e:
             print(e)
             print("\t[Error] Couldn't convert webm to mp3")
