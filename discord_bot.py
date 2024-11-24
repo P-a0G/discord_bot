@@ -202,7 +202,7 @@ async def on_message(message):
     if is_valid_url(message.content):
         await message.channel.send('Downloading file to mp3....')
         loop = asyncio.get_event_loop()
-        audio_file = await loop.run_in_executor(executor, extract_from_url(message.content))
+        audio_file = await loop.run_in_executor(executor, extract_from_url, message.content)
 
         if audio_file.path is None:
             await message.channel.send('\t\tSorry I couldn\'t get the music')
