@@ -1,3 +1,13 @@
+## 1.1.10 (2024-11-24)
+
+### Fix
+
+- handling quota exceeded
+
+### Refactor
+
+- don't request to add artist
+
 ## 1.1.9 (2024-11-24)
 
 ### Fix
