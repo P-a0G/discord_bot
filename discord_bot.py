@@ -104,14 +104,9 @@ async def subscribe(ctx, channel_name):
         await ctx.send("Sorry you can't do that, ask moderator for permission.")
         return
 
-    channel_id = MusicChannel(channel_name).idx
-    if channel_id is not None:
-        with open("files/subscribed_artists.txt", "a") as f:
-            f.write(channel_name + "\n")
-        await ctx.send(f"Registered {channel_name}")
-
-    else:
-        await ctx.send(f"Sorry, I didn't find {channel_name} corresponding id.")
+    with open("files/subscribed_artists.txt", "a") as f:
+        f.write(channel_name + "\n")
+    await ctx.send(f"Registered {channel_name}")
 
 
 @bot.command(name='unsub')
@@ -206,8 +201,8 @@ async def on_message(message):
 
     if is_valid_url(message.content):
         await message.channel.send('Downloading file to mp3....')
-
-        audio_file = extract_from_url(message.content)
+        loop = asyncio.get_event_loop()
+        audio_file = await loop.run_in_executor(executor, extract_from_url, message.content)
 
         if audio_file.path is None:
             await message.channel.send('\t\tSorry I couldn\'t get the music')

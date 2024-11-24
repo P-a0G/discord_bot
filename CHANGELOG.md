@@ -1,31 +1,12 @@
-## 1.1.8 (2024-11-24)
-
-### Fix
-
-- handle quota exceeded errors
-
-## 1.1.7 (2024-11-24)
-
-### Fix
-
-- fix path
-
-## 1.1.6 (2024-11-24)
-
-### Fix
-
-- fix path
-
-## 1.1.5 (2024-11-24)
-
-### Fix
-
-- fix path
-
 ## 1.1.4 (2024-11-24)
 
-### Refactor
+### Fix
 
+- fix file extension
+- async call for solo converting
+- handling quota exceeded
+- don't request to add artist
+- handling m4a files instead of webm files
 - download at the end
 - get all now uses video duration to avoid long answer time
 

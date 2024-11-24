@@ -81,10 +81,11 @@ class MusicChannel:
 
 def extract_from_url(url):
     response = extract_from_url_request(url)
-    if len(response.get("items", 0)) == 0:
+    if len(response.get("items", [])) == 0:
         print(f"Error couldn't get {url}")
         return AudioFile({}, "")
     audio_file = AudioFile(response["items"][0], "")
+    audio_file.download()
     return audio_file
 
 
