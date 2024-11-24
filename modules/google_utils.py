@@ -27,8 +27,8 @@ def execute_request_video(request_params):
         return response
     except HttpError as e:
         if e.resp.status == 403:
-            print(e)
-            raise PermissionError("Quota exceeded or permission denied.")
+            print("Quota exceeded or permission denied.")
+            return {}
         else:
             raise
 
@@ -42,11 +42,17 @@ def get_video_id(url):
 def extract_from_url(url):
     video_id = get_video_id(url)
 
-    response = youtube.videos().list(
-        part='snippet',
-        id=video_id
-    ).execute()
-
+    try:
+        response = youtube.videos().list(
+            part='snippet',
+            id=video_id
+        ).execute()
+    except HttpError as e:
+        if e.resp.status == 403:
+            print("Quota exceeded or permission denied.")
+            return {}
+        else:
+            raise
     return response
 
 
