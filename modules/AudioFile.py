@@ -7,6 +7,7 @@ from eyed3.id3.frames import ImageFrame
 from moviepy.editor import AudioFileClip
 from pytube.exceptions import VideoUnavailable
 from pytubefix import YouTube
+from pytubefix.cli import on_progress
 
 from modules.google_utils import execute_request_video
 
@@ -28,7 +29,7 @@ class AudioFile:
         self._image = None
         self._duration = None
         self._view_count = None if "statistics" not in item else int(item.get("statistics", {}).get("viewCount", None))
-        self.yt = YouTube(self.url) if self.idx is not None else None
+        self.yt = YouTube(self.url, on_progress_callback=on_progress) if self.idx is not None else None
 
     def __repr__(self):
         return f"AudioFile(title='{self.title}', artist='{self.artist}', album='{self.album}', year={self.year})"
@@ -120,11 +121,8 @@ class AudioFile:
 
     def download_audio(self, output_dir=r"musics/"):
         try:
-            audio_streams = self.yt.streams.filter(only_audio=True, mime_type="audio/webm")
-            if not audio_streams:
-                print("No audio streams found.")
-                return 0
-
+            ys = self.yt.streams.get_audio_only()
+            ys.download(output_path=output_dir, filename=self.yt.title)
         except VideoUnavailable:
             print(f"Video {self.url} is unavailable.")
             return 0
@@ -132,18 +130,14 @@ class AudioFile:
             print(f' >> Error trying to get audio_streams: {e} url: {self.url}')
             return 0
 
-        best_audio = audio_streams[-1]
-
-        best_audio.download(output_path=output_dir, filename=self.title + ".webm")
-
-        self._path = os.path.join(output_dir, self.title + ".webm")
+        self._path = os.path.join(output_dir, self.yt.title)  # todo update title
 
         print(f' >> File saved in {self.path}')
 
         return 1
 
-    def convert_webm_to_mp3(self):
-        output_path = self.path.replace(".webm", ".mp3")
+    def convert_audio_to_mp3(self, extension=".webm"):
+        output_path = self.path.replace(extension, ".mp3")
         audio = AudioFileClip(self.path)
         audio.write_audiofile(output_path)
         self._path = output_path
@@ -183,7 +177,7 @@ class AudioFile:
 
         add_tags = True
         try:
-            self.convert_webm_to_mp3()
+            self.convert_audio_to_mp3(extension=self._path.split(".")[-1])
         except Exception as e:
             print(e)
             print("\t[Error] Couldn't convert webm to mp3")
