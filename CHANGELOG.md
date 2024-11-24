@@ -1,3 +1,10 @@
+## 1.1.13 (2024-11-24)
+
+### Fix
+
+- async call for solo converting
+- don't trigger method
+
 ## 1.1.12 (2024-11-24)
 
 ### Fix
