@@ -1,3 +1,9 @@
+## 1.1.8 (2024-11-24)
+
+### Fix
+
+- handle quota exceeded errors
+
 ## 1.1.7 (2024-11-24)
 
 ### Fix
