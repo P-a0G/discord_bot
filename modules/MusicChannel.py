@@ -85,6 +85,7 @@ def extract_from_url(url):
         print(f"Error couldn't get {url}")
         return AudioFile({}, "")
     audio_file = AudioFile(response["items"][0], "")
+    audio_file.download()
     return audio_file
 
 
