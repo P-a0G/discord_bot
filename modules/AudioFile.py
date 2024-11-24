@@ -21,16 +21,14 @@ class AudioFile:
         self.artist = artist if artist else item.get('snippet', {}).get('channelTitle', None)
         self.image_url = self.get_img_url() or item.get('snippet', {}).get('thumbnails', {}).get('default', {}).get(
             'url', None)
-        self.path = None
+        self.output_dir = output_dir
+        self._path = None
         self._size = 0
         self._album = None
         self._image = None
         self._duration = None
         self._view_count = None if "statistics" not in item else int(item.get("statistics", {}).get("viewCount", None))
         self.yt = YouTube(self.url) if self.idx is not None else None
-
-        if self.idx is not None:
-            self.download(output_dir=output_dir)  # todo block download when getting all musics from channel and download only when needed
 
     def __repr__(self):
         return f"AudioFile(title='{self.title}', artist='{self.artist}', album='{self.album}', year={self.year})"
@@ -114,6 +112,12 @@ class AudioFile:
             self._size = round(os.path.getsize(self.path) / 1048576, 2)
         return self._size
 
+    @property
+    def path(self):
+        if self.idx is not None:
+            self.download(output_dir=self.output_dir)
+        return self._path
+
     def download_audio(self, output_dir=r"musics/"):
         try:
             audio_streams = self.yt.streams.filter(only_audio=True, mime_type="audio/webm")
@@ -130,7 +134,7 @@ class AudioFile:
 
         best_audio = audio_streams[-1]
 
-        best_audio.download(output_path=output_dir ,filename=self.title + ".webm")
+        best_audio.download(output_path=output_dir, filename=self.title + ".webm")
 
         self.path = os.path.join(output_dir, self.title + ".webm")
 
@@ -180,7 +184,8 @@ class AudioFile:
         add_tags = True
         try:
             self.convert_webm_to_mp3()
-        except Exception:
+        except Exception as e:
+            print(e)
             print("\t[Error] Couldn't convert webm to mp3")
             print("Didn't add tags")
             add_tags = False  # need file to be mp3 to add metadata
