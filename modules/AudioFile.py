@@ -122,7 +122,7 @@ class AudioFile:
     def download_audio(self, output_dir=r"musics/"):
         try:
             ys = self.yt.streams.get_audio_only()
-            ys.download(output_path=output_dir, filename=self.yt.title)
+            ys.download(output_path=output_dir, filename=self.title)
         except VideoUnavailable:
             print(f"Video {self.url} is unavailable.")
             return 0
@@ -130,7 +130,14 @@ class AudioFile:
             print(f' >> Error trying to get audio_streams: {e} url: {self.url}')
             return 0
 
-        self._path = os.path.join(output_dir, self.yt.title)  # todo update title
+        if os.path.exists(os.path.join(output_dir, self.title + ".webm")):
+            self._path = os.path.join(output_dir, self.title + ".webm")
+        elif os.path.exists(os.path.join(output_dir, self.title + ".m4a")):
+            self._path = os.path.join(output_dir, self.title + ".m4a")
+        else:
+            print(f' >> Error getting file extension: url: {self.url} title: {self.yt.title}')
+            self._path = None
+            return 0
 
         print(f' >> File saved in {self.path}')
 
@@ -201,6 +208,10 @@ class AudioFile:
         webm_path = self.path.replace(".mp3", ".webm")
         if os.path.exists(webm_path):
             os.remove(webm_path)
+
+        m4a_path = self.path.replace(".mp3", ".m4a")
+        if os.path.exists(m4a_path):
+            os.remove(m4a_path)
 
         self._path = None
 
