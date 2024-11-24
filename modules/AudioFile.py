@@ -114,7 +114,7 @@ class AudioFile:
 
     @property
     def path(self):
-        if self.idx is not None:
+        if self._path is None and self.idx is not None:
             self.download(output_dir=self.output_dir)
         return self._path
 
