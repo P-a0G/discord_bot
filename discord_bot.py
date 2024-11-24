@@ -4,7 +4,7 @@ import os
 from concurrent.futures import ThreadPoolExecutor
 
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 
 from modules.MusicChannel import MusicChannel, extract_from_url
 from modules.utils import read_json, is_valid_url
@@ -17,12 +17,16 @@ id_file = read_json("files/id_dict.json")
 
 bot = commands.Bot(command_prefix='!', intents=intents)
 
+utc = datetime.timezone.utc
+daily_check = datetime.time(hour=2, minute=0, second=0, tzinfo=utc)
+
 subscribed_to_music = dict()
 
 
 # todo autocompletion cf: https://www.youtube.com/watch?v=zSzFHxOkCfo&ab_channel=RichardSchwabe
 
 
+@tasks.loop(time=daily_check)
 async def check_for_new_musics():
     if os.path.exists("files/subscribed_artists.txt"):
         with open("files/subscribed_artists.txt", "r") as f:
@@ -33,7 +37,7 @@ async def check_for_new_musics():
     try:
         with open("files/last_update.txt", "r") as f:
             last_update = datetime.datetime.strptime(f.read().strip(), "%Y-%m-%dT%H:%M:%SZ")
-    except Exception:
+    except FileNotFoundError:
         print("\t[Error] couldn't get last update")
         return 0
 
@@ -66,14 +70,10 @@ async def check_for_new_musics():
 
 @bot.event
 async def on_ready():
-    await check_for_new_musics()
-
     print('Bot is ready to go!')
 
-    # await bot.close()
-
-    # if not test_loop.is_running():
-    #     test_loop.start()
+    if not check_for_new_musics.is_running():
+        await check_for_new_musics.start()
 
 
 @bot.command(name='set')
