@@ -1,3 +1,9 @@
+## 1.3.0 (2024-12-02)
+
+### Feat
+
+- add init_bot.py script for bot initialization and setup
+
 ## 1.2.0 (2024-11-24)
 
 ### Feat
