@@ -197,11 +197,11 @@ async def show_all(ctx):
                 await ctx.send(f"\t{user_id_or_name}: {birthday_date['day']}/{birthday_date['mounth']}")
 
 
-# @bot.event
-# async def on_message(message):
-#     if message.content.startswith("!"):
-#         await bot.process_commands(message)
-#     show_message_info(message)
+@bot.event
+async def on_message(message):
+    if message.content.startswith("!"):
+        await bot.process_commands(message)
+    # show_message_info(message)
 
 
 if __name__ == '__main__':
