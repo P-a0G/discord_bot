@@ -46,7 +46,8 @@ async def check_for_new_musics():
         return 1
 
     for artist in artists:
-        videos = MusicChannel(artist).get_last_update(last_update=last_update)
+        # videos = MusicChannel(artist).get_last_update(last_update=last_update)
+        videos = MusicChannel(artist).get_last_update(last_update=datetime.datetime.now() - datetime.timedelta(days=1))
 
         for v in videos:
             if not v.path or not os.path.exists(v.path):
