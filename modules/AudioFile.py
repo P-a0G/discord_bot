@@ -1,6 +1,5 @@
-import os
-
 import eyed3
+import os
 import requests
 from bs4 import BeautifulSoup
 from eyed3.id3.frames import ImageFrame
@@ -44,6 +43,7 @@ class AudioFile:
         title = title.replace("- ", "")
         title = title.replace("  ", " ")
         # title = title.replace(" ", "_")
+        title = title.replace("&amp;", "&")
         title = title.strip()
         return title
 
@@ -129,6 +129,13 @@ class AudioFile:
         except Exception as e:
             print(f' >> Error trying to get audio_streams: {e} url: {self.url}')
             return 0
+
+        if os.path.exists(os.path.join(output_dir, self.title)):
+            print(f' > ?Had no extension, renaming to .m4a')
+            os.rename(
+                os.path.join(output_dir, self.title),
+                os.path.join(output_dir, self.title + ".m4a")
+            )
 
         if os.path.exists(os.path.join(output_dir, self.title + ".webm")):
             self._path = os.path.join(output_dir, self.title + ".webm")
