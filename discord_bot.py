@@ -7,7 +7,7 @@ import discord
 from discord.ext import commands, tasks
 
 from modules.MusicChannel import MusicChannel, extract_from_url
-from modules.utils import read_json, is_valid_url  # , show_message_info
+from modules.utils import read_json, is_valid_url
 
 intents = discord.Intents.default()
 intents.members = True
@@ -227,8 +227,9 @@ async def on_message(message):
 
 
 if __name__ == '__main__':
-    token = read_json("files/tokens.json")["Flash_bot"]
-    my_id = 219209871092875264  # int(id_file["my_id"])
+    # token = read_json("files/tokens.json")["Flash_bot"]
+    my_id = int(id_file["my_id"])
+    token = read_json("files/tokens.json")["debug"]
     bot.run(token)
 
 
