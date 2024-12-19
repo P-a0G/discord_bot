@@ -200,7 +200,6 @@ async def show_all(ctx):
 @bot.event
 async def on_message(message):
     if message.content.startswith("!"):
-        print(" > ", message.content)
         await bot.process_commands(message)
     # show_message_info(message)
 
