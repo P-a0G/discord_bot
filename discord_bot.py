@@ -71,6 +71,7 @@ async def check_for_new_musics():
 
 @bot.event
 async def on_ready():
+    await check_for_new_musics()
     print('Bot is ready to go!')
 
     if not check_for_new_musics.is_running():
