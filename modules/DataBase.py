@@ -12,6 +12,9 @@ class DataBase:
             lines = f.readlines()
 
         for line in lines:
+            line_split = line.split(";")
+            if len(line_split) != 2:
+                continue
             idx, artist_name = line.split(";")
             if idx == artist_idx:
                 return True
@@ -30,6 +33,9 @@ class DataBase:
         artists_copy = []
         artist_removed = False
         for line in lines:
+            line_split = line.split(";")
+            if len(line_split) != 2:
+                continue
             idx, artist_name = line.split(";")
             if idx == artist_idx:
                 lines.remove(line)
