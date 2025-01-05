@@ -27,7 +27,7 @@ daily_check = datetime.time(hour=2, minute=0, second=0, tzinfo=utc)
 
 @tasks.loop(time=daily_check)
 async def check_for_new_musics():
-    guild_idx_list, user_idx_list, artists_idx, artists_names = database.get_artists_idx_and_names()
+    user_idx_list, artists_idx, artists_names = database.get_artists_idx_and_names()
 
     last_update = database.get_last_update_datetime()
 
@@ -35,10 +35,11 @@ async def check_for_new_musics():
         print("\tCheck was done today, wait for tomorrow")
         return 1
 
-    for guild_idx, user_idx, artist_idx, artist in zip(artists_idx, artists_names):
+    for user_idx, artist_idx, artist in zip(user_idx_list, artists_idx, artists_names):
         # videos = MusicChannel(artist).get_last_update(last_update=last_update)
         videos = MusicChannel(artist, idx=artist_idx).get_last_update(
-            last_update=datetime.datetime.now() - datetime.timedelta(days=1, hours=2))
+            last_update=datetime.datetime.now() - datetime.timedelta(days=1, hours=2)
+        )
 
         for v in videos:
             if not v.path or not os.path.exists(v.path):
@@ -48,8 +49,8 @@ async def check_for_new_musics():
             file = discord.File(v.path)
             print("\t\tNew released video downloaded:", v.path)
 
-            await send_message_to_sub(f'{v.url}', guild_idx, user_idx)
-            await send_message_to_sub(file, guild_idx, user_idx, is_file=True)
+            await send_message_to_user(f'{v.url}', user_idx)
+            await send_message_to_user(file, user_idx, is_file=True)
 
             v.delete()
 
@@ -72,7 +73,7 @@ async def subscribe(ctx, *, channel_name):
 
     artist_idx = MusicChannel(channel_name).idx
 
-    if database.is_artist_idx_in_db(ctx.guild.id, ctx.author.id, artist_idx):
+    if database.is_artist_idx_in_db(ctx.author.id, artist_idx):
         await ctx.send("Had it already ;)")
         return
 
@@ -80,7 +81,7 @@ async def subscribe(ctx, *, channel_name):
         await ctx.send("Sorry you can't do that, ask moderator for permission.")
         return
 
-    database.add_artist_to_db(ctx.guild.id, ctx.author.id, artist_idx, channel_name)
+    database.add_artist_to_db(ctx.author.id, artist_idx, channel_name)
     await ctx.send(f"Registered {channel_name}")
 
 
@@ -90,7 +91,7 @@ async def unsubscribe(ctx, *, channel_name):
 
     artist_idx = MusicChannel(channel_name).idx
 
-    artist_removed = database.remove_artist_from_db(ctx.guild.id, ctx.author.id, artist_idx)
+    artist_removed = database.remove_artist_from_db(ctx.author.id, artist_idx)
 
     if artist_removed:
         await ctx.send(f"{channel_name} removed from subscribed list")
@@ -152,16 +153,20 @@ async def send_message_to_me(message, is_file=False):
         print("[Error] Couldn't send message to me")
 
 
-async def send_message_to_sub(message, guild_id, user_id, is_file=False):
-    user = bot.get_guild(int(guild_id)).get_member(int(user_id))
+async def send_message_to_user(message, user_id, is_file=False):
+    try:
+        # Fetch the user object by ID
+        user = await bot.fetch_user(int(user_id))
 
-    if user:
+        # Send the message or file
         if is_file:
             await user.send(file=message)
         else:
             await user.send(message)
-    else:
-        print("[Error] Couldn't send message to me")
+
+    except Exception as e:
+        user_name = bot.get_user(int(user_id)).name
+        print(f"[Error] Couldn't send message to user {user_name} ({user_id}): {e}")
 
 
 @bot.event
