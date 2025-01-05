@@ -89,6 +89,22 @@ def extract_from_url(url):
     return audio_file
 
 
+def get_url_from_name(music_name):
+    request_params = {
+        'q': music_name,
+        'part': "snippet",
+        'maxResults': 1,
+        'type': "video"
+    }
+
+    response = execute_request(request_params)
+
+    if len(response.get("items", [])) == 0:
+        print(f"Error couldn't get {music_name}")
+        return ""
+    return f"https://www.youtube.com/watch?v={response['items'][0]['id']['videoId']}"
+
+
 if __name__ == '__main__':
     url = ""
     extract_from_url(url)

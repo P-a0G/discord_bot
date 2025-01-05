@@ -37,15 +37,6 @@ def create_last_update():
     print(f"Saved: {path}")
 
 
-def create_subscribed_artists():
-    """Create an empty subscribed_artists.txt."""
-    print("\nCreating subscribed_artists.txt...")
-    path = "files/subscribed_artists.txt"
-    ensure_directory(path)
-    open(path, "w").close()  # Creates an empty file
-    print(f"Saved: {path}")
-
-
 def create_tokens():
     """Create tokens.json by asking for API keys."""
     print("\nCreating tokens.json...")
@@ -67,7 +58,6 @@ def main():
     print("Initializing bot setup...")
     create_id_dict()
     create_last_update()
-    create_subscribed_artists()
     create_tokens()
     print("\nInitialization complete! Your bot is ready to start.")
 

@@ -1,3 +1,13 @@
+## 1.5.0 (2025-01-05)
+
+### Feat
+
+- add new command !dl to download music from music name directly
+
+### Refactor
+
+- remove unused file
+
 ## 1.4.0 (2025-01-05)
 
 ### Feat
