@@ -4,9 +4,9 @@ from modules.utils import is_duration_in_range
 
 
 class MusicChannel:
-    def __init__(self, name: str):
+    def __init__(self, name: str, idx: str = None):
         self.name: str = name
-        self.idx: str = self.request_id()
+        self.idx: str = idx if idx is not None else self.request_id()
         self.n_max_get: int = 50
         self.n_max_update: int = 10
 
