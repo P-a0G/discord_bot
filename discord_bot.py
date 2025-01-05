@@ -21,15 +21,13 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 utc = datetime.timezone.utc
 daily_check = datetime.time(hour=2, minute=0, second=0, tzinfo=utc)
 
-subscribed_to_music = dict()
-
 
 # todo autocompletion cf: https://www.youtube.com/watch?v=zSzFHxOkCfo&ab_channel=RichardSchwabe
 
 
 @tasks.loop(time=daily_check)
 async def check_for_new_musics():
-    artists_idx, artists_names = database.get_artists_idx()
+    user_idx_list, artists_idx, artists_names = database.get_artists_idx_and_names()
 
     last_update = database.get_last_update_datetime()
 
@@ -37,10 +35,11 @@ async def check_for_new_musics():
         print("\tCheck was done today, wait for tomorrow")
         return 1
 
-    for idx, artist in zip(artists_idx, artists_names):
+    for user_idx, artist_idx, artist in zip(user_idx_list, artists_idx, artists_names):
         # videos = MusicChannel(artist).get_last_update(last_update=last_update)
-        videos = MusicChannel(artist, idx=idx).get_last_update(
-            last_update=datetime.datetime.now() - datetime.timedelta(days=1, hours=2))
+        videos = MusicChannel(artist, idx=artist_idx).get_last_update(
+            last_update=datetime.datetime.now() - datetime.timedelta(days=1, hours=2)
+        )
 
         for v in videos:
             if not v.path or not os.path.exists(v.path):
@@ -50,8 +49,8 @@ async def check_for_new_musics():
             file = discord.File(v.path)
             print("\t\tNew released video downloaded:", v.path)
 
-            await send_message_to_me(f'{v.url}')
-            await send_message_to_me(file, is_file=True)
+            await send_message_to_user(f'{v.url}', user_idx)
+            await send_message_to_user(file, user_idx, is_file=True)
 
             v.delete()
 
@@ -68,23 +67,13 @@ async def on_ready():
         await check_for_new_musics.start()
 
 
-@bot.command(name='set')
-async def set_music_dict(ctx):
-    if (ctx.guild.id, ctx.author.id) not in subscribed_to_music.keys():
-        subscribed_to_music[(ctx.guild.id, ctx.author.id)] = []
-
-        user = bot.get_guild(ctx.guild.id).get_member(ctx.author.id)
-
-        await user.send("Music set done")
-
-
 @bot.command(name='sub')
 async def subscribe(ctx, *, channel_name):
     channel_name = channel_name.strip()
 
     artist_idx = MusicChannel(channel_name).idx
 
-    if database.is_artist_idx_in_db(artist_idx):
+    if database.is_artist_idx_in_db(ctx.author.id, artist_idx):
         await ctx.send("Had it already ;)")
         return
 
@@ -92,7 +81,7 @@ async def subscribe(ctx, *, channel_name):
         await ctx.send("Sorry you can't do that, ask moderator for permission.")
         return
 
-    database.add_artist_to_db(artist_idx, channel_name)
+    database.add_artist_to_db(ctx.author.id, artist_idx, channel_name)
     await ctx.send(f"Registered {channel_name}")
 
 
@@ -102,7 +91,7 @@ async def unsubscribe(ctx, *, channel_name):
 
     artist_idx = MusicChannel(channel_name).idx
 
-    artist_removed = database.remove_artist_from_db(artist_idx)
+    artist_removed = database.remove_artist_from_db(ctx.author.id, artist_idx)
 
     if artist_removed:
         await ctx.send(f"{channel_name} removed from subscribed list")
@@ -164,11 +153,20 @@ async def send_message_to_me(message, is_file=False):
         print("[Error] Couldn't send message to me")
 
 
-async def send_message_to_sub(message):
-    for guild_id, user_id in subscribed_to_music.keys():
-        user = bot.get_guild(guild_id).get_member(user_id)
+async def send_message_to_user(message, user_id, is_file=False):
+    try:
+        # Fetch the user object by ID
+        user = await bot.fetch_user(int(user_id))
 
-        await user.send(message)
+        # Send the message or file
+        if is_file:
+            await user.send(file=message)
+        else:
+            await user.send(message)
+
+    except Exception as e:
+        user_name = bot.get_user(int(user_id)).name
+        print(f"[Error] Couldn't send message to user {user_name} ({user_id}): {e}")
 
 
 @bot.event
