@@ -16,7 +16,7 @@ def ensure_directory(path):
 def create_id_dict():
     """Create id_dict.json by asking for guild_id and my_id."""
     print("\nCreating id_dict.json...")
-    guild_id = get_user_input("Enter the Discord server guild ID: ")
+    guild_id = get_user_input("Enter the Discord server guild ID: ")  # todo add instructions on how to get this
     my_id = get_user_input("Enter your Discord user ID: ")
     data = {"guild_id": guild_id, "my_id": my_id}
 
