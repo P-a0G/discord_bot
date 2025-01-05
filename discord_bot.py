@@ -7,7 +7,7 @@ import discord
 from discord.ext import commands, tasks
 
 from modules.DataBase import database
-from modules.MusicChannel import MusicChannel, extract_from_url
+from modules.MusicChannel import MusicChannel, extract_from_url, get_url_from_name
 from modules.utils import read_json, is_valid_url
 
 intents = discord.Intents.default()
@@ -139,6 +139,35 @@ async def get_all_musics_from(ctx, *, args):
         audio_file.delete()
 
     await ctx.send("Done 😎")
+
+
+@bot.command(name='dl')
+async def download_music(ctx, *, music_name):
+    await ctx.send('Ok looking for the music 🕵️‍♂️')
+    loop = asyncio.get_event_loop()
+
+    music_url = await loop.run_in_executor(executor, get_url_from_name, music_name)
+    if music_url is None or music_url == "":
+        await ctx.send(f"Couldn't find {music_name}")
+        return
+
+    await ctx.send(f'🎶 There it is! 🎶\n{music_url}')
+
+    audio_file = await loop.run_in_executor(executor, extract_from_url, music_url)
+
+    if audio_file.path is None:
+        await ctx.send('\t\tSorry I couldn\'t get the music')
+        return
+
+    await ctx.send(f'\t\tFile saved locally, size = {audio_file.size}Mo')
+
+    if audio_file.size > 8:
+        await ctx.send('File is too large to be sent')
+    else:
+        file = discord.File(audio_file.path)
+        await ctx.send(file=file)
+
+        audio_file.delete()
 
 
 async def send_message_to_me(message, is_file=False):
