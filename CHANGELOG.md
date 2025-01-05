@@ -1,3 +1,18 @@
+## 1.3.1 (2025-01-05)
+
+### Refactor
+
+- Can now use spaces in discord commands
+- last_update for next run removed
+- last_update for next run
+- last_update for next run
+- debug done
+- debug and undo commit
+- debug
+- bringing back birthday bot!
+- replace last update with yesterday date
+- fix '&' in title
+
 ## 1.3.0 (2024-12-02)
 
 ### Feat

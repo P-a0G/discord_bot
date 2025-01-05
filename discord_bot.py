@@ -89,8 +89,8 @@ async def set_music_dict(ctx):
 
 
 @bot.command(name='sub')
-async def subscribe(ctx, channel_name):
-    channel_name = channel_name.strip().replace(" ", "")
+async def subscribe(ctx, *, channel_name):
+    channel_name = channel_name.strip()
 
     if os.path.exists("files/subscribed_artists.txt"):
         with open("files/subscribed_artists.txt", "r") as f:
@@ -112,8 +112,8 @@ async def subscribe(ctx, channel_name):
 
 
 @bot.command(name='unsub')
-async def unsubscribe(ctx, channel_name):
-    channel_name = channel_name.strip().replace(" ", "")
+async def unsubscribe(ctx, *, channel_name):
+    channel_name = channel_name.strip()
 
     if os.path.exists("files/subscribed_artists.txt"):
         with open("files/subscribed_artists.txt", "r") as f:
@@ -142,7 +142,19 @@ executor = ThreadPoolExecutor()
 
 
 @bot.command(name='get')
-async def get_all_musics_from(ctx, channel_name, n_max=10):
+async def get_all_musics_from(ctx, *, args):
+    if ' ' in args:
+        *channel_name_parts, argument_2 = args.rsplit(' ', 1)
+        if argument_2.isdigit():
+            channel_name = ' '.join(channel_name_parts)
+            n_max = int(argument_2)
+        else:
+            channel_name = args
+            n_max = 10
+    else:
+        channel_name = args
+        n_max = 10
+
     if ctx.author.id != my_id:
         return
 
