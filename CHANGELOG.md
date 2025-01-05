@@ -1,3 +1,19 @@
+## 1.4.0 (2025-01-05)
+
+### Feat
+
+- everyone can now subscribe to an artist, each user will receive its own musics
+
+### Fix
+
+- send message to user using only its id, adapt db because we don't need guild id anymore
+
+## 1.3.3 (2025-01-05)
+
+### Fix
+
+- fix artist reading error
+
 ## 1.3.2 (2025-01-05)
 
 ### Fix
