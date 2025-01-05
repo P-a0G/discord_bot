@@ -1,71 +1,69 @@
 import datetime
-import os
+
+from modules.utils import read_json, write_json
 
 
 class DataBase:
     def __init__(self):
-        self.subscribed_artists_db_path = "files/subscribed_artists.txt"
+        self.subscribed_artists_db_path = "files/subscribed_artists.json"
         self.last_update_file = "files/last_update.txt"
 
-    def is_artist_idx_in_db(self, artist_idx):
-        with open(self.subscribed_artists_db_path, "r") as f:
-            lines = f.readlines()
+    def is_artist_idx_in_db(self, guild_id, author_id, artist_idx):
+        data = read_json(self.subscribed_artists_db_path)
+        if str(guild_id) not in data:
+            return False
+        if str(author_id) not in data[str(guild_id)]:
+            return False
 
-        for line in lines:
-            line_split = line.split(";")
-            if len(line_split) != 2:
-                continue
-            idx, artist_name = line.split(";")
-            if idx == artist_idx:
+        for artist_dict in data[str(guild_id)][str(author_id)]:
+            if artist_dict["idx"] == artist_idx:
                 return True
+
         return False
 
-    def add_artist_to_db(self, artist_idx, artist_name):
-        if self.is_artist_idx_in_db(artist_idx):
-            return
-        with open(self.subscribed_artists_db_path, "a") as f:
-            f.write(f"{artist_idx};{artist_name}\n")
+    def add_artist_to_db(self, guild_id, author_id, artist_idx, artist_name):
+        data = read_json(self.subscribed_artists_db_path)
+        if str(guild_id) not in data:
+            data[str(guild_id)] = {}
 
-    def remove_artist_from_db(self, artist_idx):
-        with open(self.subscribed_artists_db_path, "r") as f:
-            lines = f.readlines()
+        if str(author_id) not in data[str(guild_id)]:
+            data[str(guild_id)][str(author_id)] = []
 
-        artists_copy = []
-        artist_removed = False
-        for line in lines:
-            line_split = line.split(";")
-            if len(line_split) != 2:
-                continue
-            idx, artist_name = line.split(";")
-            if idx == artist_idx:
-                lines.remove(line)
-                artist_removed = True
-            else:
-                artists_copy.append((idx, artist_name))
+        data[str(guild_id)][str(author_id)].append({"idx": artist_idx, "name": artist_name})
 
-        artists_copy = sorted(artists_copy, key=lambda x: x[1])
+        write_json(self.subscribed_artists_db_path, data)
 
-        with open(self.subscribed_artists_db_path, "w") as f:
-            for idx, artist in artists_copy:
-                self.add_artist_to_db(idx, artist)
+    def remove_artist_from_db(self, guild_id, author_id, artist_idx):
+        data = read_json(self.subscribed_artists_db_path)
+        if str(guild_id) not in data:
+            return False
 
-        return artist_removed
+        if str(author_id) not in data[str(guild_id)]:
+            return False
+
+        for artist_dict in data[str(guild_id)][str(author_id)]:
+            if artist_dict["idx"] == artist_idx:
+                data[str(guild_id)][str(author_id)].remove(artist_dict)
+                write_json(self.subscribed_artists_db_path, data)
+                return True
+
+        return False
 
     def get_artists_idx_and_names(self):
-        if not os.path.exists(self.subscribed_artists_db_path):
-            print("No subscribed artists or wrong path")
-            return []
+        guild_id_list = []
+        user_id_list = []
+        artist_idx_list = []
+        artist_names_list = []
 
-        with open(self.subscribed_artists_db_path, "r") as f:
-            lines = f.readlines()
-
-        idx = []
-        names = []
-        for line in lines:
-            idx_, name = line.split(";")
-            idx.append(idx_)
-            names.append(name)
-        return idx, names
+        data = read_json(self.subscribed_artists_db_path)
+        for guild_id in data:
+            for author_id in data[guild_id]:
+                for artist_dict in data[guild_id][author_id]:
+                    artist_idx_list.append(artist_dict["idx"])
+                    artist_names_list.append(artist_dict["name"])
+                    guild_id_list.append(guild_id)
+                    user_id_list.append(author_id)
+        return artist_idx_list, artist_names_list, guild_id_list, user_id_list
 
     def get_last_update_datetime(self):
         try:
