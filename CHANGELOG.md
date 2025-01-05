@@ -1,10 +1,8 @@
-## 1.3.3 (2025-01-05)
+## 1.3.2 (2025-01-05)
 
 ### Fix
 
 - fix artist reading error
-
-## 1.3.2 (2025-01-05)
 
 ### Refactor
 
@@ -30,54 +28,16 @@
 ### Feat
 
 - add init_bot.py script for bot initialization and setup
-
-## 1.2.0 (2024-11-24)
-
-### Feat
-
 - run daily task
 
-## 1.1.16 (2024-11-24)
-
 ### Fix
 
 - fix async call
-
-## 1.1.15 (2024-11-24)
-
-### Fix
-
-- fix async call
-
-## 1.1.14 (2024-11-24)
-
-### Fix
-
 - fix file extension
-
-## 1.1.13 (2024-11-24)
-
-### Fix
-
 - async call for solo converting
 - don't trigger method
-
-## 1.1.12 (2024-11-24)
-
-### Fix
-
 - m4a file or webm
-
-## 1.1.11 (2024-11-24)
-
-### Fix
-
 - error during error
-
-## 1.1.10 (2024-11-24)
-
-### Fix
-
 - handling quota exceeded
 
 ### Refactor
@@ -89,29 +49,7 @@
 ### Fix
 
 - handling m4a files instead of webm files
-
-## 1.1.8 (2024-11-24)
-
-### Fix
-
 - handle quota exceeded errors
-
-## 1.1.7 (2024-11-24)
-
-### Fix
-
-- fix path
-
-## 1.1.6 (2024-11-24)
-
-### Fix
-
-- fix path
-
-## 1.1.5 (2024-11-24)
-
-### Fix
-
 - fix path
 
 ## 1.1.4 (2024-11-24)
@@ -131,11 +69,6 @@
 ### Fix
 
 - error with view count
-
-## 1.1.2 (2024-11-06)
-
-### Fix
-
 - heartbeat blocked warning
 
 ## 1.1.1 (2024-11-05)
