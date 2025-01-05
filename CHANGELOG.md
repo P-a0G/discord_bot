@@ -1,3 +1,15 @@
+## 1.3.3 (2025-01-05)
+
+### Fix
+
+- fix artist reading error
+
+## 1.3.2 (2025-01-05)
+
+### Refactor
+
+- avoid repeated requests for artists idx
+
 ## 1.3.1 (2025-01-05)
 
 ### Refactor

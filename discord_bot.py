@@ -6,6 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 import discord
 from discord.ext import commands, tasks
 
+from modules.DataBase import database
 from modules.MusicChannel import MusicChannel, extract_from_url
 from modules.utils import read_json, is_valid_url
 
@@ -28,26 +29,18 @@ subscribed_to_music = dict()
 
 @tasks.loop(time=daily_check)
 async def check_for_new_musics():
-    if os.path.exists("files/subscribed_artists.txt"):
-        with open("files/subscribed_artists.txt", "r") as f:
-            artists = [a.strip() for a in f.readlines()]
-    else:
-        artists = []
+    artists_idx, artists_names = database.get_artists_idx()
 
-    try:
-        with open("files/last_update.txt", "r") as f:
-            last_update = datetime.datetime.strptime(f.read().strip(), "%Y-%m-%dT%H:%M:%SZ")
-    except FileNotFoundError:
-        print("\t[Error] couldn't get last update")
-        return 0
+    last_update = database.get_last_update_datetime()
 
     if last_update.date() == datetime.date.today():
         print("\tCheck was done today, wait for tomorrow")
         return 1
 
-    for artist in artists:
+    for idx, artist in zip(artists_idx, artists_names):
         # videos = MusicChannel(artist).get_last_update(last_update=last_update)
-        videos = MusicChannel(artist).get_last_update(last_update=datetime.datetime.now() - datetime.timedelta(days=1, hours=2))
+        videos = MusicChannel(artist, idx=idx).get_last_update(
+            last_update=datetime.datetime.now() - datetime.timedelta(days=1, hours=2))
 
         for v in videos:
             if not v.path or not os.path.exists(v.path):
@@ -63,10 +56,7 @@ async def check_for_new_musics():
             v.delete()
 
     print("[Update done]")
-    current_datetime = datetime.datetime.now()
-    formatted_datetime = current_datetime.strftime("%Y-%m-%dT%H:%M:%SZ")
-    with open("files/last_update.txt", "w") as file:
-        file.write(formatted_datetime)
+    database.save_new_last_update()
 
 
 @bot.event
@@ -92,13 +82,9 @@ async def set_music_dict(ctx):
 async def subscribe(ctx, *, channel_name):
     channel_name = channel_name.strip()
 
-    if os.path.exists("files/subscribed_artists.txt"):
-        with open("files/subscribed_artists.txt", "r") as f:
-            artists = [a.strip() for a in f.readlines()]
-    else:
-        artists = []
+    artist_idx = MusicChannel(channel_name).idx
 
-    if channel_name in artists:
+    if database.is_artist_idx_in_db(artist_idx):
         await ctx.send("Had it already ;)")
         return
 
@@ -106,8 +92,7 @@ async def subscribe(ctx, *, channel_name):
         await ctx.send("Sorry you can't do that, ask moderator for permission.")
         return
 
-    with open("files/subscribed_artists.txt", "a") as f:
-        f.write(channel_name + "\n")
+    database.add_artist_to_db(artist_idx, channel_name)
     await ctx.send(f"Registered {channel_name}")
 
 
@@ -115,27 +100,14 @@ async def subscribe(ctx, *, channel_name):
 async def unsubscribe(ctx, *, channel_name):
     channel_name = channel_name.strip()
 
-    if os.path.exists("files/subscribed_artists.txt"):
-        with open("files/subscribed_artists.txt", "r") as f:
-            artists = [a.strip() for a in f.readlines()]
-    else:
-        artists = []
+    artist_idx = MusicChannel(channel_name).idx
 
-    if channel_name in artists:
-        await ctx.send(f"Removing {channel_name} from subscribed list")
+    artist_removed = database.remove_artist_from_db(artist_idx)
 
+    if artist_removed:
+        await ctx.send(f"{channel_name} removed from subscribed list")
     else:
         await ctx.send(f"{channel_name} wasn't in subscribed list")
-        return
-
-    artists.remove(channel_name)
-    artists.sort()
-
-    with open("files/subscribed_artists.txt", "w") as f:
-        for a in artists:
-            f.write(a + "\n")
-
-    await ctx.send("Done !")
 
 
 executor = ThreadPoolExecutor()
