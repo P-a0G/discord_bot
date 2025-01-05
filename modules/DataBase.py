@@ -4,8 +4,8 @@ import os
 
 class DataBase:
     def __init__(self):
-        self.subscribed_artists_db_path = f"files/subscribed_artists.txt"
-        self.last_update_file = f"files/last_update.txt"
+        self.subscribed_artists_db_path = "files/subscribed_artists.txt"
+        self.last_update_file = "files/last_update.txt"
 
     def is_artist_idx_in_db(self, artist_idx):
         with open(self.subscribed_artists_db_path, "r") as f:
