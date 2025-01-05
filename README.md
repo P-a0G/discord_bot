@@ -50,6 +50,7 @@ Use simple, intuitive commands to interact with the bot:
 - `!sub artist_name` - Subscribe to daily updates.
 - `!unsub artist_name` - Unsubscribe from updates.
 - `!get artist_name N` - Get the top N tracks of an artist.
+- `!dl title_and_artist` - Search for the sound and download.
 
 ## Installation
 
@@ -92,8 +93,9 @@ Use simple, intuitive commands to interact with the bot:
    - Use the `!sub artist_name` this adds the artist to your subscription list for daily updates.
    - Use the `!unsub artist_name` this removes the artist from your subscription list.
    - Use the `!get artist_name N` downloads the top N tracks of the artist (default: 10).
+   - Use the `!dl title_and_artist` this searches for the sound and downloads it.
 
-**Note:** `artist_name` can not contain spaces. Be careful with daily free quota limits of google api.
+**Note:** Be careful with daily free quota limits of google api.
 
 ## License
 
