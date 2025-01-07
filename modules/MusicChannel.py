@@ -7,8 +7,8 @@ class MusicChannel:
     def __init__(self, name: str, idx: str = None):
         self.name: str = name
         self.idx: str = idx if idx is not None else self.request_id()
-        self.n_max_get: int = 50
-        self.n_max_update: int = 10
+        self.n_max_get: int = 25
+        self.n_max_update: int = 2
 
     def request_id(self):
         # Request channel information
