@@ -64,7 +64,7 @@ class MusicChannel:
             'maxResults': self.n_max_update,
             'type': 'video',
             'publishedAfter': last_update.isoformat() + 'Z',
-            'videoDuration': 'short'
+            'videoDuration': 'medium'
         }
 
         response = execute_request(request_params)
@@ -72,7 +72,7 @@ class MusicChannel:
         if response == {}:
             return []
 
-        request_params['videoDuration'] = 'medium'
+        request_params['videoDuration'] = 'short'
 
         response['items'] += execute_request(request_params).get('items', [])
 

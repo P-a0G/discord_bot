@@ -1,9 +1,9 @@
-import asyncio
-import datetime
-import os
 from concurrent.futures import ThreadPoolExecutor
 
+import asyncio
+import datetime
 import discord
+import os
 from discord.ext import commands, tasks
 
 from modules.DataBase import database
@@ -31,9 +31,9 @@ async def check_for_new_musics():
 
     last_update = database.get_last_update_datetime()
 
-    # if last_update.date() == datetime.date.today():
-    #     print("\tCheck was done today, wait for tomorrow")
-    #     return 1
+    if last_update.date() == datetime.date.today():
+        print("\tCheck was done today, wait for tomorrow")
+        return 1
 
     for user_idx, artist_idx, artist in zip(user_idx_list, artists_idx, artists_names):
         # videos = MusicChannel(artist).get_last_update(last_update=last_update)
@@ -61,7 +61,7 @@ async def check_for_new_musics():
 
 @bot.event
 async def on_ready():
-    await check_for_new_musics()
+    # await check_for_new_musics()
     print('Bot is ready to go!')
 
     if not check_for_new_musics.is_running():
@@ -240,9 +240,7 @@ async def on_message(message):
 
 
 if __name__ == '__main__':
-    # token = read_json("files/tokens.json")["Flash_bot"]
+    token = read_json("files/tokens.json")["Flash_bot"]
     my_id = int(id_file["my_id"])
-    token = read_json("files/tokens.json")["debug"]
     bot.run(token)
-
 

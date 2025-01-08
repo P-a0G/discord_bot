@@ -1,11 +1,10 @@
-import re
-
 import googleapiclient.discovery
+import re
 from googleapiclient.errors import HttpError
 
 from modules.utils import read_json
 
-api_key = read_json("./files/tokens.json")["google_debug"]
+api_key = read_json("./files/tokens.json")["google"]
 youtube = googleapiclient.discovery.build("youtube", "v3", developerKey=api_key)
 
 
