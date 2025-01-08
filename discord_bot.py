@@ -31,9 +31,9 @@ async def check_for_new_musics():
 
     last_update = database.get_last_update_datetime()
 
-    if last_update.date() == datetime.date.today():
-        print("\tCheck was done today, wait for tomorrow")
-        return 1
+    # if last_update.date() == datetime.date.today():
+    #     print("\tCheck was done today, wait for tomorrow")
+    #     return 1
 
     for user_idx, artist_idx, artist in zip(user_idx_list, artists_idx, artists_names):
         # videos = MusicChannel(artist).get_last_update(last_update=last_update)
