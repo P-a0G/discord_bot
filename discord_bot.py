@@ -37,10 +37,11 @@ async def check_for_new_musics():
 
     for user_idx, artist_idx, artist in zip(user_idx_list, artists_idx, artists_names):
         # videos = MusicChannel(artist).get_last_update(last_update=last_update)
+        print("Checking for", artist)
         videos = MusicChannel(artist, idx=artist_idx).get_last_update(
             last_update=datetime.datetime.now() - datetime.timedelta(days=1, hours=2)
         )
-
+        print("\tFound", len(videos), "new videos")
         for v in videos:
             if not v.path or not os.path.exists(v.path):
                 print("Didn't get", v.url)
@@ -60,7 +61,7 @@ async def check_for_new_musics():
 
 @bot.event
 async def on_ready():
-    # await check_for_new_musics()
+    await check_for_new_musics()
     print('Bot is ready to go!')
 
     if not check_for_new_musics.is_running():
