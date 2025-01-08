@@ -78,10 +78,6 @@ async def subscribe(ctx, *, channel_name):
         await ctx.send("Had it already ;)")
         return
 
-    if ctx.author.id != my_id:
-        await ctx.send("Sorry you can't do that, ask moderator for permission.")
-        return
-
     database.add_artist_to_db(ctx.author.id, artist_idx, channel_name)
     await ctx.send(f"Registered {channel_name}")
 
