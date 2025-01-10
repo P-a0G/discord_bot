@@ -43,17 +43,17 @@ class MusicChannel:
             'maxResults': self.n_max_get // 2,
             'type': "video",
             'order': "viewCount",
-            'videoDuration': 'medium'
+            # 'videoDuration': 'medium'
         }
 
         response = execute_request(request_params)
 
-        if response == {}:
-            return []
-
-        request_params['videoDuration'] = 'short'
-
-        response['items'] += execute_request(request_params).get('items', [])
+        # if response == {}:
+        #     return []
+        #
+        # request_params['videoDuration'] = 'short'
+        #
+        # response['items'] += execute_request(request_params).get('items', [])
 
         return self.get_videos_from_request(response, order_by_views=True)
 
@@ -64,17 +64,17 @@ class MusicChannel:
             'maxResults': self.n_max_update,
             'type': 'video',
             'publishedAfter': last_update.isoformat() + 'Z',
-            'videoDuration': 'medium'
+            # 'videoDuration': 'medium'
         }
 
         response = execute_request(request_params)
 
-        if response == {}:
-            return []
-
-        request_params['videoDuration'] = 'short'
-
-        response['items'] += execute_request(request_params).get('items', [])
+        # if response == {}:
+        #     return []
+        #
+        # request_params['videoDuration'] = 'short'
+        #
+        # response['items'] += execute_request(request_params).get('items', [])
 
         return [f for f in self.get_videos_from_request(response) if is_duration_in_range(f.duration)]
 
