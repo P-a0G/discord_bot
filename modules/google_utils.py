@@ -1,15 +1,28 @@
-import googleapiclient.discovery
 import re
+
+import googleapiclient.discovery
 from googleapiclient.errors import HttpError
 
 from modules.utils import read_json
 
-api_key = read_json("./files/tokens.json")["google"]
-youtube = googleapiclient.discovery.build("youtube", "v3", developerKey=api_key)
+
+class KeyManager:
+    def __init__(self, key_names):
+        self.keys = [read_json("./files/tokens.json")[k] for k in key_names]
+        self.idx = 0
+        self.youtube_clients = [googleapiclient.discovery.build("youtube", "v3", developerKey=key) for key in self.keys]
+
+    def get_key(self):
+        self.idx = (self.idx + 1) % len(self.keys)
+        return self.youtube_clients[self.idx]
+
+
+key_manager = KeyManager(["google_tn_net", "google_netcourrier", "google_drotek"])
 
 
 def execute_request(request_params):
     try:
+        youtube = key_manager.get_key()
         response = youtube.search().list(**request_params).execute()
         return response
     except HttpError as e:
@@ -22,6 +35,7 @@ def execute_request(request_params):
 
 def execute_request_video(request_params):
     try:
+        youtube = key_manager.get_key()
         response = youtube.videos().list(**request_params).execute()
         return response
     except HttpError as e:
@@ -42,6 +56,7 @@ def extract_from_url(url):
     video_id = get_video_id(url)
 
     try:
+        youtube = key_manager.get_key()
         response = youtube.videos().list(
             part='snippet',
             id=video_id
