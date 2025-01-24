@@ -1,5 +1,6 @@
-import eyed3
 import os
+
+import eyed3
 import requests
 from bs4 import BeautifulSoup
 from eyed3.id3.frames import ImageFrame
@@ -7,6 +8,7 @@ from moviepy.editor import AudioFileClip
 from pytube.exceptions import VideoUnavailable
 from pytubefix import YouTube
 from pytubefix.cli import on_progress
+from yt_dlp import YoutubeDL
 
 from modules.google_utils import execute_request_video
 
@@ -16,7 +18,7 @@ class AudioFile:
         # todo add logger
         self.idx = item.get("id") if isinstance(item.get("id"), str) else item.get("id", {}).get("videoId")
         self.url = "https://www.youtube.com/watch?v=" + str(self.idx)
-        self.title = self.convert_title(item.get("snippet", {}).get("title"))
+        self.title = self.convert_title(item.get("snippet", {}).get("title", "Unknown"))
         self.year = int((item.get("snippet", {}).get("publishedAt", "0000"))[:4])
         self.artist = artist if artist else item.get('snippet', {}).get('channelTitle', None)
         self.image_url = self.get_img_url() or item.get('snippet', {}).get('thumbnails', {}).get('default', {}).get(
@@ -121,8 +123,13 @@ class AudioFile:
 
     def download_audio(self, output_dir=r"musics/"):
         try:
-            ys = self.yt.streams.get_audio_only()
-            ys.download(output_path=output_dir, filename=self.title)
+            options = {
+                'format': 'bestaudio/best',
+                'outtmpl': os.path.join(output_dir, self.title),
+            }
+
+            with YoutubeDL(options) as ydl:
+                ydl.download([self.url])
         except VideoUnavailable:
             print(f"Video {self.url} is unavailable.")
             return 0
@@ -137,12 +144,14 @@ class AudioFile:
                 os.path.join(output_dir, self.title + ".m4a")
             )
 
-        if os.path.exists(os.path.join(output_dir, self.title + ".webm")):
+        if os.path.exists(os.path.join(output_dir, self.title + ".mp3")):
+            self._path = os.path.join(output_dir, self.title + ".mp3")
+        elif os.path.exists(os.path.join(output_dir, self.title + ".webm")):
             self._path = os.path.join(output_dir, self.title + ".webm")
         elif os.path.exists(os.path.join(output_dir, self.title + ".m4a")):
             self._path = os.path.join(output_dir, self.title + ".m4a")
         else:
-            print(f' >> Error getting file extension: url: {self.url} title: {self.yt.title}')
+            print(f' >> Error getting file extension: url: {self.url} title: {self.title}')
             self._path = None
             return 0
 
@@ -182,21 +191,21 @@ class AudioFile:
             with open(history_pth, "a", encoding="utf-8") as f:
                 f.write(";".join([str(e) for e in [self.title, self.artist, self.album, self.year, self.image is None, self.url]]) + "\n")
 
-    def download(self, output_dir=r"musics/"):
+    def download(self, output_dir=r"musics/", add_tags=True):
         got_music = self.download_audio()
 
         if not got_music:
             print("[Error] couldn't get the music")
             return None
 
-        add_tags = True
-        try:
-            self.convert_audio_to_mp3(extension="." + self._path.split(".")[-1])
-        except Exception as e:
-            print(e)
-            print("\t[Error] Couldn't convert webm to mp3")
-            print("Didn't add tags")
-            add_tags = False  # need file to be mp3 to add metadata
+        if not self._path.endswith(".mp3"):
+            try:
+                self.convert_audio_to_mp3(extension="." + self._path.split(".")[-1])
+            except Exception as e:
+                print(e)
+                print("\t[Error] Couldn't convert webm to mp3")
+                print("Didn't add tags")
+                add_tags = False  # need file to be mp3 to add metadata
 
         if add_tags:
             self.add_metadata()
