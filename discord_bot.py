@@ -1,9 +1,9 @@
-from concurrent.futures import ThreadPoolExecutor
-
 import asyncio
 import datetime
-import discord
 import os
+from concurrent.futures import ThreadPoolExecutor
+
+import discord
 from discord.ext import commands, tasks
 
 from modules.DataBase import database
@@ -61,7 +61,7 @@ async def check_for_new_musics():
 
 @bot.event
 async def on_ready():
-    # await check_for_new_musics()
+    await check_for_new_musics()
     print('Bot is ready to go!')
 
     if not check_for_new_musics.is_running():
