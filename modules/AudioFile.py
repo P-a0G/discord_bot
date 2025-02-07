@@ -138,10 +138,10 @@ class AudioFile:
             return 0
 
         if os.path.exists(os.path.join(output_dir, self.title)):
-            print(' > ?Had no extension, renaming to .m4a')
+            print(' > ?Had no extension, renaming to .webm')
             os.rename(
                 os.path.join(output_dir, self.title),
-                os.path.join(output_dir, self.title + ".m4a")
+                os.path.join(output_dir, self.title + ".webm")
             )
 
         if os.path.exists(os.path.join(output_dir, self.title + ".mp3")):
