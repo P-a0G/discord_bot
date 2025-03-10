@@ -68,6 +68,8 @@ async def daily_check_for_new_musics(ctx, days: int):
 
     last_update = datetime.datetime.now() - datetime.timedelta(days=days)
 
+    await ctx.send(f"Doing a check for the last {days} days")
+
     for user_idx, artist_idx, artist in zip(user_idx_list, artists_idx, artists_names):
         print("Checking for", artist)
         videos = MusicChannel(artist, idx=artist_idx).get_last_update(
@@ -90,7 +92,7 @@ async def daily_check_for_new_musics(ctx, days: int):
     print("[Update done]")
     database.save_new_last_update()
 
-    await check_for_new_musics()
+    await ctx.send(f"{days} days check done")
 
 
 @bot.event
