@@ -56,38 +56,9 @@ async def birthday_check():
 
 
 def get_birthday_message(user):
-    return random.choice([
-        f"Joyeux anniversaire, {user.mention} champion(e) du monde de la naissance! 🎉🏆 Que cette journée soit aussi épique que toi! @everyone",
-        f"Bon anniversaire, {user.mention} ! 🎂 Aujourd'hui, tu es la vedette, alors fais briller tes bougies comme une star! ✨🕯️ @everyone",
-        f"Hé {user.mention}, joyeux anniversaire! 🎉 Espérons que tu reçoives plus de cadeaux que de notifications Facebook aujourd'hui! 🎁📱 @everyone",
-        f"Bonne fête, {user.mention}! 🥳 Aujourd'hui, tu es officiellement plus âgé(e), mais ça ne compte pas tant que tu es toujours jeune d'esprit! 🧓➡️👶 @everyone",
-        f"Joyeux anniversaire, {user.mention}! 🎈 N'oublie pas que vieillir est obligatoire, mais grandir est facultatif! 🎉🎂 @everyone",
-        f"Bon anniv, {user.mention}! 🎉 Souviens-toi, plus tu vieillis, plus tu deviens un classique vintage! 🚗🍷 @everyone",
-        f"Hé {user.mention}, c'est ta journée spéciale! 🎂 Profite-en pour manger autant de gâteau que possible sans culpabilité! 🍰😋 @everyone",
-        f"Joyeux anniversaire, {user.mention}! 🎊 Si tu étais une bougie, tu éclairerais toute la planète avec ta brillance! 🌍✨ @everyone",
-        f"Bon anniversaire, superhéros/superhéroïne {user.mention}! 🎉 Aujourd'hui, tu as le pouvoir de faire ce que tu veux (tant que c'est amusant)! 💪😄 @everyone",
-        f"Hé p'tit(e) chanceux(se) {user.mention}, joyeux anniversaire! 🎂 Que la journée soit aussi géniale que toi et remplie de rires contagieux! 😄🎈 @everyone",
-        f"C'est le grand jour, {user.mention}! Joyeux anniversaire, notre source préférée de bonne humeur! 🎉🌈 @everyone",
-        f"Joyeux anniversaire, {user.mention}! On t'aime plus que le gâteau d'anniversaire lui-même! 🎂💖 @everyone",
-        f"Bonne fête, {user.mention}! Aujourd'hui, tu es la rockstar de la fête! 🤘🎸 @everyone",
-        f"Hé {user.mention}, joyeux anniversaire! On espère que ta journée est aussi incroyable que toi! 🚀😄 @everyone",
-        f"Bon anniversaire, {user.mention}! Que la force de la joie soit avec toi aujourd'hui! 🌟😄 @everyone",
-        f"Hé toi, {user.mention}! Joyeux anniversaire! On te décerne la médaille d'honneur de la bonne humeur! 🏅😊 @everyone",
-        f"Bonne fête, {user.mention}! Aujourd'hui, tu es le chef de la fête, alors profite bien de ton règne! 🎉👑 @everyone",
-        f"Joyeux anniversaire, {user.mention}! Que ta journée soit aussi pétillante que du champagne! 🍾✨ @everyone",
-        f"Bon anniversaire, {user.mention}! Souviens-toi, tu n'es pas vieux, tu es classique! 🎉🎩 @everyone",
-        f"Hé {user.mention}, c'est ton jour! Joyeux anniversaire! On espère que tu reçois plus de câlins que de cadeaux! 🤗🎁 @everyone",
-        f"Bonne fête, {user.mention}! Aujourd'hui, tu es la star, alors brille aussi fort que les étoiles! 🌠😊 @everyone",
-        f"Joyeux anniversaire, {user.mention}! On te souhaite une journée remplie de rires et de moments inoubliables! 😄🎈 @everyone",
-        f"Bon anniversaire, {user.mention}! Que cette année soit pleine de surprises aussi géniales que toi! 🎁🎉 @everyone",
-        f"Hé {user.mention}, c'est le moment de faire la fête! Joyeux anniversaire! 🥳🎂 @everyone",
-        f"Bonne fête, {user.mention}! Que la magie de ton anniversaire opère et t'apporte bonheur et sourires! ✨😄 @everyone",
-        f"Joyeux anniversaire, {user.mention}! On espère que ta journée est aussi exceptionnelle que toi! 🌟🎉 @everyone",
-        f"Bon anniversaire, {user.mention}! Profite bien de chaque instant et que cette journée te réserve des surprises incroyables! 🎊😊 @everyone",
-        f"Hé toi, {user.mention}! C'est le moment de célébrer! Joyeux anniversaire! 🎉🥂 @everyone",
-        f"Bonne fête, {user.mention}! Que cette année t'apporte encore plus de rires et de succès! 😄🎂 @everyone",
-        f"Joyeux anniversaire, {user.mention}! On te souhaite une année pleine de moments joyeux et de nouvelles aventures! 🎉🌟 @everyone"
-    ])
+    with open('files/birthday_messages.txt', 'r', encoding='utf-8') as file:
+        messages = file.readlines()
+    return random.choice(messages).strip().format(user=user)
 
 
 async def send_message_to_me(message):
@@ -152,30 +123,9 @@ async def register_birthday(ctx, birthday_date, user=None):
     if guild_id == "0":
         return
 
-    message = random.choice(
-        [
-            "Félicitations ! 🎉 Tu as officiellement marqué ta place dans le calendrier ! 📅",
-            "Youpi ! 🎈 Ton anniversaire est maintenant verrouillé et chargé ! 🔒",
-            "Boom ! 💥 Date d'anniversaire enregistrée ! Prépare-toi pour le train de la fête ! 🚂🎂",
-            "Hourra ! 🎊 Tu as jeté ton chapeau d'anniversaire dans l'arène ! 🎩",
-            "Attache-toi, copain d'anniversaire ! 🎁 Ta journée spéciale est maintenant sur le radar ! 🛫",
-            "Regarde qui vient de devenir la star du spectacle d'anniversaire ! 🌟🎂",
-            "Tiens-toi prêt pour une déferlante de vœux d'anniversaire ! 🌊🎉",
-            "Ding dong ! 🔔 Date d'anniversaire confirmée et prête à être célébrée ! 🎈",
-            "Devine quoi ? 🤔 Tu viens de confirmer ta présence au meilleur jour de tous ! 🎉",
-            "Bien joué ! 🏆 Tu as officiellement gagné une place sur la liste VIP d'anniversaire ! 🎂",
-            "Tiens-toi bien ! 🤠 Tu viens de t'embarquer dans les montagnes russes de l'excitation d'anniversaire ! 🎢",
-            "Ta-da ! 🎩✨ Ta date d'anniversaire fait désormais partie de la programmation magique de la célébration ! 🎉",
-            "Oh la la ! 👏 Ton enregistrement d'anniversaire est une raison de faire pleuvoir les confettis ! 🎊🎉",
-            "High five ! 🖐️ Tu viens de débloquer l'exploit de l'anticipation d'anniversaire ! 🎮",
-            "Bingo ! 🎯 Ton anniversaire est officiellement inscrit sur le calendrier de l'extraordinaire ! 📆",
-            "Eh bien, bien, bien ! 🤓 La date d'anniversaire a été consignée dans les archives du plaisir ! 📜",
-            "Un tonnerre d'applaudissements ! 👏 Ton anniversaire vient de rejoindre les rangs des célébrations légendaires ! 🎂",
-            "Mission accomplie ! 🚀 Ton anniversaire est désormais sur le radar des festivités épiques ! 🎉",
-            "Attends voir ! 📞 Tu viens de sécuriser ta place dans le hall de la renommée des anniversaires ! 🏆🎈",
-            "Sainte guacamole ! 🥑 Ton enregistrement d'anniversaire vient de lancer la fiesta de l'année ! 🎉💃"
-        ]
-    )
+    with open('files/birthday_register.txt', 'r', encoding='utf-8') as file:
+        messages = file.readlines()
+    message = random.choice(messages).strip().format(user=user)
     await ctx.send(message)
 
 
