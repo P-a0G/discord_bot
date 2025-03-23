@@ -59,6 +59,42 @@ async def check_for_new_musics():
     database.save_new_last_update()
 
 
+@bot.command(name='daily')
+async def daily_check_for_new_musics(ctx, days: int):
+    if ctx.author.id != my_id:
+        return
+
+    user_idx_list, artists_idx, artists_names = database.get_artists_idx_and_names()
+
+    last_update = datetime.datetime.now() - datetime.timedelta(days=days)
+
+    await ctx.send(f"Doing a check for the last {days} days")
+
+    for user_idx, artist_idx, artist in zip(user_idx_list, artists_idx, artists_names):
+        print("Checking for", artist)
+        videos = MusicChannel(artist, idx=artist_idx).get_last_update(
+            last_update=last_update
+        )
+        print("\tFound", len(videos), "new videos")
+        for v in videos:
+            if not v.path or not os.path.exists(v.path):
+                print("Didn't get", v.url)
+                continue
+
+            file = discord.File(v.path)
+            print("\t\tNew released video downloaded:", v.path)
+
+            await send_message_to_user(f'{v.url}', user_idx)
+            await send_message_to_user(file, user_idx, is_file=True)
+
+            v.delete()
+
+    print("[Update done]")
+    database.save_new_last_update()
+
+    await ctx.send(f"{days} days check done")
+
+
 @bot.event
 async def on_ready():
     await check_for_new_musics()
