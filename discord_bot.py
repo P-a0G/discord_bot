@@ -39,7 +39,7 @@ async def check_for_new_musics():
         # videos = MusicChannel(artist).get_last_update(last_update=last_update)
         print("Checking for", artist)
         videos = MusicChannel(artist, idx=artist_idx).get_last_update(
-            last_update=datetime.datetime.now() - datetime.timedelta(days=7, hours=2)
+            last_update=datetime.datetime.now() - datetime.timedelta(days=1, hours=2)
         )
         print("\tFound", len(videos), "new videos")
         for v in videos:
