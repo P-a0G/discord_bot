@@ -101,7 +101,7 @@ async def on_ready():
     print('Bot is ready to go!')
 
     if not check_for_new_musics.is_running():
-        await check_for_new_musics.start()
+        check_for_new_musics.start()
 
 
 @bot.command(name='sub')
@@ -233,8 +233,9 @@ async def send_message_to_user(message, user_id, is_file=False):
 
 @bot.event
 async def on_message(message):
+    await bot.process_commands(message)
+
     if message.content.startswith("!"):
-        await bot.process_commands(message)
         return
 
     # show_message_info(message)
