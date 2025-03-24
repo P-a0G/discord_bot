@@ -1,0 +1,79 @@
+Joyeux anniversaire, {user.mention} champion(e) du monde de la naissance! 🎉🏆 Que cette journée soit aussi épique que toi! @everyone
+Bon anniversaire, {user.mention} ! 🎂 Aujourd'hui, tu es la vedette, alors fais briller tes bougies comme une star! ✨🕯️ @everyone
+Hé {user.mention}, joyeux anniversaire! 🎉 Espérons que tu reçoives plus de cadeaux que de notifications Facebook aujourd'hui! 🎁📱 @everyone
+Bonne fête, {user.mention}! 🥳 Aujourd'hui, tu es officiellement plus âgé(e), mais ça ne compte pas tant que tu es toujours jeune d'esprit! 🧓➡️👶 @everyone
+Joyeux anniversaire, {user.mention}! 🎈 N'oublie pas que vieillir est obligatoire, mais grandir est facultatif! 🎉🎂 @everyone
+Bon anniv, {user.mention}! 🎉 Souviens-toi, plus tu vieillis, plus tu deviens un classique vintage! 🚗🍷 @everyone
+Hé {user.mention}, c'est ta journée spéciale! 🎂 Profite-en pour manger autant de gâteau que possible sans culpabilité! 🍰😋 @everyone
+Joyeux anniversaire, {user.mention}! 🎊 Si tu étais une bougie, tu éclairerais toute la planète avec ta brillance! 🌍✨ @everyone
+Bon anniversaire, superhéros/superhéroïne {user.mention}! 🎉 Aujourd'hui, tu as le pouvoir de faire ce que tu veux (tant que c'est amusant)! 💪😄 @everyone
+Hé p'tit(e) chanceux(se) {user.mention}, joyeux anniversaire! 🎂 Que la journée soit aussi géniale que toi et remplie de rires contagieux! 😄🎈 @everyone
+C'est le grand jour, {user.mention}! Joyeux anniversaire, notre source préférée de bonne humeur! 🎉🌈 @everyone
+Joyeux anniversaire, {user.mention}! On t'aime plus que le gâteau d'anniversaire lui-même! 🎂💖 @everyone
+Bonne fête, {user.mention}! Aujourd'hui, tu es la rockstar de la fête! 🤘🎸 @everyone
+Hé {user.mention}, joyeux anniversaire! On espère que ta journée est aussi incroyable que toi! 🚀😄 @everyone
+Bon anniversaire, {user.mention}! Que la force de la joie soit avec toi aujourd'hui! 🌟😄 @everyone
+Hé toi, {user.mention}! Joyeux anniversaire! On te décerne la médaille d'honneur de la bonne humeur! 🏅😊 @everyone
+Bonne fête, {user.mention}! Aujourd'hui, tu es le chef de la fête, alors profite bien de ton règne! 🎉👑 @everyone
+Joyeux anniversaire, {user.mention}! Que ta journée soit aussi pétillante que du champagne! 🍾✨ @everyone
+Bon anniversaire, {user.mention}! Souviens-toi, tu n'es pas vieux, tu es classique! 🎉🎩 @everyone
+Hé {user.mention}, c'est ton jour! Joyeux anniversaire! On espère que tu reçois plus de câlins que de cadeaux! 🤗🎁 @everyone
+Bonne fête, {user.mention}! Aujourd'hui, tu es la star, alors brille aussi fort que les étoiles! 🌠😊 @everyone
+Joyeux anniversaire, {user.mention}! On te souhaite une journée remplie de rires et de moments inoubliables! 😄🎈 @everyone
+Bon anniversaire, {user.mention}! Que cette année soit pleine de surprises aussi géniales que toi! 🎁🎉 @everyone
+Hé {user.mention}, c'est le moment de faire la fête! Joyeux anniversaire! 🥳🎂 @everyone
+Bonne fête, {user.mention}! Que la magie de ton anniversaire opère et t'apporte bonheur et sourires! ✨😄 @everyone
+Joyeux anniversaire, {user.mention}! On espère que ta journée est aussi exceptionnelle que toi! 🌟🎉 @everyone
+Bon anniversaire, {user.mention}! Profite bien de chaque instant et que cette journée te réserve des surprises incroyables! 🎊😊 @everyone
+Hé toi, {user.mention}! C'est le moment de célébrer! Joyeux anniversaire! 🎉🥂 @everyone
+Bonne fête, {user.mention}! Que cette année t'apporte encore plus de rires et de succès! 😄🎂 @everyone
+Joyeux anniversaire, {user.mention}! On te souhaite une année pleine de moments joyeux et de nouvelles aventures! 🎉🌟 @everyone
+Joyeux anniversaire, {user.mention}! 🎉 Aujourd'hui, c'est toi la star, alors brille de mille feux! ✨ @everyone
+Bonne fête, {user.mention}! 🎂 Que cette journée soit remplie de rires, de gâteaux et de bonheur! 😄 @everyone
+Hé {user.mention}, joyeux anniversaire! 🎈 Que cette nouvelle année soit encore plus géniale que la précédente! 🚀 @everyone
+Bon anniversaire, {user.mention}! 🎉 Aujourd'hui, tu as l'excuse parfaite pour manger du gâteau toute la journée! 🍰😋 @everyone
+C'est ta journée, {user.mention}! 🎂 On espère qu'elle sera aussi fantastique que toi! 💖 @everyone
+Joyeux anniversaire, {user.mention}! 🥳 Que cette journée t’apporte autant de bonheur que tu en donnes aux autres! 😍 @everyone
+Bonne fête, {user.mention}! 🎊 N’oublie pas de souffler tes bougies et de faire un vœu magique! ✨ @everyone
+Hé {user.mention}, bon anniversaire! 🎉 Que cette journée soit une explosion de joie et de surprises! 🎁💥 @everyone
+Joyeux anniversaire, {user.mention}! 🎂 Que ta journée soit aussi douce et sucrée que ton gâteau préféré! 🍩 @everyone
+Bonne fête, {user.mention}! 🎈 Aujourd’hui, c’est fête nationale en ton honneur! 🎊 @everyone
+Joyeux anniversaire, {user.mention}! 🎉 Profite bien de chaque instant, c’est TON jour! 🌟 @everyone
+Bon anniversaire, {user.mention}! 🎂 Que cette année t’apporte tout ce que tu souhaites! 🎁 @everyone
+Hé {user.mention}, c'est ton jour spécial! 🎉 Prépare-toi à une avalanche de bonheur et d’amour! ❤️ @everyone
+Joyeux anniversaire, {user.mention}! 🎊 Que cette journée soit le début d’une année remplie de bonheur! 🎂 @everyone
+Bonne fête, {user.mention}! 🎈 Aujourd’hui, le monde est un peu plus lumineux grâce à toi! 🌞 @everyone
+Hé {user.mention}, bon anniversaire! 🎉 Que ta journée soit remplie de surprises et de rires! 😆 @everyone
+Joyeux anniversaire, {user.mention}! 🎂 Que cette journée marque le début d’une année incroyable! 🚀 @everyone
+Bonne fête, {user.mention}! 🎊 Profite de chaque instant, aujourd’hui tout est permis! 🎁 @everyone
+Joyeux anniversaire, {user.mention}! 🎉 Que chaque instant de cette journée soit aussi magique que toi! ✨ @everyone
+Hé {user.mention}, c’est l’heure de la fête! 🎂 Passe une journée inoubliable! 🎊 @everyone
+Bon anniversaire, {user.mention}! 🎈 Que cette année soit remplie de nouvelles aventures! 🌍 @everyone
+Joyeux anniversaire, {user.mention}! 🎂 On espère que ton gâteau est aussi grand que ton cœur! ❤️ @everyone
+Bonne fête, {user.mention}! 🎉 Aujourd’hui, c’est toi le roi/la reine de la fête! 👑 @everyone
+Hé {user.mention}, joyeux anniversaire! 🎊 Que ta journée soit remplie de bonheur et de folie! 🤩 @everyone
+Joyeux anniversaire, {user.mention}! 🎂 Que cette année t’apporte encore plus de rêves réalisés! ✨ @everyone
+Bonne fête, {user.mention}! 🎈 Aujourd’hui, tout tourne autour de toi, profite bien! 😃 @everyone
+Hé {user.mention}, c'est ton grand jour! 🎉 On t’envoie plein de bonnes ondes! 📡 @everyone
+Bon anniversaire, {user.mention}! 🎂 Que cette journée soit à la hauteur de ta gentillesse et de ta générosité! ❤️ @everyone
+Joyeux anniversaire, {user.mention}! 🎊 On te souhaite une montagne de bonheur et de succès! ⛰️ @everyone
+Bonne fête, {user.mention}! 🎉 Que ton année soit remplie de moments inoubliables! 💫 @everyone
+Hé {user.mention}, c’est parti pour une journée mémorable! 🎂 Amuse-toi bien! 🥳 @everyone
+Joyeux anniversaire, {user.mention}! 🎊 On espère que ton gâteau est aussi incroyable que toi! 🍰 @everyone
+Bonne fête, {user.mention}! 🎉 Aujourd’hui, oublie tout sauf le plaisir de célébrer! 🥂 @everyone
+Hé {user.mention}, bon anniversaire! 🎂 Que cette journée soit remplie de rires et de joie! 😄 @everyone
+Joyeux anniversaire, {user.mention}! 🎊 Que cette année soit encore plus lumineuse que la précédente! 🌟 @everyone
+Bonne fête, {user.mention}! 🎈 Aujourd’hui, c’est journée spéciale pour une personne spéciale! ❤️ @everyone
+Hé {user.mention}, c’est ta journée! 🎉 Profite-en au maximum! 🎂 @everyone
+Bon anniversaire, {user.mention}! 🎊 On espère que cette année sera la meilleure de toutes! 🚀 @everyone
+Joyeux anniversaire, {user.mention}! 🎂 N’oublie pas de savourer chaque instant! 🍾 @everyone
+Bonne fête, {user.mention}! 🎈 Que cette journée soit remplie de rires et de bons souvenirs! 📸 @everyone
+Hé {user.mention}, bon anniversaire! 🎉 Aujourd’hui, tout est permis, alors éclate-toi! 🥳 @everyone
+Joyeux anniversaire, {user.mention}! 🎊 Que la fête commence! 🎂 @everyone
+Bonne fête, {user.mention}! 🎈 On te souhaite une journée pleine d’amour et de bonheur! ❤️ @everyone
+Hé {user.mention}, c’est l’heure de souffler tes bougies! 🎂 Joyeux anniversaire! 🎊 @everyone
+Bon anniversaire, {user.mention}! 🎉 On t’envoie plein de sourires et d’ondes positives! 😃 @everyone
+Joyeux anniversaire, {user.mention}! 🎂 Que cette année soit remplie de nouvelles opportunités! 🚀 @everyone
+Bonne fête, {user.mention}! 🎈 Profite bien de ton jour, il n’arrive qu’une fois par an! 🎊 @everyone
+Hé {user.mention}, joyeux anniversaire! 🎂 Aujourd’hui, c’est toi la priorité absolue! 🎁 @everyone
+Bon anniversaire, {user.mention}! 🎊 Que cette journée soit aussi belle que toi! 💖 @everyone
