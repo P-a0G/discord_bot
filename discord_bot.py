@@ -97,7 +97,6 @@ async def daily_check_for_new_musics(ctx, days: int):
 
 @bot.event
 async def on_ready():
-    await check_for_new_musics()
     print('Bot is ready to go!')
 
     if not check_for_new_musics.is_running():
@@ -273,7 +272,7 @@ async def on_message(message):
 
 
 if __name__ == '__main__':
-    token = read_json("files/tokens.json")["Flash_bot"]
+    token = read_json("files/tokens.json")["debug"]
     my_id = int(id_file["my_id"])
     bot.run(token)
 
