@@ -105,6 +105,8 @@ async def on_ready():
     if not check_for_new_musics.is_running():
         check_for_new_musics.start()
 
+    await send_message_to_me("I'm online! 🔥")
+
 
 @bot.command(name='sub')
 async def subscribe(ctx, *, channel_name):
