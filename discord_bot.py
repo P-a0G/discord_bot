@@ -76,6 +76,9 @@ async def daily_check_for_new_musics(ctx, days: int):
             last_update=last_update
         )
         print("\tFound", len(videos), "new videos")
+        if len(videos) > 0:
+            await ctx.send(
+                f"Found {len(videos)} new videos for {artist} (artist {artists_idx.index(artist_idx) + 1}/{len(artists_idx)})")
         for v in videos:
             if not v.path or not os.path.exists(v.path):
                 print("Didn't get", v.url)
