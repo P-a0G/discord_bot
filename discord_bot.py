@@ -27,6 +27,8 @@ daily_check = datetime.time(hour=2, minute=0, second=0, tzinfo=utc)
 
 @tasks.loop(time=daily_check)
 async def check_for_new_musics():
+    channel = bot.get_channel(int(id_file["my_id"]))
+
     user_idx_list, artists_idx, artists_names = database.get_artists_idx_and_names()
 
     last_update = database.get_last_update_datetime()
@@ -35,8 +37,12 @@ async def check_for_new_musics():
         print("\tCheck was done today, wait for tomorrow")
         return 1
 
+    progress_message = await channel.send("🔄 Starting update process...")
+    idx = 0
     for user_idx, artist_idx, artist in zip(user_idx_list, artists_idx, artists_names):
         # videos = MusicChannel(artist).get_last_update(last_update=last_update)
+        await progress_message.edit(content=f"🔍 Checking for {artist} ({idx}/{len(artists_names)})")
+        idx += 1
         print("Checking for", artist)
         videos = MusicChannel(artist, idx=artist_idx).get_last_update(
             last_update=datetime.datetime.now() - datetime.timedelta(days=1, hours=2)
@@ -56,6 +62,7 @@ async def check_for_new_musics():
             v.delete()
 
     print("[Update done]")
+    await progress_message.edit(content="✅ Update process completed.")
     database.save_new_last_update()
 
 
@@ -68,9 +75,11 @@ async def daily_check_for_new_musics(ctx, days: int):
 
     last_update = datetime.datetime.now() - datetime.timedelta(days=days)
 
-    await ctx.send(f"Doing a check for the last {days} days")
-
+    progress_message = await ctx.send(f"🔄 Starting update process...")
+    idx = 0
     for user_idx, artist_idx, artist in zip(user_idx_list, artists_idx, artists_names):
+        await progress_message.edit(content=f"🔍 Checking for {artist} ({idx}/{len(artists_names)})")
+        idx += 1
         print("Checking for", artist)
         videos = MusicChannel(artist, idx=artist_idx).get_last_update(
             last_update=last_update
@@ -95,7 +104,7 @@ async def daily_check_for_new_musics(ctx, days: int):
     print("[Update done]")
     database.save_new_last_update()
 
-    await ctx.send(f"{days} days check done")
+    await progress_message.edit(content=f"✅ Update process completed. {days} days check done")
 
 
 @bot.event
