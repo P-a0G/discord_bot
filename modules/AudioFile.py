@@ -74,7 +74,10 @@ class AudioFile:
             }
             response = execute_request_video(request_params)
 
-            self._duration = response['items'][0]['contentDetails']['duration']
+            self._duration = response.get('items', [{}])[0].get('contentDetails', {}).get('duration', 'PT0S')
+            if self._duration == 'PT0S':
+                print("\t[Error] Couldn't get duration", self.url)
+
         return self._duration
 
     @property
