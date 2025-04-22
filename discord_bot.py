@@ -206,6 +206,11 @@ async def download_music(ctx, *, music_name):
         audio_file.delete()
 
 
+@bot.command(name='ping')
+async def ping(ctx):
+    await ctx.send('🏓 pong!')
+
+
 async def send_message_to_me(message, is_file=False):
     user = bot.get_guild(int(id_file["guild_id"])).get_member(int(id_file["my_id"]))
 
