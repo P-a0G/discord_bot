@@ -21,7 +21,8 @@ class MusicChannel:
 
         search_response = execute_request(request_params)
 
-        channel_id = search_response.get('items', [{}])[0].get('id', {}).get('channelId', None)
+        channel_id = search_response.get('items', [{}])[0].get('id', {}).get('channelId', None) if search_response.get(
+            'items') else None
 
         if channel_id is None:
             print(f"Didn't get id for '{self.name}'")
@@ -37,6 +38,9 @@ class MusicChannel:
         return files
 
     def get_all(self):
+        if self.idx is None:
+            return []
+
         request_params = {
             'channelId': self.idx,
             'part': "snippet",
@@ -55,7 +59,8 @@ class MusicChannel:
         #
         # response['items'] += execute_request(request_params).get('items', [])
 
-        return self.get_videos_from_request(response, order_by_views=True)
+        return [f for f in self.get_videos_from_request(response, order_by_views=True) if
+                is_duration_in_range(f.duration)]
 
     def get_last_update(self, last_update):  # last_update: datetime.datetime
         request_params = {

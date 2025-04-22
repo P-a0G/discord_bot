@@ -156,6 +156,10 @@ async def get_all_musics_from(ctx, *, args):
     musics = await loop.run_in_executor(executor, MusicChannel(channel_name).get_all)
     musics = musics[:n_max]
 
+    if len(musics) == 0:
+        await ctx.send(f"Couldn't find {channel_name}")
+        return
+
     await ctx.send(f"I found {len(musics)} musics!")
     for audio_file in musics:
         if audio_file.path is None:
