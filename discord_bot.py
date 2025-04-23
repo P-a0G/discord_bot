@@ -27,7 +27,7 @@ daily_check = datetime.time(hour=2, minute=0, second=0, tzinfo=utc)
 
 @tasks.loop(time=daily_check)
 async def check_for_new_musics():
-    channel = bot.get_channel(int(id_file["my_id"]))
+    channel = bot.get_user(int(id_file["my_id"]))
 
     user_idx_list, artists_idx, artists_names = database.get_artists_idx_and_names()
 
