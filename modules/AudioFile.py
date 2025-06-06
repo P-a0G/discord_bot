@@ -1,4 +1,5 @@
 import os
+import re
 
 import eyed3
 import requests
@@ -79,6 +80,14 @@ class AudioFile:
                 print("\t[Error] Couldn't get duration", self.url)
 
         return self._duration
+
+    def get_duration_in_seconds(self) -> float:
+        duration = self.duration  # format ISO 8601, e.g. 'PT1H2M3S'
+        match = re.match(r'PT((?P<h>\d+)H)?((?P<m>\d+)M)?((?P<s>\d+)S)?', duration)
+        hours = int(match.group('h')) if match and match.group('h') else 0
+        minutes = int(match.group('m')) if match and match.group('m') else 0
+        seconds = int(match.group('s')) if match and match.group('s') else 0
+        return hours * 3600 + minutes * 60 + seconds - 1
 
     @property
     def album(self):
@@ -165,6 +174,8 @@ class AudioFile:
     def convert_audio_to_mp3(self, extension=".webm"):
         output_path = self.path.replace(extension, ".mp3")
         audio = AudioFileClip(self.path)
+        duration = self.get_duration_in_seconds()
+        audio = audio.subclip(0, duration)
         audio.write_audiofile(output_path)
         self._path = output_path
 
