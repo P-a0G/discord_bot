@@ -175,8 +175,11 @@ class AudioFile:
         output_path = self.path.replace(extension, ".mp3")
         audio = AudioFileClip(self.path)
         duration = self.get_duration_in_seconds()
-        audio = audio.subclip(0, duration)
-        audio.write_audiofile(output_path)
+        audio = audio.subclip(0, duration + 1)
+        try:
+            audio.write_audiofile(output_path)
+        except Exception as e:
+            print(f"\t[Error] In convertion to mp3: {e}")
         self._path = output_path
 
     def add_metadata(self):
@@ -218,7 +221,6 @@ class AudioFile:
             except Exception as e:
                 print(e)
                 print("\t[Error] Couldn't convert webm to mp3")
-                print("Didn't add tags")
                 add_tags = False  # need file to be mp3 to add metadata
 
         if add_tags:
