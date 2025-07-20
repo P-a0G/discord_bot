@@ -4,7 +4,7 @@ import eyed3
 import requests
 from bs4 import BeautifulSoup
 from eyed3.id3.frames import ImageFrame
-from moviepy.editor import AudioFileClip
+from moviepy import AudioFileClip
 from pytube.exceptions import VideoUnavailable
 from pytubefix import YouTube
 from pytubefix.cli import on_progress

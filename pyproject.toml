@@ -1,0 +1,22 @@
+[project]
+name = "discord-bot"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.11"
+dependencies = [
+    "beautifulsoup4>=4.13.4",
+    "commitizen>=4.8.3",
+    "discord>=2.3.2",
+    "discord-py>=2.5.2",
+    "eyed3>=0.9.8",
+    "ffmpeg>=1.4",
+    "google-api-python-client>=2.176.0",
+    "moviepy>=2.2.1",
+    "mutagen>=1.47.0",
+    "numpy>=2.3.1",
+    "pytest>=8.4.1",
+    "pytube>=15.0.0",
+    "pytubefix>=9.3.0",
+    "requests>=2.32.4",
+    "yt-dlp>=2025.6.30",
+]
