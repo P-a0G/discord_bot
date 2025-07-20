@@ -27,6 +27,8 @@ daily_check = datetime.time(hour=2, minute=0, second=0, tzinfo=utc)
 
 @tasks.loop(time=daily_check)
 async def check_for_new_musics():
+    channel = bot.get_user(int(id_file["my_id"]))
+
     user_idx_list, artists_idx, artists_names = database.get_artists_idx_and_names()
 
     last_update = database.get_last_update_datetime()
@@ -35,8 +37,12 @@ async def check_for_new_musics():
         print("\tCheck was done today, wait for tomorrow")
         return 1
 
+    progress_message = await channel.send("🔄 Starting update process...")
+    idx = 0
     for user_idx, artist_idx, artist in zip(user_idx_list, artists_idx, artists_names):
         # videos = MusicChannel(artist).get_last_update(last_update=last_update)
+        await progress_message.edit(content=f"🔍 Checking for {artist} ({idx}/{len(artists_names)})")
+        idx += 1
         print("Checking for", artist)
         videos = MusicChannel(artist, idx=artist_idx).get_last_update(
             last_update=datetime.datetime.now() - datetime.timedelta(days=1, hours=2)
@@ -56,6 +62,7 @@ async def check_for_new_musics():
             v.delete()
 
     print("[Update done]")
+    await progress_message.edit(content="✅ Update process completed.")
     database.save_new_last_update()
 
 
@@ -68,14 +75,19 @@ async def daily_check_for_new_musics(ctx, days: int):
 
     last_update = datetime.datetime.now() - datetime.timedelta(days=days)
 
-    await ctx.send(f"Doing a check for the last {days} days")
-
+    progress_message = await ctx.send(f"🔄 Starting update process...")
+    idx = 0
     for user_idx, artist_idx, artist in zip(user_idx_list, artists_idx, artists_names):
+        await progress_message.edit(content=f"🔍 Checking for {artist} ({idx}/{len(artists_names)})")
+        idx += 1
         print("Checking for", artist)
         videos = MusicChannel(artist, idx=artist_idx).get_last_update(
             last_update=last_update
         )
         print("\tFound", len(videos), "new videos")
+        if len(videos) > 0:
+            await ctx.send(
+                f"Found {len(videos)} new videos for {artist}")
         for v in videos:
             if not v.path or not os.path.exists(v.path):
                 print("Didn't get", v.url)
@@ -92,16 +104,17 @@ async def daily_check_for_new_musics(ctx, days: int):
     print("[Update done]")
     database.save_new_last_update()
 
-    await ctx.send(f"{days} days check done")
+    await progress_message.edit(content=f"✅ Update process completed. {days} days check done")
 
 
 @bot.event
 async def on_ready():
-    await check_for_new_musics()
     print('Bot is ready to go!')
 
     if not check_for_new_musics.is_running():
-        await check_for_new_musics.start()
+        check_for_new_musics.start()
+
+    await send_message_to_me("I'm online! 🔥")
 
 
 @bot.command(name='sub')
@@ -157,6 +170,10 @@ async def get_all_musics_from(ctx, *, args):
     musics = await loop.run_in_executor(executor, MusicChannel(channel_name).get_all)
     musics = musics[:n_max]
 
+    if len(musics) == 0:
+        await ctx.send(f"Couldn't find {channel_name}")
+        return
+
     await ctx.send(f"I found {len(musics)} musics!")
     for audio_file in musics:
         if audio_file.path is None:
@@ -203,6 +220,11 @@ async def download_music(ctx, *, music_name):
         audio_file.delete()
 
 
+@bot.command(name='ping')
+async def ping(ctx):
+    await ctx.send('🏓 pong!')
+
+
 async def send_message_to_me(message, is_file=False):
     user = bot.get_guild(int(id_file["guild_id"])).get_member(int(id_file["my_id"]))
 
@@ -233,8 +255,9 @@ async def send_message_to_user(message, user_id, is_file=False):
 
 @bot.event
 async def on_message(message):
+    await bot.process_commands(message)
+
     if message.content.startswith("!"):
-        await bot.process_commands(message)
         return
 
     # show_message_info(message)

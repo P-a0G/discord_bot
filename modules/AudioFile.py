@@ -1,4 +1,5 @@
 import os
+import re
 
 import eyed3
 import requests
@@ -74,8 +75,19 @@ class AudioFile:
             }
             response = execute_request_video(request_params)
 
-            self._duration = response['items'][0]['contentDetails']['duration']
+            self._duration = response.get('items', [{}])[0].get('contentDetails', {}).get('duration', 'PT0S')
+            if self._duration == 'PT0S':
+                print("\t[Error] Couldn't get duration", self.url)
+
         return self._duration
+
+    def get_duration_in_seconds(self) -> float:
+        duration = self.duration  # format ISO 8601, e.g. 'PT1H2M3S'
+        match = re.match(r'PT((?P<h>\d+)H)?((?P<m>\d+)M)?((?P<s>\d+)S)?', duration)
+        hours = int(match.group('h')) if match and match.group('h') else 0
+        minutes = int(match.group('m')) if match and match.group('m') else 0
+        seconds = int(match.group('s')) if match and match.group('s') else 0
+        return hours * 3600 + minutes * 60 + seconds - 1
 
     @property
     def album(self):
@@ -162,7 +174,12 @@ class AudioFile:
     def convert_audio_to_mp3(self, extension=".webm"):
         output_path = self.path.replace(extension, ".mp3")
         audio = AudioFileClip(self.path)
-        audio.write_audiofile(output_path)
+        duration = self.get_duration_in_seconds()
+        audio = audio.subclip(0, duration + 1)
+        try:
+            audio.write_audiofile(output_path)
+        except Exception as e:
+            print(f"\t[Error] In convertion to mp3: {e}")
         self._path = output_path
 
     def add_metadata(self):
@@ -204,7 +221,6 @@ class AudioFile:
             except Exception as e:
                 print(e)
                 print("\t[Error] Couldn't convert webm to mp3")
-                print("Didn't add tags")
                 add_tags = False  # need file to be mp3 to add metadata
 
         if add_tags:
