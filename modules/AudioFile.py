@@ -12,6 +12,7 @@ from pytubefix.cli import on_progress
 from yt_dlp import YoutubeDL
 
 from modules.google_utils import execute_request_video
+from modules.spotify_utils import SpotifyManager
 
 
 class AudioFile:
@@ -32,6 +33,7 @@ class AudioFile:
         self._duration = None
         self._view_count = None if "statistics" not in item else int(item.get("statistics", {}).get("viewCount", None))
         self.yt = YouTube(self.url, on_progress_callback=on_progress) if self.idx is not None else None
+        self.spotify_manager = SpotifyManager()
 
     def __repr__(self):
         return f"AudioFile(title='{self.title}', artist='{self.artist}', album='{self.album}', year={self.year})"
@@ -202,6 +204,11 @@ class AudioFile:
         audiofile.tag.year = self.year
         audiofile.tag.images.set(ImageFrame.FRONT_COVER, self.image, "image/jpeg")
         audiofile.tag.save()
+
+        print("Trying to ask to spotify for metadata")
+        metadata = self.spotify_manager.get_music_metadata(self.title, self.artist)
+        print("Got metadata:", metadata)
+
 
     def add_to_history(self, history_pth="files/history.csv"):
         if os.path.exists(history_pth):
