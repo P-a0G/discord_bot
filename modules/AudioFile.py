@@ -1,11 +1,11 @@
 import os
 import re
 
-import eyed3
 import requests
 from bs4 import BeautifulSoup
-from eyed3.id3.frames import ImageFrame
 from moviepy import AudioFileClip
+from mutagen.id3 import ID3, TIT2, TPE1, TALB, TDRC, TCON, APIC
+from mutagen.mp3 import MP3
 from pytube.exceptions import VideoUnavailable
 from pytubefix import YouTube
 from pytubefix.cli import on_progress
@@ -174,10 +174,8 @@ class AudioFile:
         return 1
 
     def convert_audio_to_mp3(self, extension=".webm"):
-        output_path = self.path.replace(extension, ".mp3")
+        output_path = os.path.join(os.path.dirname(self.path), self.title + ".mp3")
         audio = AudioFileClip(self.path)
-        duration = self.get_duration_in_seconds()
-        audio = audio.subclip(0, duration + 1)
         try:
             audio.write_audiofile(output_path)
         except Exception as e:
@@ -185,29 +183,31 @@ class AudioFile:
         self._path = output_path
 
     def add_metadata(self):
-        audiofile = eyed3.load(self.path)
-        if audiofile is None:
-            # If the automatic format detection fails, try specifying the format
-            print("\tTrying to specify format")
-            audiofile = eyed3.load(self.path, tag_version=eyed3.id3.ID3_V2_3)
-
-        if audiofile is None:
-            print("\t[Error] Failed to load audio file.")
-            return
-
-        if audiofile.tag is None:
-            audiofile.initTag()
-
-        audiofile.tag.title = self.title
-        audiofile.tag.artist = self.artist
-        audiofile.tag.album = self.album
-        audiofile.tag.year = self.year
-        audiofile.tag.images.set(ImageFrame.FRONT_COVER, self.image, "image/jpeg")
-        audiofile.tag.save()
-
-        print("Trying to ask to spotify for metadata")
         metadata = self.spotify_manager.get_music_metadata(self.title, self.artist)
-        print("Got metadata:", metadata)
+
+        audio = MP3(self.path, ID3=ID3)
+        audio["TIT2"] = TIT2(encoding=3, text=metadata["title"])
+        audio["TPE1"] = TPE1(encoding=3, text=metadata["artists"])
+        audio["TALB"] = TALB(encoding=3, text=metadata["album"])
+
+        year = metadata["release_date"].split("-")[0]
+        audio["TDRC"] = TDRC(encoding=3, text=year)
+
+        genre_str = "; ".join(metadata["genres"]) if metadata.get("genres") else ""
+        audio["TCON"] = TCON(encoding=3, text=genre_str)
+
+        if metadata.get("album_art_url"):
+            resp = requests.get(metadata["album_art_url"])
+            if resp.status_code == 200:
+                audio["APIC"] = APIC(
+                    encoding=3,
+                    mime=resp.headers.get('Content-Type', 'image/jpeg'),
+                    type=3,
+                    desc="Cover",
+                    data=resp.content
+                )
+
+        audio.save()
 
 
     def add_to_history(self, history_pth="files/history.csv"):
