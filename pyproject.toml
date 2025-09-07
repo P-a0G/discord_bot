@@ -15,6 +15,7 @@ dependencies = [
     "mutagen>=1.47.0",
     "numpy>=2.3.1",
     "opencv-python>=4.11.0.86",
+    "pymediainfo>=7.0.1",
     "pytest>=8.4.1",
     "pytube>=15.0.0",
     "pytubefix>=9.3.0",
