@@ -1,3 +1,4 @@
+import re
 import time
 
 import spotipy
@@ -9,6 +10,16 @@ client_id = read_json("files/tokens.json")["spotify_client_id"]
 client_secret = read_json("files/tokens.json")["spotify_secret"]
 
 
+def clean_title(title: str) -> str:
+    # Remove common YouTube extras
+    title = re.sub(r"\bofficial\b", "", title, flags=re.IGNORECASE)
+    title = re.sub(r"\blyric[s]?\b", "", title, flags=re.IGNORECASE)
+    title = re.sub(r"\bvideo\b", "", title, flags=re.IGNORECASE)
+    title = re.sub(r"\bft\.|\bfeat\.?", "", title, flags=re.IGNORECASE)
+    # Collapse multiple spaces
+    return " ".join(title.split())
+
+
 class SpotifyManager:
     def __init__(self):
         self.client_credentials_manager = SpotifyClientCredentials(client_id=client_id, client_secret=client_secret)
@@ -16,26 +27,31 @@ class SpotifyManager:
         self.sp.trace = False  # Disable debug output
 
     def get_music_metadata(self, title: str, artist=None, limit=10) -> dict:
-        query = f"track:{title}"
+        query = clean_title(title)
+
         if artist:
-            query += f" artist:{artist}"
+            query = f'track:"{query}" artist:"{artist}"'
 
         results = self.sp.search(q=query, type="track", limit=limit)
         time.sleep(0.1)
 
         if results["tracks"]["items"]:
             track = results["tracks"]["items"][0]
+            artist_id = track['artists'][0]['id']
+            artist_info = self.sp.artist(artist_id)
+            genres = artist_info['genres']
 
             return {
                 "title": track["name"],
-                "artists": ", ".join(artist["name"] for artist in track["artists"]),
+                "artists": ", ".join(a["name"] for a in track["artists"]),
                 "album": track["album"]["name"],
                 "release_date": track["album"]["release_date"],
                 "duration_ms": track["duration_ms"],
                 "popularity": track["popularity"],
                 "preview_url": track["preview_url"],
                 "external_url": track["external_urls"]["spotify"],
-                "album_art_url": track["album"]["images"][0]["url"]
+                "album_art_url": track["album"]["images"][0]["url"],
+                "genres": genres
             }
 
         return {}
