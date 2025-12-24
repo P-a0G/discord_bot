@@ -321,29 +321,48 @@ async def delete_account(ctx, discord_id: int, game_name: str, tag_line: str):
 async def my_history(ctx, last: int = 5):
     """
     Display your recent match history for all saved Riot accounts.
-    Shows up to 'last' matches per account, combined and sorted by date.
+    Shows up to 'last' matches total, sorted by date (newest first).
     """
     discord_id = ctx.author.id
 
+    # Get history using your helper
     try:
-        matches, msg = get_history(discord_users, riot_client, discord_id, last)
+        matches, error_msg = get_history(discord_users, riot_client, discord_id, last)
         if matches is None:
-            await ctx.send(msg)
+            await ctx.send(error_msg)
             return
-
-        response = f"Recent match history for <@{discord_id}>:\n"
-        for match_time, account, details in matches:
-            win_emoji = "🟢" if details['win'] else "🔴"
-            response += (
-                f"{datetime.datetime.fromtimestamp(match_time / 1000).strftime('%d-%m-%Y %H:%M')} - {account.game_name}#{account.tag_line} "
-                f"played **{details['champion']}** ({details['queue']}) - {win_emoji} "
-                f"{details['kills']}/{details['deaths']}/{details['assists']} "
-                f"[{details['duration_min']}min]\n"
-            )
-
-        await ctx.send(response)
     except Exception as e:
         await ctx.send(f"Error retrieving history: {e}")
+        return
+
+    if not matches:
+        await ctx.send("No matches found.")
+        return
+
+    # Prepare blue embed
+    embed = discord.Embed(
+        title=f"Lastest games:",
+        color=discord.Color.blue()
+    )
+    embed.set_footer(text="Match history")
+
+    # Add one field per match
+    for match_time, account, details in matches:
+        # Convert ms -> UTC datetime
+        dt = datetime.datetime.fromtimestamp(match_time / 1000, tz=datetime.timezone.utc)
+        date_str = dt.strftime('%d-%m-%Y %H:%M UTC')
+
+        win_emoji = "🟢" if details['win'] else "🔴"
+        line = (
+            f"{date_str} — {account.game_name}#{account.tag_line}\n"
+            f"{win_emoji} **{details['champion']}** ({details['queue']})\n"
+            f"K/D/A: {details['kills']}/{details['deaths']}/{details['assists']} • {details['duration_min']} min"
+        )
+
+        embed.add_field(name="\u200b", value=line, inline=False)
+
+    await ctx.send(embed=embed)
+
 
 # ----------------------------
 # Standard message processing
