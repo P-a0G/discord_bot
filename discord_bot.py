@@ -10,6 +10,13 @@ from modules.DataBase import database
 from modules.MusicChannel import MusicChannel, extract_from_url, get_url_from_name
 from modules.utils import read_json, is_valid_url
 
+# === Riot tracker imports ===
+from modules.riot_tracker.client import RiotClient
+from modules.riot_tracker.storage import JsonStorage
+from modules.riot_tracker.chore import add_user_riot, remove_riot_account, get_history, get_new_matches
+
+# ============================
+
 intents = discord.Intents.default()
 intents.members = True
 intents.message_content = True
@@ -17,6 +24,17 @@ intents.message_content = True
 id_file = read_json("files/id_dict.json")
 
 bot = commands.Bot(command_prefix='!', intents=intents)
+
+# === Riot tracker setup ===
+RIOT_API_KEY = read_json("files/tokens.json")["riot_key"]
+
+riot_client = RiotClient(api_key=RIOT_API_KEY)
+storage = JsonStorage("files/discord_users.json")
+
+# Load existing users from storage
+discord_users = storage.load()
+
+# ============================
 
 utc = datetime.timezone.utc
 daily_check = datetime.time(hour=2, minute=0, second=0, tzinfo=utc)
@@ -105,6 +123,22 @@ async def daily_check_for_new_musics(ctx, days: int):
     database.save_new_last_update()
 
     await progress_message.edit(content=f"✅ Update process completed. {days} days check done")
+@tasks.loop(seconds=60)
+async def check_new_matches():
+    now = datetime.datetime.now(tz=utc)
+    if now.hour == daily_check.hour and now.minute == daily_check.minute:
+        print("Checking for new matches...")
+        notifications = get_new_matches(storage, discord_users, riot_client)
+        for discord_id, account, match_details in notifications:
+            win_emoji = "🟢" if match_details['win'] else "🔴"
+            message = (
+                f"New match for {account.game_name}#{account.tag_line}!\n"
+                f"Played **{match_details['champion']}** ({match_details['queue']}) - {win_emoji} "
+                f"{match_details['kills']}/{match_details['deaths']}/{match_details['assists']} "
+                f"[{match_details['duration_min']}min]"
+            )
+            await send_message_to_user(message, discord_id)
+        print(f"Sent {len(notifications)} new match notifications.")
 
 
 @bot.event
@@ -144,6 +178,9 @@ async def unsubscribe(ctx, *, channel_name):
     else:
         await ctx.send(f"{channel_name} wasn't in subscribed list")
 
+    # Start the new match checker
+    if not check_new_matches.is_running():
+        check_new_matches.start()
 
 executor = ThreadPoolExecutor()
 
@@ -227,7 +264,6 @@ async def ping(ctx):
 
 async def send_message_to_me(message, is_file=False):
     user = bot.get_guild(int(id_file["guild_id"])).get_member(int(id_file["my_id"]))
-
     if user:
         if is_file:
             await user.send(file=message)
@@ -236,23 +272,82 @@ async def send_message_to_me(message, is_file=False):
     else:
         print("[Error] Couldn't send message to me")
 
-
 async def send_message_to_user(message, user_id, is_file=False):
     try:
-        # Fetch the user object by ID
         user = await bot.fetch_user(int(user_id))
-
-        # Send the message or file
         if is_file:
             await user.send(file=message)
         else:
             await user.send(message)
-
     except Exception as e:
         user_name = bot.get_user(int(user_id)).name
         print(f"[Error] Couldn't send message to user {user_name} ({user_id}): {e}")
 
+# ----------------------------
+# Riot account commands
+# ----------------------------
+@bot.command(name="add_user")
+async def add_user(ctx, *, args):
+    """Add a new Discord user with one Riot account, or add a Riot account to an existing user."""
+    splitted_args = args.split(' ')
+    if len(splitted_args) != 2:
+        await ctx.send("Usage: !add_user <game_name> #<tag_line>")
+        return
 
+    discord_id = ctx.author.id
+    game_name, tag_line = args.split(' ', 1)
+    if not tag_line.startswith('#'):
+        await ctx.send("Tag line must start with '#'")
+        return
+    tag_line = tag_line[1:]  # Remove '#'
+
+    try:
+        msg = add_user_riot(storage, riot_client, discord_id, discord_users, game_name, tag_line)
+        await ctx.send(msg)
+    except Exception as e:
+        await ctx.send(f"Error adding user: {e}")
+
+
+@bot.command(name="delete_account")
+async def delete_account(ctx, discord_id: int, game_name: str, tag_line: str):
+    """Delete a Riot account from a Discord user."""
+    try:
+        msg = remove_riot_account(storage, discord_id, discord_users, game_name, tag_line)
+        await ctx.send(msg)
+    except Exception as e:
+        await ctx.send(f"Error deleting account: {e}")
+
+@bot.command(name="history")
+async def my_history(ctx, last: int = 5):
+    """
+    Display your recent match history for all saved Riot accounts.
+    Shows up to 'last' matches per account, combined and sorted by date.
+    """
+    discord_id = ctx.author.id
+
+    try:
+        matches, msg = get_history(discord_users, riot_client, discord_id, last)
+        if matches is None:
+            await ctx.send(msg)
+            return
+
+        response = f"Recent match history for <@{discord_id}>:\n"
+        for match_time, account, details in matches:
+            win_emoji = "🟢" if details['win'] else "🔴"
+            response += (
+                f"{datetime.datetime.fromtimestamp(match_time / 1000).strftime('%d-%m-%Y %H:%M')} - {account.game_name}#{account.tag_line} "
+                f"played **{details['champion']}** ({details['queue']}) - {win_emoji} "
+                f"{details['kills']}/{details['deaths']}/{details['assists']} "
+                f"[{details['duration_min']}min]\n"
+            )
+
+        await ctx.send(response)
+    except Exception as e:
+        await ctx.send(f"Error retrieving history: {e}")
+
+# ----------------------------
+# Standard message processing
+# ----------------------------
 @bot.event
 async def on_message(message):
     await bot.process_commands(message)
