@@ -5,7 +5,7 @@ from discord.ext import commands, tasks
 from modules.utils import read_json, make_embed_history
 from modules.riot_tracker.client import RiotClient
 from modules.riot_tracker.storage import JsonStorage
-from modules.riot_tracker.chore import add_user_riot, remove_riot_account, get_history, get_new_matches
+from modules.riot_tracker.chore import add_user_riot, remove_riot_account, get_history, get_new_matches, get_full_data_history
 from modules.riot_tracker.lol_basher import bash_user
 
 intents = discord.Intents.default()
@@ -81,7 +81,16 @@ async def check_new_matches():
 
 @tasks.loop(seconds=14400)  # 4 hours
 async def bash_users():
-    pass
+    for users in discord_users.values():
+        discord_id = users.discord_id
+        guild_id = users.guild_id
+
+        history = get_full_data_history(discord_users, riot_client, discord_id)
+
+        user = bot.get_guild(int(guild_id)).get_member(discord_id)
+        msg = bash_user(user, history)
+
+        await send_message_to_me(msg)
 
 @bot.command(name="add_user")
 async def add_user(ctx, *, args):
