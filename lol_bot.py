@@ -90,7 +90,8 @@ async def bash_users():
         user = bot.get_guild(int(guild_id)).get_member(discord_id)
         msg = bash_user(user, history)
 
-        await send_message_to_me(msg)
+        if msg:
+            await send_message_to_me(msg)
 
 @bot.command(name="add_user")
 async def add_user(ctx, *, args):
