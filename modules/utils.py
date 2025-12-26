@@ -2,6 +2,8 @@ import json
 import numpy as np
 import urllib.parse
 import logging
+import discord
+import datetime
 
 logging.basicConfig(encoding='utf-8', level=logging.INFO)
 
@@ -83,3 +85,28 @@ def show_message_info(message):
     print("\t name:", message.author.name)
 
     print("content:", message.content)
+
+def make_embed_history(matches):
+    # Prepare blue embed
+    embed = discord.Embed(
+        title=f"Lastest games:",
+        color=discord.Color.blue()
+    )
+    embed.set_footer(text="Match history")
+
+    # Add one field per match
+    for match_time, account, details in matches:
+        # Convert ms -> UTC datetime
+        dt = datetime.datetime.fromtimestamp(match_time / 1000, tz=datetime.timezone.utc)
+        date_str = dt.strftime('%d-%m-%Y %H:%M UTC')
+
+        win_emoji = "🟢" if details['win'] else "🔴"
+        line = (
+            f"{date_str} — {account.game_name}#{account.tag_line}\n"
+            f"{win_emoji} **{details['champion']}** ({details['queue']})\n"
+            f"K/D/A: {details['kills']}/{details['deaths']}/{details['assists']} • {details['duration_min']} min"
+        )
+
+        embed.add_field(name="\u200b", value=line, inline=False)
+
+    return embed

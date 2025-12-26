@@ -8,7 +8,7 @@ from discord.ext import commands, tasks
 
 from modules.DataBase import database
 from modules.MusicChannel import MusicChannel, extract_from_url, get_url_from_name
-from modules.utils import read_json, is_valid_url
+from modules.utils import read_json, is_valid_url, make_embed_history
 
 # === Riot tracker imports ===
 from modules.riot_tracker.client import RiotClient
@@ -125,20 +125,13 @@ async def daily_check_for_new_musics(ctx, days: int):
     await progress_message.edit(content=f"✅ Update process completed. {days} days check done")
 @tasks.loop(seconds=60)
 async def check_new_matches():
-    now = datetime.datetime.now(tz=utc)
-    if now.hour == daily_check.hour and now.minute == daily_check.minute:
-        print("Checking for new matches...")
-        notifications = get_new_matches(storage, discord_users, riot_client)
-        for discord_id, account, match_details in notifications:
-            win_emoji = "🟢" if match_details['win'] else "🔴"
-            message = (
-                f"New match for {account.game_name}#{account.tag_line}!\n"
-                f"Played **{match_details['champion']}** ({match_details['queue']}) - {win_emoji} "
-                f"{match_details['kills']}/{match_details['deaths']}/{match_details['assists']} "
-                f"[{match_details['duration_min']}min]"
-            )
-            await send_message_to_user(message, discord_id)
-        print(f"Sent {len(notifications)} new match notifications.")
+    notifications = get_new_matches(storage, discord_users, riot_client)
+
+    new_matches = [(t, a, d) for (_, t, a, d) in notifications]
+
+    embed = make_embed_history(new_matches)
+
+    await send_message_to_me(embed, is_embed=True)
 
 
 @bot.event
@@ -262,11 +255,13 @@ async def ping(ctx):
     await ctx.send('🏓 pong!')
 
 
-async def send_message_to_me(message, is_file=False):
+async def send_message_to_me(message, is_file=False, is_embed=False):
     user = bot.get_guild(int(id_file["guild_id"])).get_member(int(id_file["my_id"]))
     if user:
         if is_file:
             await user.send(file=message)
+        elif is_embed:
+            await user.send(embed=message)
         else:
             await user.send(message)
     else:
@@ -339,27 +334,7 @@ async def my_history(ctx, last: int = 5):
         await ctx.send("No matches found.")
         return
 
-    # Prepare blue embed
-    embed = discord.Embed(
-        title=f"Lastest games:",
-        color=discord.Color.blue()
-    )
-    embed.set_footer(text="Match history")
-
-    # Add one field per match
-    for match_time, account, details in matches:
-        # Convert ms -> UTC datetime
-        dt = datetime.datetime.fromtimestamp(match_time / 1000, tz=datetime.timezone.utc)
-        date_str = dt.strftime('%d-%m-%Y %H:%M UTC')
-
-        win_emoji = "🟢" if details['win'] else "🔴"
-        line = (
-            f"{date_str} — {account.game_name}#{account.tag_line}\n"
-            f"{win_emoji} **{details['champion']}** ({details['queue']})\n"
-            f"K/D/A: {details['kills']}/{details['deaths']}/{details['assists']} • {details['duration_min']} min"
-        )
-
-        embed.add_field(name="\u200b", value=line, inline=False)
+    embed = make_embed_history(matches)
 
     await ctx.send(embed=embed)
 

@@ -71,7 +71,7 @@ def get_new_matches(storage, discord_users, riot_client):
 
             for match_id in new_matches:
                 match_details = riot_client.get_match(match_id, puuid=account.puuid)
-                notifications.append((user.discord_id, account, match_details))
+                notifications.append((user.discord_id, match_details['date'], account, match_details))
                 account.seen_matches.add(match_id)
 
     storage.save(discord_users)
