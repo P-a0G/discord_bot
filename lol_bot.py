@@ -65,7 +65,7 @@ async def on_ready():
 
     await send_message_to_me("I'm online! 🔥")
 
-@tasks.loop(seconds=60)
+@tasks.loop(seconds=300)
 async def check_new_matches():
     for discord_id in discord_users:
         notifications = get_new_matches(discord_users, discord_id, riot_client)
@@ -73,6 +73,9 @@ async def check_new_matches():
         storage.save(discord_users)  # saving latest data after the check
 
         new_matches = [(t, a, d) for (_, t, a, d) in notifications]
+
+        if not new_matches:
+            continue
 
         embed = make_embed_history(new_matches)
 
