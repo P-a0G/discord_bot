@@ -2,6 +2,8 @@ import random
 from datetime import datetime, timezone, timedelta
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
+from .message_templates import TEMPLATES
+
 # ============================================================
 # Types
 # ============================================================
@@ -46,7 +48,16 @@ def _compute_kda(k: int, d: int, a: int) -> float:
 
 def parse_participant_entry(puuid: str, match: Dict[str, Any]) -> Optional[ParsedMatch]:
     try:
-        for p in match["info"]["participants"]:
+        participants = match["info"]["participants"]
+        team_kills = sum(p["kills"] for p in participants[:5])  # Assuming first 5 = team
+        team_deaths = sum(p["deaths"] for p in participants[:5])
+        team_assists = sum(p["assists"] for p in participants[:5])
+
+        enemy_kills = sum(p["kills"] for p in participants[5:])
+        enemy_deaths = sum(p["deaths"] for p in participants[5:])
+        enemy_assists = sum(p["assists"] for p in participants[5:])
+
+        for p in participants:
             if p["puuid"] == puuid:
                 return {
                     "timestamp": _safe_get_match_timestamp(match),
@@ -57,6 +68,12 @@ def parse_participant_entry(puuid: str, match: Dict[str, Any]) -> Optional[Parse
                     "kda_ratio": _compute_kda(p["kills"], p["deaths"], p["assists"]),
                     "champion": p["championName"],
                     "damage": p["totalDamageDealtToChampions"],
+                    "team_kills": team_kills,
+                    "team_deaths": team_deaths,
+                    "team_assists": team_assists,
+                    "enemy_kills": enemy_kills,
+                    "enemy_deaths": enemy_deaths,
+                    "enemy_assists": enemy_assists,
                 }
     except Exception:
         pass
@@ -95,6 +112,59 @@ def detect_recent_streak(matches: List[ParsedMatch]):
 
 def analyze_last_game(matches: List[ParsedMatch]):
     last = matches[-1]
+
+    # Player info
+    player = last
+    team_total_kills = last["team_kills"]
+    player_contrib_ratio = player["kills"] / max(1, team_total_kills)
+
+    # Team and enemy stats
+    participants = last.get("raw_participants")  # optional if full participant data is saved
+    if not participants:
+        # fallback: minimal data from last match
+        participants = [
+            {
+                "puuid": "player",
+                "championName": last["champion"],
+                "kills": last["kills"],
+                "deaths": last["deaths"],
+                "assists": last["assists"],
+                "win": last["win"],
+            }
+        ]
+
+    # Split team and enemies by win status
+    team = [p for p in participants if p.get("win") == last["win"]]
+    enemies = [p for p in participants if p.get("win") != last["win"]]
+
+    # Helper functions
+    def best_player(players):
+        if not players:
+            return None
+        p = max(players, key=lambda x: x["kills"] + x["assists"] - x["deaths"])
+        return {
+            "name": p.get("puuid"),
+            "champion": p.get("championName"),
+            "score": f"{p['kills']}/{p['deaths']}/{p['assists']}"
+        }
+
+    def worst_player(players):
+        if not players:
+            return None
+        p = min(players, key=lambda x: x["kills"] + x["assists"] - x["deaths"])
+        return {
+            "name": p.get("puuid"),
+            "champion": p.get("championName"),
+            "score": f"{p['kills']}/{p['deaths']}/{p['assists']}"
+        }
+
+    # Best/worst players
+    best_team = best_player(team)
+    worst_team = worst_player(team)
+    best_enemy = best_player(enemies)
+    worst_enemy = worst_player(enemies)
+
+    # Return full analysis
     return {
         "last": last,
         "big_win": last["win"] and last["damage"] >= 25000,
@@ -102,129 +172,83 @@ def analyze_last_game(matches: List[ParsedMatch]):
         "high_kda": last["kda_ratio"] >= 4,
         "low_kda_but_win": last["kda_ratio"] <= 1 and last["win"],
         "carried_but_lost": last["kda_ratio"] >= 3 and not last["win"],
+        "player_carried_team": player_contrib_ratio > 0.5 and last["win"],
+        "player_carried_by_team": player_contrib_ratio < 0.2 and last["win"],
+        "team_crushed": last["win"] and last["team_kills"] > last["enemy_kills"] * 2,
+        "team_lost_hard": not last["win"] and last["team_kills"] < last["enemy_kills"] / 2,
+        "best_team_player": best_team,
+        "worst_team_player": worst_team,
+        "best_enemy_player": best_enemy,
+        "worst_enemy_player": worst_enemy,
     }
 
 
-# ============================================================
-# Templates
-# ============================================================
-
-TEMPLATES = {
-    "lose_streak": [
-        "{mention}, série de {n} défaites. Respire, prends une pause, et arrête de blâmer le ping.",
-        "{mention}, {n} défaites à la suite. Tes coéquipiers demandent des excuses publiques.",
-        "{mention}, tu tombes sur une mauvaise série ({n}). On tente la roulette ou on switch de rôle ?",
-        "{mention}, {n} défaites… la seule chose que tu carries c'est la tristesse.",
-        "{mention}, {n} losses de suite… ça devient épique, mais pas dans le bon sens.",
-        "{mention}, encore une défaite ({n})… les adversaires doivent t'envoyer des fleurs.",
-        "{mention}, {n} défaites, bientôt un Guinness pour la série la plus tragique ?",
-        "{mention}, série négative ({n}) — la seule chose stable ici c'est ton malheur.",
-        "{mention}, {n} losses consécutives. On devrait ouvrir un fan club de tes défaites ?",
-    ],
-    "big_loss": [
-        "{mention}, game catastrophique : {k}/{d}/{a} avec {d} morts. Besoin de play safe ou d'un verre d'eau ?",
-        "{mention}, ça a mal tourné sur {champ}. Peut-être que le remake était trop tard.",
-        "{mention}, {k}/{d}/{a}… je n'ai même pas de mots, sauf RIP.",
-        "{mention}, {champ} t'a trahi, ou tu as trahi {champ} ?",
-        "{mention}, quel désastre ! Même tes coéquipiers ont pleuré en voyant {k}/{d}/{a}.",
-        "{mention}, impressionnant… mais dans le mauvais sens ({k}/{d}/{a}).",
-        "{mention}, si la défaite était un art, tu serais Picasso ({k}/{d}/{a}).",
-    ],
-    "default_lose": [
-        "{mention}, mauvaise game — remets-toi et reviens plus fort.",
-        "{mention}, on déclare tribunal sur ces coéquipiers, ou on reset le mmr ?",
-        "{mention}, ça arrive… respire et retry.",
-        "{mention}, défaite classique, mais avec style ({k}/{d}/{a}) ?",
-        "{mention}, encore raté… peut-être qu'une sieste était nécessaire avant la partie.",
-        "{mention}, la game est perdue, mais ton ego survit encore.",
-        "{mention}, échec critique… mais au moins tu as tenté.",
-    ],
-    "carried_but_lost": [
-        "{mention}, tu as tenté de porter avec {k}/{d}/{a} mais la team n'a pas suivi. Rage sur les autres, pas sur toi.",
-        "{mention}, performance individuelle top ({k}/{d}/{a}) mais scoreboard dit non. Tragédie grecque.",
-        "{mention}, tu brilles mais la team coule le navire.",
-        "{mention}, MVP de la défaite, ça se fête quand même ({k}/{d}/{a}).",
-        "{mention}, tu as été l'exception dans un monde de chaos.",
-    ],
-    "win_streak": [
-        "{mention}, série de {n} victoires — t'es en feu, arrête de porter les autres comme ça.",
-        "{mention}, {n} wins de suite. Tu veux un peu d'humilité ou tu veux qu'on proclame MVP ?",
-        "{mention}, {n} victoires d'affilée. Respire, champion — l'ego va exploser.",
-        "{mention}, {n} wins ! Les adversaires doivent pleurer en silence.",
-        "{mention}, {n} victoires d'affilée… tu triches ou quoi ?",
-        "{mention}, encore un win… bientôt tu demanderas une statue à ton nom.",
-        "{mention}, {n} victoires consécutives. Les ennemis se suicident juste en te voyant.",
-    ],
-    "big_win": [
-        "{mention}, énorme game sur {champ} ({k}/{d}/{a}, KDA {kda}) — les adversaires ont déjà demandé pardon.",
-        "{mention}, tu as explosé la partie avec {champ} — même les bots ont peur.",
-        "{mention}, performance divine ! {champ} n'a jamais été aussi OP ({k}/{d}/{a}).",
-        "{mention}, tu carries tellement que les ennemis veulent te bannir IRL.",
-        "{mention}, victoire écrasante avec {champ} — trop facile pour toi.",
-    ],
-    "low_kda_but_win": [
-        "{mention}, victoire chanceuse ({k}/{d}/{a}) — tu devrais remercier tes mates.",
-        "{mention}, tu gagnes malgré {k}/{d}/{a}… la chance est avec toi, pas le skill.",
-        "{mention}, victoire improbable ! Tu es le roi des ratés heureux ({k}/{d}/{a}).",
-        "{mention}, tu as gagné sans briller ({k}/{d}/{a})… c'est presque un art.",
-    ],
-    "default_win": [
-        "{mention}, bonne game — mais ne t'emballe pas trop.",
-        "{mention}, clean win, tu ne vas pas me surprendre la prochaine fois ?",
-        "{mention}, victoire tranquille, les adversaires ont laissé faire.",
-        "{mention}, tu gagnes encore… quand arrêtes-tu de les écraser ?",
-        "{mention}, pas mal, mais le vrai challenge arrive bientôt.",
-    ],
-}
 
 # ============================================================
 # Message Generator
 # ============================================================
+
+def _format_template(template_key: str, mention: str, last: ParsedMatch, events: dict) -> str:
+    """
+    Generic formatter for TEMPLATES using player's own champion and optional best/worst player info.
+    """
+    best_team = events.get("best_team_player")
+    worst_team = events.get("worst_team_player")
+    best_enemy = events.get("best_enemy_player")
+    worst_enemy = events.get("worst_enemy_player")
+
+    # Build placeholder dict
+    placeholders = {
+        "mention": mention,
+        "player_champ": last.get("champion", "???"),
+        "k": last.get("kills", 0),
+        "d": last.get("deaths", 0),
+        "a": last.get("assists", 0),
+        "kda": last.get("kda_ratio", 0),
+        "best_team_champ": best_team.get("champion") if best_team else "???",
+        "best_team_score": best_team.get("score") if best_team else "???",
+        "worst_team_champ": worst_team.get("champion") if worst_team else "???",
+        "worst_team_score": worst_team.get("score") if worst_team else "???",
+        "best_enemy_champ": best_enemy.get("champion") if best_enemy else "???",
+        "best_enemy_score": best_enemy.get("score") if best_enemy else "???",
+        "worst_enemy_champ": worst_enemy.get("champion") if worst_enemy else "???",
+        "worst_enemy_score": worst_enemy.get("score") if worst_enemy else "???",
+    }
+
+    template = random.choice(TEMPLATES[template_key])
+    return template.format(**placeholders)
+
+
 
 def generate_message(mention: str, matches: List[ParsedMatch]) -> str:
     streak_type, streak_len = detect_recent_streak(matches)
     events = analyze_last_game(matches)
     last = events["last"]
 
+    # Prioritize streaks
     if streak_len >= 2:
         key = "win_streak" if streak_type == "win" else "lose_streak"
-        return random.choice(TEMPLATES[key]).format(
-            mention=mention, n=streak_len
-        )
+        return _format_template(key, mention, last, events)
 
-    if events["big_win"]:
-        return random.choice(TEMPLATES["big_win"]).format(
-            mention=mention, champ=last["champion"],
-            k=last["kills"], d=last["deaths"], a=last["assists"],
-            kda=last["kda_ratio"]
-        )
+    # Map event keys to template keys
+    event_template_map = {
+        "big_win": "big_win",
+        "player_carried_team": "big_win",
+        "player_carried_by_team": "low_kda_but_win",
+        "team_crushed": "big_win",
+        "team_lost_hard": "big_loss",
+        "high_kda": "low_kda_but_win",
+        "low_kda_but_win": "low_kda_but_win",
+        "carried_but_lost": "carried_but_lost",
+        "big_loss": "carried_but_lost",
+    }
 
-    if events["high_kda"]:
-        return random.choice(TEMPLATES["big_win"]).format(
-            mention=mention, champ=last["champion"],
-            k=last["kills"], d=last["deaths"], a=last["assists"],
-            kda=last["kda_ratio"]
-        )
+    for event_key, template_key in event_template_map.items():
+        if events.get(event_key):
+            return _format_template(template_key, mention, last, events)
 
-    if events["low_kda_but_win"]:
-        return random.choice(TEMPLATES["low_kda_but_win"]).format(
-            mention=mention, k=last["kills"], d=last["deaths"], a=last["assists"]
-        )
-
-    if events["carried_but_lost"]:
-        return random.choice(TEMPLATES["carried_but_lost"]).format(
-            mention=mention, k=last["kills"], d=last["deaths"], a=last["assists"]
-        )
-
-    if events["big_loss"]:
-        return random.choice(TEMPLATES["big_loss"]).format(
-            mention=mention, champ=last["champion"],
-            k=last["kills"], d=last["deaths"], a=last["assists"]
-        )
-
-    return random.choice(
-        TEMPLATES["default_win" if last["win"] else "default_lose"]
-    ).format(mention=mention)
+    # Default fallback
+    return ""  # no message for default win or lose
 
 
 # ============================================================
