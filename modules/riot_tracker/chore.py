@@ -61,18 +61,22 @@ def get_history(discord_users, riot_client, discord_id: int, last: int = 5):
 
     return all_matches, None
 
-def get_new_matches(storage, discord_users, riot_client):
+def get_new_matches(storage, discord_users, discord_id, riot_client):
+    user = discord_users.get(discord_id, None)
+
+    if user is None:
+        return []
+
     notifications = []
 
-    for user in discord_users.values():
-        for account in user.riot_accounts:
-            match_ids = riot_client.get_match_ids(account.puuid, count=10)
-            new_matches = [mid for mid in match_ids if mid not in account.seen_matches]
+    for account in user.riot_accounts:
+        match_ids = riot_client.get_match_ids(account.puuid, count=10)
+        new_matches = [mid for mid in match_ids if mid not in account.seen_matches]
 
-            for match_id in new_matches:
-                match_details = riot_client.get_match(match_id, puuid=account.puuid)
-                notifications.append((user.discord_id, match_details['date'], account, match_details))
-                account.seen_matches.add(match_id)
+        for match_id in new_matches:
+            match_details = riot_client.get_match(match_id, puuid=account.puuid)
+            notifications.append((user.discord_id, match_details['date'], account, match_details))
+            account.seen_matches.add(match_id)
 
     storage.save(discord_users)
 

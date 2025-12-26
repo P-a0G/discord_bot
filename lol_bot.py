@@ -56,17 +56,22 @@ async def send_message_to_user(message, user_id, is_file=False):
 async def on_ready():
     print('Bot is ready to go!')
 
+    if not check_new_matches.is_running():
+        check_new_matches.start()
+
     await send_message_to_me("I'm online! 🔥")
 
 @tasks.loop(seconds=60)
 async def check_new_matches():
-    notifications = get_new_matches(storage, discord_users, riot_client)
+    for discord_id in discord_users:
+        notifications = get_new_matches(storage, discord_users, discord_id, riot_client)
 
-    new_matches = [(t, a, d) for (_, t, a, d) in notifications]
+        new_matches = [(t, a, d) for (_, t, a, d) in notifications]
 
-    embed = make_embed_history(new_matches)
+        embed = make_embed_history(new_matches)
 
-    await send_message_to_me(embed, is_embed=True)
+        await send_message_to_me(f"New matches of player {discord_id}:")
+        await send_message_to_me(embed, is_embed=True)
 
 @bot.command(name="add_user")
 async def add_user(ctx, *, args):
@@ -89,7 +94,6 @@ async def add_user(ctx, *, args):
     except Exception as e:
         await ctx.send(f"Error adding user: {e}")
 
-
 @bot.command(name="delete_account")
 async def delete_account(ctx, discord_id: int, game_name: str, tag_line: str):
     """Delete a Riot account from a Discord user."""
@@ -100,7 +104,7 @@ async def delete_account(ctx, discord_id: int, game_name: str, tag_line: str):
         await ctx.send(f"Error deleting account: {e}")
 
 @bot.command(name="history")
-async def my_history(ctx, last: int = 5):
+async def history(ctx, last: int = 5):
     """
     Display your recent match history for all saved Riot accounts.
     Shows up to 'last' matches total, sorted by date (newest first).
