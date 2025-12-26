@@ -70,7 +70,7 @@ async def check_new_matches():
 
         embed = make_embed_history(new_matches)
 
-        await send_message_to_me(f"New matches of player {discord_id}:")
+        await send_message_to_me(f"New matches detected:")
         await send_message_to_me(embed, is_embed=True)
 
 @bot.command(name="add_user")
