@@ -61,7 +61,7 @@ def get_history(discord_users, riot_client, discord_id: int, last: int = 5):
 
     return all_matches, None
 
-def get_new_matches(storage, discord_users, discord_id, riot_client):
+def get_new_matches(discord_users, discord_id, riot_client):
     user = discord_users.get(discord_id, None)
 
     if user is None:
@@ -78,6 +78,6 @@ def get_new_matches(storage, discord_users, discord_id, riot_client):
             notifications.append((user.discord_id, match_details['date'], account, match_details))
             account.seen_matches.add(match_id)
 
-    storage.save(discord_users)
+
 
     return notifications

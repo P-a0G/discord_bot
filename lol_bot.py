@@ -6,6 +6,7 @@ from modules.utils import read_json, make_embed_history
 from modules.riot_tracker.client import RiotClient
 from modules.riot_tracker.storage import JsonStorage
 from modules.riot_tracker.chore import add_user_riot, remove_riot_account, get_history, get_new_matches
+from modules.riot_tracker.lol_basher import bash_user
 
 intents = discord.Intents.default()
 intents.members = True
@@ -59,12 +60,17 @@ async def on_ready():
     if not check_new_matches.is_running():
         check_new_matches.start()
 
+    if not bash_users.is_running():
+        bash_users.start()
+
     await send_message_to_me("I'm online! 🔥")
 
 @tasks.loop(seconds=60)
 async def check_new_matches():
     for discord_id in discord_users:
-        notifications = get_new_matches(storage, discord_users, discord_id, riot_client)
+        notifications = get_new_matches(discord_users, discord_id, riot_client)
+
+        storage.save(discord_users)  # saving latest data after the check
 
         new_matches = [(t, a, d) for (_, t, a, d) in notifications]
 
@@ -72,6 +78,10 @@ async def check_new_matches():
 
         await send_message_to_me(f"New matches detected:")
         await send_message_to_me(embed, is_embed=True)
+
+@tasks.loop(seconds=14400)  # 4 hours
+async def bash_users():
+    pass
 
 @bot.command(name="add_user")
 async def add_user(ctx, *, args):
