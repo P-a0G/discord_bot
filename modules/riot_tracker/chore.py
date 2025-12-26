@@ -50,7 +50,7 @@ def get_history(discord_users, riot_client, discord_id: int, last: int = 5):
     for account in user.riot_accounts:
         match_ids = riot_client.get_match_ids(account.puuid, count=last)
         for match_id in match_ids:
-            match_details = riot_client.get_match(match_id, puuid=account.puuid)
+            match_details = riot_client.get_match_summary(match_id, puuid=account.puuid)
             all_matches.append((match_details['date'], account, match_details))
 
     # Sort matches by game start time descending
@@ -74,7 +74,7 @@ def get_new_matches(storage, discord_users, discord_id, riot_client):
         new_matches = [mid for mid in match_ids if mid not in account.seen_matches]
 
         for match_id in new_matches:
-            match_details = riot_client.get_match(match_id, puuid=account.puuid)
+            match_details = riot_client.get_match_summary(match_id, puuid=account.puuid)
             notifications.append((user.discord_id, match_details['date'], account, match_details))
             account.seen_matches.add(match_id)
 

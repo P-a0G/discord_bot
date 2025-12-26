@@ -45,11 +45,14 @@ class RiotClient:
                     "date": info["gameStartTimestamp"],
                 }
 
-    def get_match(self, match_id: str, puuid: str) -> dict:
+    def get_match(self, match_id: str) -> dict:
         url = (
             f"https://{self.region}.api.riotgames.com/"
             f"lol/match/v5/matches/{match_id}"
         )
         r = requests.get(url, headers=self.headers)
         r.raise_for_status()
-        return self._extract_summary(r.json(), puuid=puuid)
+        return r.json()
+
+    def get_match_summary(self, match_id: str, puuid: str) -> dict:
+        return self._extract_summary(self.get_match(match_id), puuid)
