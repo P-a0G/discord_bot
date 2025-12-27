@@ -106,26 +106,41 @@ async def bash_users():
                 await channel.send(msg)
 
 @bot.command(name="add_user")
-async def add_user(ctx, *, args):
+async def add_user(ctx, *, args: str):
     """Add a new Discord user with one Riot account, or add a Riot account to an existing user."""
-    splitted_args = args.split(' ')
-    if len(splitted_args) != 2:
-        await ctx.send("Usage: !add_user <game_name> #<tag_line>")
+
+    # Riot IDs must contain exactly one '#'
+    if "#" not in args:
+        await ctx.send("Usage: !add_user <game_name>#<tag_line>")
+        return
+
+    game_name, tag_line = args.rsplit("#", 1)
+
+    game_name = game_name.strip()
+    tag_line = tag_line.strip()
+
+    if not game_name or not tag_line:
+        await ctx.send("Usage: !add_user <game_name>#<tag_line>")
         return
 
     discord_id = ctx.author.id
     guild_id = ctx.guild.id
-    game_name, tag_line = args.split(' ', 1)
-    if not tag_line.startswith('#'):
-        await ctx.send("Tag line must start with '#'")
-        return
-    tag_line = tag_line[1:]  # Remove '#'
 
     try:
-        msg = add_user_riot(storage, riot_client, discord_id, guild_id, discord_users, game_name, tag_line)
+        msg = add_user_riot(
+            storage,
+            riot_client,
+            discord_id,
+            guild_id,
+            discord_users,
+            game_name,
+            tag_line,
+        )
         await ctx.send(msg)
+
     except Exception as e:
         await ctx.send(f"Error adding user: {e}")
+
 
 @bot.command(name="delete_account")
 async def delete_account(ctx, discord_id: int, game_name: str, tag_line: str):
