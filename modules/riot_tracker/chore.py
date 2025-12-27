@@ -25,12 +25,12 @@ def add_user_riot(storage, riot_client, discord_id: int, guild_id: int, discord_
         # Add new Riot account to existing user
         account = RiotAccount(game_name=game_name, tag_line=tag_line, region=REGION, puuid=puuid)
         discord_users[discord_id].riot_accounts.append(account)
-        msg = f"Added new Riot account {game_name}#{tag_line} to existing user {discord_id}"
+        msg = f"Added new Riot account {game_name}#{tag_line}"
     else:
         # Create new user
         account = RiotAccount(game_name=game_name, tag_line=tag_line, region=REGION, puuid=puuid)
         discord_users[discord_id] = DiscordUser(discord_id=discord_id, guild_id=guild_id, riot_accounts=[account])
-        msg = f"Created new user {discord_id} with Riot account {game_name}#{tag_line}"
+        msg = f"Created new user with Riot account {game_name}#{tag_line}"
 
     storage.save({uid: user.__dict__ for uid, user in discord_users.items()})
 
