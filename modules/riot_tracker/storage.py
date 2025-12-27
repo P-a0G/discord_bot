@@ -1,7 +1,8 @@
 import json
 from pathlib import Path
-from typing import Any
-from modules.riot_tracker.models import DiscordUser, RiotAccount
+from typing import Any, Dict
+
+from modules.riot_tracker.models import DiscordUser, RiotAccount, Channel
 
 
 class JsonStorage:
@@ -50,3 +51,42 @@ class JsonStorage:
             return {k: self._make_serializable(v) for k, v in obj.__dict__.items()}
         else:
             return obj
+
+
+class JsonChannelStorage:
+    def __init__(self, path: str):
+        self.path = Path(path)
+
+    def save(self, channels: Dict[int, Channel]):
+        """
+        Save channels to JSON.
+        Expects a dict keyed by guild_id.
+        """
+        serializable_data = {
+            str(guild_id): {
+                "guild_id": channel.guild_id,
+                "channel_id": channel.channel_id,
+            }
+            for guild_id, channel in channels.items()
+        }
+
+        self.path.write_text(json.dumps(serializable_data, indent=2))
+
+    def load(self) -> Dict[int, Channel]:
+        """
+        Load channels from JSON.
+        Returns a dict keyed by guild_id.
+        """
+        if not self.path.exists():
+            return {}
+
+        raw_data = json.loads(self.path.read_text())
+        channels = {}
+
+        for guild_id, data in raw_data.items():
+            channels[int(guild_id)] = Channel(
+                guild_id=data["guild_id"],
+                channel_id=data["channel_id"],
+            )
+
+        return channels

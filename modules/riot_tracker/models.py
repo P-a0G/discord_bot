@@ -16,3 +16,9 @@ class DiscordUser:
     discord_id: int
     guild_id: int
     riot_accounts: List[RiotAccount] = field(default_factory=list)
+
+
+@dataclass
+class Channel:
+    guild_id: int
+    channel_id: int
