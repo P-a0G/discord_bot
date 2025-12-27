@@ -4,10 +4,10 @@ import discord
 from discord.ext import commands, tasks
 
 from modules.riot_tracker.chore import add_user_riot, remove_riot_account, get_history, get_new_matches, \
-    get_full_data_history
+    get_full_data_history, add_channel_lol_bot
 from modules.riot_tracker.client import RiotClient
 from modules.riot_tracker.lol_basher import bash_user
-from modules.riot_tracker.storage import JsonStorage
+from modules.riot_tracker.storage import JsonStorage, JsonChannelStorage
 from modules.utils import read_json, make_embed_history
 
 intents = discord.Intents.default()
@@ -23,9 +23,11 @@ RIOT_API_KEY = read_json("files/tokens.json")["riot_key"]
 
 riot_client = RiotClient(api_key=RIOT_API_KEY)
 storage = JsonStorage("files/discord_users.json")
+channels_storage = JsonChannelStorage("files/lol_bot_channels.json")
 
 # Load existing users from storage
 discord_users = storage.load()
+channels = channels_storage.load()
 
 # ============================
 
@@ -65,7 +67,7 @@ async def on_ready():
     if not bash_users.is_running():
         bash_users.start()
 
-    await send_message_to_me("I'm online! 🔥")
+    await send_message_to_me("I'm online! 🍄")
 
 @tasks.loop(seconds=300)
 async def check_new_matches():
@@ -154,6 +156,18 @@ async def history(ctx, last: int = 5):
     embed = make_embed_history(matches)
 
     await ctx.send(embed=embed)
+
+
+@bot.command(name="setup_channel")
+async def setup_channel(ctx, *, args):
+    guild_id = ctx.guild.id
+    channel_id = ctx.channel.id
+
+    try:
+        msg = add_channel_lol_bot(channels_storage, channels, guild_id, channel_id)
+        await ctx.send(msg)
+    except Exception as e:
+        await ctx.send(f"Error adding channel: {e}")
 
 @bot.event
 async def on_message(message):
