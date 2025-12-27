@@ -1,12 +1,14 @@
 import datetime
+
 import discord
 from discord.ext import commands, tasks
 
-from modules.utils import read_json, make_embed_history
+from modules.riot_tracker.chore import add_user_riot, remove_riot_account, get_history, get_new_matches, \
+    get_full_data_history
 from modules.riot_tracker.client import RiotClient
-from modules.riot_tracker.storage import JsonStorage
-from modules.riot_tracker.chore import add_user_riot, remove_riot_account, get_history, get_new_matches, get_full_data_history
 from modules.riot_tracker.lol_basher import bash_user
+from modules.riot_tracker.storage import JsonStorage
+from modules.utils import read_json, make_embed_history
 
 intents = discord.Intents.default()
 intents.members = True
@@ -105,6 +107,7 @@ async def add_user(ctx, *, args):
         return
 
     discord_id = ctx.author.id
+    guild_id = ctx.guild.id
     game_name, tag_line = args.split(' ', 1)
     if not tag_line.startswith('#'):
         await ctx.send("Tag line must start with '#'")
@@ -112,7 +115,7 @@ async def add_user(ctx, *, args):
     tag_line = tag_line[1:]  # Remove '#'
 
     try:
-        msg = add_user_riot(storage, riot_client, discord_id, discord_users, game_name, tag_line)
+        msg = add_user_riot(storage, riot_client, discord_id, guild_id, discord_users, game_name, tag_line)
         await ctx.send(msg)
     except Exception as e:
         await ctx.send(f"Error adding user: {e}")

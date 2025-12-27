@@ -2,7 +2,8 @@ from .models import DiscordUser, RiotAccount
 
 REGION = "europe"
 
-def add_user_riot(storage, riot_client, discord_id: int, discord_users, game_name: str, tag_line: str):
+
+def add_user_riot(storage, riot_client, discord_id: int, guild_id: int, discord_users, game_name: str, tag_line: str):
     puuid = riot_client.get_puuid(game_name, tag_line)
     msg = "Error: Unknown error occurred."
 
@@ -14,7 +15,7 @@ def add_user_riot(storage, riot_client, discord_id: int, discord_users, game_nam
     else:
         # Create new user
         account = RiotAccount(game_name=game_name, tag_line=tag_line, region=REGION, puuid=puuid)
-        discord_users[discord_id] = DiscordUser(discord_id=discord_id, riot_accounts=[account])
+        discord_users[discord_id] = DiscordUser(discord_id=discord_id, guild_id=guild_id, riot_accounts=[account])
         msg = f"Created new user {discord_id} with Riot account {game_name}#{tag_line}"
 
     storage.save({uid: user.__dict__ for uid, user in discord_users.items()})
