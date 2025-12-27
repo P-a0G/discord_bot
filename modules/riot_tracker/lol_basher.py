@@ -106,8 +106,11 @@ def detect_recent_streak(matches: List[ParsedMatch]):
     count = 0
 
     for m in reversed(matches):
-        if m["win"] == last_win and m.get("queue_id", -1) == last_queue_type:
-            count += 1
+        if m["win"] == last_win:
+            if m.get("queue_id", -1) == last_queue_type:
+                count += 1
+            else:
+                continue
         else:
             break
 
