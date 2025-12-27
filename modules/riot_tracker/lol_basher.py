@@ -98,11 +98,13 @@ def detect_recent_streak(matches: List[ParsedMatch]):
     if not matches:
         return None, 0
 
-    last_win = matches[-1]["win"]
+    last_match = matches[-1]
+    last_win = last_match["win"]
+    last_queue_type = last_match["info"]["queueId"]
     count = 0
 
     for m in reversed(matches):
-        if m["win"] == last_win:
+        if m["win"] == last_win and m["info"]["queueId"] == last_queue_type:
             count += 1
         else:
             break
