@@ -174,6 +174,6 @@ async def on_message(message):
     await bot.process_commands(message)
 
 if __name__ == '__main__':
-    token = read_json("files/tokens.json")["debug"]
+    token = read_json("files/tokens.json")["lol_bot"]
     my_id = int(id_file["my_id"])
     bot.run(token)
