@@ -1,6 +1,20 @@
-from .models import DiscordUser, RiotAccount
+from .models import DiscordUser, RiotAccount, Channel
 
 REGION = "europe"
+
+
+def add_channel_lol_bot(channel_storage, channels, guild_id: int, channel_id: int):
+    if guild_id in channels:
+        msg = f"Display channel switch to current channel"
+    else:
+        msg = f"I will send message to this channel"
+
+    channel = Channel(guild_id, channel_id)
+    channels[guild_id] = channel
+
+    channel_storage.save(channels)
+
+    return msg
 
 
 def add_user_riot(storage, riot_client, discord_id: int, guild_id: int, discord_users, game_name: str, tag_line: str):
