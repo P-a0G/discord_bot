@@ -157,7 +157,6 @@ async def history(ctx, last: int = 5):
 
     await ctx.send(embed=embed)
 
-
 @bot.command(name="setup_channel")
 async def setup_channel(ctx, *, args):
     guild_id = ctx.guild.id
