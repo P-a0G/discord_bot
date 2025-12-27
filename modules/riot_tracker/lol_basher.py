@@ -116,7 +116,7 @@ def analyze_last_game(matches: List[ParsedMatch]):
     # Player info
     player = last
     team_total_kills = last["team_kills"]
-    player_contrib_ratio = player["kills"] / max(1, team_total_kills)
+    player_contrib_ratio = (player["kills"] + player["assists"]) / max(1, team_total_kills)
 
     # Team and enemy stats
     participants = last.get("raw_participants")  # optional if full participant data is saved
@@ -167,13 +167,13 @@ def analyze_last_game(matches: List[ParsedMatch]):
     # Return full analysis
     return {
         "last": last,
-        "big_win": last["win"] and last["damage"] >= 25000,
-        "big_loss": not last["win"] and last["deaths"] >= 10,
-        "high_kda": last["kda_ratio"] >= 4,
-        "low_kda_but_win": last["kda_ratio"] <= 1 and last["win"],
-        "carried_but_lost": last["kda_ratio"] >= 3 and not last["win"],
+        "big_win": last["win"] and last["kda_ratio"] >= 8,
+        "big_loss": not last["win"] and last["kda_ratio"] <= 0.2,
+        "high_kda": last["kda_ratio"] >= 10,
+        "low_kda_but_win": last["kda_ratio"] <= 0.4 and last["win"],
+        "carried_but_lost": last["kda_ratio"] >= 7 and not last["win"],
         "player_carried_team": player_contrib_ratio > 0.5 and last["win"],
-        "player_carried_by_team": player_contrib_ratio < 0.2 and last["win"],
+        "player_carried_by_team": player_contrib_ratio < 0.15 and last["win"],
         "team_crushed": last["win"] and last["team_kills"] > last["enemy_kills"] * 2,
         "team_lost_hard": not last["win"] and last["team_kills"] < last["enemy_kills"] / 2,
         "best_team_player": best_team,
