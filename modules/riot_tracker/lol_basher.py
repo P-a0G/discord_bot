@@ -49,6 +49,7 @@ def _compute_kda(k: int, d: int, a: int) -> float:
 def parse_participant_entry(puuid: str, match: Dict[str, Any]) -> Optional[ParsedMatch]:
     try:
         participants = match["info"]["participants"]
+        queue_id = match["info"]["queueId"]
         team_kills = sum(p["kills"] for p in participants[:5])  # Assuming first 5 = team
         team_deaths = sum(p["deaths"] for p in participants[:5])
         team_assists = sum(p["assists"] for p in participants[:5])
@@ -74,6 +75,7 @@ def parse_participant_entry(puuid: str, match: Dict[str, Any]) -> Optional[Parse
                     "enemy_kills": enemy_kills,
                     "enemy_deaths": enemy_deaths,
                     "enemy_assists": enemy_assists,
+                    "queue_id": queue_id,
                 }
     except Exception:
         pass
@@ -100,11 +102,11 @@ def detect_recent_streak(matches: List[ParsedMatch]):
 
     last_match = matches[-1]
     last_win = last_match["win"]
-    last_queue_type = last_match["info"]["queueId"]
+    last_queue_type = last_match.get("queue_id", -1)
     count = 0
 
     for m in reversed(matches):
-        if m["win"] == last_win and m["info"]["queueId"] == last_queue_type:
+        if m["win"] == last_win and m.get("queue_id", -1) == last_queue_type:
             count += 1
         else:
             break
