@@ -188,7 +188,7 @@ def analyze_last_game(matches: List[ParsedMatch]):
 # Message Generator
 # ============================================================
 
-def _format_template(template_key: str, mention: str, last: ParsedMatch, events: dict) -> str:
+def _format_template(template_key: str, mention: str, last: ParsedMatch, events: dict, streak_len: int) -> str:
     """
     Generic formatter for TEMPLATES using player's own champion and optional best/worst player info.
     """
@@ -205,6 +205,7 @@ def _format_template(template_key: str, mention: str, last: ParsedMatch, events:
         "d": last.get("deaths", 0),
         "a": last.get("assists", 0),
         "kda": last.get("kda_ratio", 0),
+        "streak_len": streak_len,
         "best_team_champ": best_team.get("champion") if best_team else "???",
         "best_team_score": best_team.get("score") if best_team else "???",
         "worst_team_champ": worst_team.get("champion") if worst_team else "???",
@@ -226,9 +227,9 @@ def generate_message(mention: str, matches: List[ParsedMatch]) -> str:
     last = events["last"]
 
     # Prioritize streaks
-    if streak_len >= 2:
+    if streak_len >= 3:
         key = "win_streak" if streak_type == "win" else "lose_streak"
-        return _format_template(key, mention, last, events)
+        return _format_template(key, mention, last, events, streak_len)
 
     # Map event keys to template keys
     event_template_map = {
@@ -245,7 +246,7 @@ def generate_message(mention: str, matches: List[ParsedMatch]) -> str:
 
     for event_key, template_key in event_template_map.items():
         if events.get(event_key):
-            return _format_template(template_key, mention, last, events)
+            return _format_template(template_key, mention, last, events, streak_len)
 
     # Default fallback
     return ""  # no message for default win or lose
