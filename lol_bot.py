@@ -88,17 +88,22 @@ async def check_new_matches():
 
 @tasks.loop(seconds=14400)  # 4 hours
 async def bash_users():
-    for users in discord_users.values():
-        discord_id = users.discord_id
-        guild_id = users.guild_id
+    for channel in channels.values():
+        guild_id, channel_id = channel.guild_id, channel.channel_id
 
-        history = get_full_data_history(discord_users, riot_client, discord_id)
+        for users in discord_users.values():
+            if users.guild_id != guild_id:
+                continue
+            discord_id = users.discord_id
 
-        user = bot.get_guild(int(guild_id)).get_member(discord_id)
-        msg = bash_user(user, history)
+            history = get_full_data_history(discord_users, riot_client, discord_id)
 
-        if msg:
-            await send_message_to_me(msg)
+            user = bot.get_guild(int(guild_id)).get_member(discord_id)
+            msg = bash_user(user, history)
+
+            if msg:
+                channel = bot.get_guild(int(guild_id)).get_channel(channel_id)
+                await channel.send(msg)
 
 @bot.command(name="add_user")
 async def add_user(ctx, *, args):
@@ -158,7 +163,7 @@ async def history(ctx, last: int = 5):
     await ctx.send(embed=embed)
 
 @bot.command(name="setup_channel")
-async def setup_channel(ctx, *, args):
+async def setup_channel(ctx):
     guild_id = ctx.guild.id
     channel_id = ctx.channel.id
 
