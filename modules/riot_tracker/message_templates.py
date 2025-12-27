@@ -54,5 +54,6 @@ TEMPLATES = {
         "Vraiment trop de KS de la part de {best_team_champ}, du coup personne ne t'a vu carry {mention} 👻",
         "GG {mention}, on t'a vu survivre par miracle. T'as gardé ton ulti pour la prochaine ?",
         "{k}/{d}/{a} Bauss serait fièr de toi {mention} mais pas sûr que ton équipe le soit autant 😂",
+        "Tu nous fais une Sardoche {mention} ? Ajoute {best_team_champ} pour duo si c'est pas déjà fait !"
     ]
 }
