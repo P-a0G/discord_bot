@@ -88,22 +88,25 @@ async def check_new_matches():
 
 @tasks.loop(seconds=14400)  # 4 hours
 async def bash_users():
-    for channel in channels.values():
-        guild_id, channel_id = channel.guild_id, channel.channel_id
+    for discord_user in discord_users.values():
+        discord_id = discord_user.discord_id
+        history = get_full_data_history(discord_users, riot_client, discord_id)
 
-        for users in discord_users.values():
-            if users.guild_id != guild_id:
-                continue
-            discord_id = users.discord_id
-
-            history = get_full_data_history(discord_users, riot_client, discord_id)
+        for channel in channels.values():
+            guild_id, channel_id = channel.guild_id, channel.channel_id
 
             user = bot.get_guild(int(guild_id)).get_member(discord_id)
+
+            if user is None:
+                continue
+
             msg = bash_user(user, history)
 
             if msg:
                 channel = bot.get_guild(int(guild_id)).get_channel(channel_id)
                 await channel.send(msg)
+            else:
+                await send_message_to_me(f"No new message for user {discord_user.riot_accounts[0].game_name}")
 
 @bot.command(name="add_user")
 async def add_user(ctx, *, args: str):
