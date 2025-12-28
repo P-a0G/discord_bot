@@ -33,7 +33,7 @@ class JsonStorage:
             riot_accounts = []
             for acc_data in data.get("riot_accounts", []):
                 # Convert seen_matches back to set
-                acc_data["seen_matches"] = set(acc_data.get("seen_matches", []))
+                acc_data["seen_matches"] = acc_data.get("seen_matches", [])
                 riot_accounts.append(RiotAccount(**acc_data))
 
             users[int(uid)] = DiscordUser(

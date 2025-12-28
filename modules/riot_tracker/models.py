@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List, Set
+from typing import List
 
 
 @dataclass
@@ -8,7 +8,7 @@ class RiotAccount:
     tag_line: str
     region: str
     puuid: str
-    seen_matches: Set[str] = field(default_factory=set)
+    seen_matches: List[str] = field(default_factory=list)
 
 
 @dataclass

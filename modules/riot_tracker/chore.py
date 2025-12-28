@@ -110,7 +110,7 @@ def get_new_matches(discord_users, discord_id, riot_client):
         for match_id in new_matches:
             match_details = riot_client.get_match_summary(match_id, puuid=account.puuid)
             notifications.append((user.discord_id, match_details['date'], account, match_details))
-            account.seen_matches.add(match_id)
+            account.seen_matches.append(match_id)
 
 
 
