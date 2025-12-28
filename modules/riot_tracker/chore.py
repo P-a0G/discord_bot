@@ -52,7 +52,7 @@ def remove_riot_account(storage, discord_id: int, discord_users, game_name: str,
         return f"Account {game_name}#{tag_line} not found for user {discord_id}"
 
 
-def get_full_data_history(discord_users, riot_client, discord_id, last: int = 30):
+def get_full_data_history(discord_users, riot_client, discord_id, last: int = 10):
     if discord_id not in discord_users:
         return None, "You don't have any Riot accounts saved."
 
