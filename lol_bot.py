@@ -105,8 +105,8 @@ async def bash_users():
             if msg:
                 channel = bot.get_guild(int(guild_id)).get_channel(channel_id)
                 await channel.send(msg)
-            else:
-                await send_message_to_me(f"No new message for user {discord_user.riot_accounts[0].game_name}")
+
+    await send_message_to_me(f"Bash User Check Done")
 
 @bot.command(name="add_user")
 async def add_user(ctx, *, args: str):
