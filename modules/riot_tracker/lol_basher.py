@@ -3,6 +3,7 @@ from datetime import datetime, timezone, timedelta
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from .message_templates import TEMPLATES
+from .queues import QUEUE_ID_TO_NAME
 
 # ============================================================
 # Types
@@ -76,6 +77,7 @@ def parse_participant_entry(puuid: str, match: Dict[str, Any]) -> Optional[Parse
                     "enemy_deaths": enemy_deaths,
                     "enemy_assists": enemy_assists,
                     "queue_id": queue_id,
+                    "queue": QUEUE_ID_TO_NAME[queue_id]
                 }
     except Exception:
         pass
@@ -187,6 +189,7 @@ def analyze_last_game(matches: List[ParsedMatch]):
         "worst_team_player": worst_team,
         "best_enemy_player": best_enemy,
         "worst_enemy_player": worst_enemy,
+        "very high damage": player["damage"] > 100_000
     }
 
 

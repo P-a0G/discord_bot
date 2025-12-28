@@ -36,7 +36,7 @@ TEMPLATES = {
     ],
     "big_win": [
         "{mention}, {player_champ} a été un dieu avec {k}/{d}/{a}, c'est le moment de booster l'ego !",
-        "Dans la catégorie 'meilleure démolition', c'est {mention} avec {k}/{d}/{a} 👏",
+        "Solide {k}/{d}/{a} du {player_champ} de {mention} en {queue} 👏",
         "Ton {player_champ} a récupéré plus de kills que le Père Noël distribue de cadeaux 🎁 {mention}",
         "Le {k}/{d}/{a} de {mention} vaut bien un Oscar 🎬",
         "Ton {player_champ} a fait des ravages, {mention} – on sent le skill d'un pro 🏆",
@@ -55,5 +55,17 @@ TEMPLATES = {
         "GG {mention}, on t'a vu survivre par miracle. T'as gardé ton ulti pour la prochaine ?",
         "{k}/{d}/{a} Bauss serait fièr de toi {mention} mais pas sûr que ton équipe le soit autant 😂",
         "Tu nous fais une Sardoche {mention} ? Ajoute {best_team_champ} pour duo si c'est pas déjà fait !"
+    ],
+    "very_high_damage": [
+        "{mention} a transformé la game en stand de tir : {damage} dégâts avec {player_champ} 💥",
+        "{player_champ} version nucléaire pour {mention} : {damage} dégâts, la Convention de Genève est en PLS ☢️",
+        "{mention} a tapé si fort ({damage} dégâts) que même les tours ont demandé un nerf 🏰",
+        "On parle de {damage} dégâts en {queue}… {mention}, t'avais la haine ou quoi ? 😡",
+        "{player_champ} a confondu la faille avec un sac de frappe : {damage} dégâts signés {mention} 🥊",
+        "{mention} a fait plus de dégâts que toute une équipe Clash : {damage} 💀",
+        "Les ennemis vont vérifier leurs options graphiques après les {damage} dégâts de {mention} 👓",
+        "{player_champ} MVP du DPS club : {damage} dégâts infligés par {mention} 🔥",
+        "{mention} a joué en mode tutoriel… pour les ennemis. Résultat : {damage} dégâts 📈",
+        "{damage} dégâts. Oui oui. {mention}, pense à laisser des champions pour les autres la prochaine fois 😅"
     ]
 }
