@@ -103,15 +103,18 @@ def get_new_matches(discord_users, discord_id, riot_client):
 
     notifications = []
 
+
     for account in user.riot_accounts:
         match_ids = riot_client.get_match_ids(account.puuid, count=10)
-        new_matches = [mid for mid in match_ids if mid not in account.seen_matches]
 
-        for match_id in new_matches:
+        new_last_date = account.latest_match_seen_date
+        for match_id in match_ids:
             match_details = riot_client.get_match_summary(match_id, puuid=account.puuid)
-            notifications.append((user.discord_id, match_details['date'], account, match_details))
-            account.seen_matches.append(match_id)
 
+            if match_details["date"] > account.latest_match_seen_date:
+                new_last_date = max(match_details["date"], new_last_date)
+                notifications.append((user.discord_id, match_details["date"], account, match_details))
 
+        account.latest_match_seen_date = new_last_date
 
     return notifications

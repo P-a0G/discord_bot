@@ -10,11 +10,9 @@ class JsonStorage:
         self.path = Path(path)
 
     def save(self, data: dict):
-        for user in data.values():
-            for account in getattr(user, "riot_accounts", []):
-                if hasattr(account, "seen_matches"):
-                    account.seen_matches = list(account.seen_matches)[-10:]
-
+        """
+        Save DiscordUser data to JSON.
+        """
         serializable_data = self._make_serializable(data)
         self.path.write_text(json.dumps(serializable_data, indent=2))
 
@@ -31,15 +29,17 @@ class JsonStorage:
 
         for uid, data in raw_data.items():
             riot_accounts = []
+
             for acc_data in data.get("riot_accounts", []):
-                # Convert seen_matches back to set
-                acc_data["seen_matches"] = acc_data.get("seen_matches", [])
+                # Backward compatibility: default to 0 if missing
+                acc_data.setdefault("latest_match_seen_date", 0)
+
                 riot_accounts.append(RiotAccount(**acc_data))
 
             users[int(uid)] = DiscordUser(
                 discord_id=int(uid),
                 guild_id=data.get("guild_id", 0),
-                riot_accounts=riot_accounts
+                riot_accounts=riot_accounts,
             )
 
         return users
@@ -50,7 +50,7 @@ class JsonStorage:
         elif isinstance(obj, list):
             return [self._make_serializable(v) for v in obj]
         elif isinstance(obj, set):
-            return list(obj)  # Convert sets to lists
+            return list(obj)
         elif hasattr(obj, "__dict__"):
             return {k: self._make_serializable(v) for k, v in obj.__dict__.items()}
         else:

@@ -3,8 +3,14 @@ import datetime
 import discord
 from discord.ext import commands, tasks
 
-from modules.riot_tracker.chore import add_user_riot, remove_riot_account, get_history, get_new_matches, \
-    get_full_data_history, add_channel_lol_bot
+from modules.riot_tracker.chore import (
+    add_user_riot,
+    remove_riot_account,
+    get_history,
+    get_new_matches,
+    get_full_data_history,
+    add_channel_lol_bot
+)
 from modules.riot_tracker.client import RiotClient
 from modules.riot_tracker.lol_basher import bash_user
 from modules.riot_tracker.storage import JsonStorage, JsonChannelStorage

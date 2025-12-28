@@ -8,7 +8,7 @@ class RiotAccount:
     tag_line: str
     region: str
     puuid: str
-    seen_matches: List[str] = field(default_factory=list)
+    latest_match_seen_date: int
 
 
 @dataclass
