@@ -174,11 +174,11 @@ def analyze_last_game(matches: List[ParsedMatch]):
     # Return full analysis
     return {
         "last": last,
-        "big_win": last["win"] and last["kda_ratio"] >= 8,
-        "big_loss": not last["win"] and last["kda_ratio"] <= 0.4,
-        "high_kda": last["kda_ratio"] >= 10,
-        "low_kda_but_win": last["kda_ratio"] <= 0.8 and last["win"],
-        "carried_but_lost": last["kda_ratio"] >= 7 and not last["win"],
+        "big_win": last["win"] and player["kda_ratio"] >= 8 and player_contrib_ratio > 0.8,
+        "big_loss": not last["win"] and player["kda_ratio"] <= 0.4,
+        "high_kda": player["kda_ratio"] >= 10,
+        "low_kda_but_win": player["kda_ratio"] <= 0.8 and last["win"],
+        "carried_but_lost": player["kda_ratio"] >= 7 and not last["win"],
         "player_carried_team": player_contrib_ratio > 0.5 and last["win"],
         "player_carried_by_team": player_contrib_ratio < 0.15 and last["win"],
         "team_crushed": last["win"] and last["team_kills"] > last["enemy_kills"] * 2,
