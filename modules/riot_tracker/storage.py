@@ -10,7 +10,11 @@ class JsonStorage:
         self.path = Path(path)
 
     def save(self, data: dict):
-        # Convert dataclasses to dict recursively
+        for user in data.values():
+            for account in getattr(user, "riot_accounts", []):
+                if hasattr(account, "seen_matches"):
+                    account.seen_matches = list(account.seen_matches)[-10:]
+
         serializable_data = self._make_serializable(data)
         self.path.write_text(json.dumps(serializable_data, indent=2))
 
