@@ -70,6 +70,7 @@ def parse_participant_entry(puuid: str, match: Dict[str, Any]) -> Optional[Parse
                     "kda_ratio": _compute_kda(p["kills"], p["deaths"], p["assists"]),
                     "champion": p["championName"],
                     "damage": p["totalDamageDealtToChampions"],
+                    "largest_multi_kill": p.get("largestMultiKill", 0),
                     "team_kills": team_kills,
                     "team_deaths": team_deaths,
                     "team_assists": team_assists,
@@ -119,32 +120,57 @@ def detect_recent_streak(matches: List[ParsedMatch]):
     return ("win" if last_win else "lose"), count
 
 
-def analyze_last_game(matches: List[ParsedMatch]):
-    last = matches[-1]
+def get_event_from_result(player, streak_len) -> str:
+    if player["largest_multi_kill"] >= 5:
+        return "pentakill"
 
-    # Player info
-    player = last
-    team_total_kills = last["team_kills"]
-    player_contrib_ratio = (player["kills"] + player["assists"]) / max(1, team_total_kills)
+    player_contrib_ratio = (player["kills"] + player["assists"]) / max(1, player["team_kills"])
+
+    if player["kda_ratio"] <= 0.8 and player["win"] and player_contrib_ratio < 0.15:
+        return "low_kda_but_win"
+
+    if player["kda_ratio"] >= 7.0 and not player["win"] and player_contrib_ratio > 0.7:
+        return "carried_but_lost"
+
+    if player["damage"] > 100_000:
+        return "very_high_damage"
+
+    if streak_len >= 3:
+        if player["win"]:
+            return "win_streak"
+        else:
+            return "lose_streak"
+
+    if not player["win"] and player["kda_ratio"] <= 0.4:
+        return "big_loss"
+
+    if player["win"] and player["kda_ratio"] >= 8 and player_contrib_ratio > 0.8:
+        return "big_win"
+
+    return ""
+
+
+def analyze_last_game(matches: List[ParsedMatch], streak_len: int):
+    player_game_results = matches[-1]
 
     # Team and enemy stats
-    participants = last.get("raw_participants")  # optional if full participant data is saved
+    participants = player_game_results.get("raw_participants")  # optional if full participant data is saved
     if not participants:
         # fallback: minimal data from last match
         participants = [
             {
                 "puuid": "player",
-                "championName": last["champion"],
-                "kills": last["kills"],
-                "deaths": last["deaths"],
-                "assists": last["assists"],
-                "win": last["win"],
+                "championName": player_game_results["champion"],
+                "kills": player_game_results["kills"],
+                "deaths": player_game_results["deaths"],
+                "assists": player_game_results["assists"],
+                "win": player_game_results["win"],
             }
         ]
 
     # Split team and enemies by win status
-    team = [p for p in participants if p.get("win") == last["win"]]
-    enemies = [p for p in participants if p.get("win") != last["win"]]
+    team = [p for p in participants if p.get("win") == player_game_results["win"]]
+    enemies = [p for p in participants if p.get("win") != player_game_results["win"]]
 
     # Helper functions
     def best_player(players):
@@ -173,23 +199,16 @@ def analyze_last_game(matches: List[ParsedMatch]):
     best_enemy = best_player(enemies)
     worst_enemy = worst_player(enemies)
 
+    message_key = get_event_from_result(player_game_results, streak_len)
+
     # Return full analysis
     return {
-        "last": last,
-        "big_win": last["win"] and player["kda_ratio"] >= 8 and player_contrib_ratio > 0.8,
-        "big_loss": not last["win"] and player["kda_ratio"] <= 0.4,
-        "high_kda": player["kda_ratio"] >= 10,
-        "low_kda_but_win": player["kda_ratio"] <= 0.8 and last["win"],
-        "carried_but_lost": player["kda_ratio"] >= 7 and not last["win"],
-        "player_carried_team": player_contrib_ratio > 0.5 and last["win"],
-        "player_carried_by_team": player_contrib_ratio < 0.15 and last["win"],
-        "team_crushed": last["win"] and last["team_kills"] > last["enemy_kills"] * 2,
-        "team_lost_hard": not last["win"] and last["team_kills"] < last["enemy_kills"] / 2,
+        "player_result": player_game_results,
         "best_team_player": best_team,
         "worst_team_player": worst_team,
         "best_enemy_player": best_enemy,
         "worst_enemy_player": worst_enemy,
-        "very high damage": player["damage"] > 100_000
+        "message_key": message_key
     }
 
 
@@ -198,7 +217,7 @@ def analyze_last_game(matches: List[ParsedMatch]):
 # Message Generator
 # ============================================================
 
-def _format_template(template_key: str, mention: str, last: ParsedMatch, events: dict, streak_len: int) -> str:
+def _format_template(template_key: str, mention: str, player_result: ParsedMatch, events: dict, streak_len: int) -> str:
     """
     Generic formatter for TEMPLATES using player's own champion and optional best/worst player info.
     """
@@ -210,11 +229,11 @@ def _format_template(template_key: str, mention: str, last: ParsedMatch, events:
     # Build placeholder dict
     placeholders = {
         "mention": mention,
-        "player_champ": last.get("champion", "???"),
-        "k": last.get("kills", 0),
-        "d": last.get("deaths", 0),
-        "a": last.get("assists", 0),
-        "kda": last.get("kda_ratio", 0),
+        "player_champ": player_result.get("champion", "???"),
+        "k": player_result.get("kills", 0),
+        "d": player_result.get("deaths", 0),
+        "a": player_result.get("assists", 0),
+        "kda": player_result.get("kda_ratio", 0),
         "streak_len": streak_len,
         "best_team_champ": best_team.get("champion") if best_team else "???",
         "best_team_score": best_team.get("score") if best_team else "???",
@@ -229,34 +248,16 @@ def _format_template(template_key: str, mention: str, last: ParsedMatch, events:
     template = random.choice(TEMPLATES[template_key])
     return template.format(**placeholders)
 
-
-
 def generate_message(mention: str, matches: List[ParsedMatch]) -> str:
     streak_type, streak_len = detect_recent_streak(matches)
-    events = analyze_last_game(matches)
-    last = events["last"]
+    events = analyze_last_game(matches, streak_len)
+    player_result = events["player_result"]
 
-    # Prioritize streaks
-    if streak_len >= 3:
-        key = "win_streak" if streak_type == "win" else "lose_streak"
-        return _format_template(key, mention, last, events, streak_len)
+    event = events["message_key"]
 
     # Map event keys to template keys
-    event_template_map = {
-        "big_win": "big_win",
-        "player_carried_team": "big_win",
-        "player_carried_by_team": "low_kda_but_win",
-        "team_crushed": "big_win",
-        "team_lost_hard": "big_loss",
-        "high_kda": "low_kda_but_win",
-        "low_kda_but_win": "low_kda_but_win",
-        "carried_but_lost": "carried_but_lost",
-        "big_loss": "carried_but_lost",
-    }
-
-    for event_key, template_key in event_template_map.items():
-        if events.get(event_key):
-            return _format_template(template_key, mention, last, events, streak_len)
+    if event:
+        return _format_template(event, mention, player_result, events, streak_len)
 
     # Default fallback
     return ""  # no message for default win or lose

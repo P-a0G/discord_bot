@@ -67,5 +67,18 @@ TEMPLATES = {
         "{player_champ} MVP du DPS club : {damage} dégâts infligés par {mention} 🔥",
         "{mention} a joué en mode tutoriel… pour les ennemis. Résultat : {damage} dégâts 📈",
         "{damage} dégâts. Oui oui. {mention}, pense à laisser des champions pour les autres la prochaine fois 😅"
+    ],
+    "pentakill": [
+        "PENTAKILL 💥 {mention} a supprimé toute l'équipe avec {player_champ} !",
+        "Ils vont s'en souvenir longtemps… PENTAKILL de {mention} sur {player_champ} 🔥",
+        "{mention} a activé le mode boss final : PENTAKILL avec {player_champ} 👑",
+        "Un, deux, trois, quatre… cinq ! PENTAKILL signé {mention} 🖐️",
+        "La faille n'était pas prête : PENTAKILL de {mention} avec {player_champ} 💀",
+        "{player_champ} a rayé l'équipe ennemie du patch notes. PENTAKILL pour {mention} ⚔️",
+        "Même le shoutcaster a perdu sa voix : PENTAKILL de {mention} 🎙️",
+        "PENTAKILL confirmé. Merci {mention} pour ce moment historique ✨",
+        "{mention} a cliqué trop fort : résultat, un PENTAKILL avec {player_champ} 🖱️",
+        "On appelle ça un crime de guerre… PENTAKILL de {mention} 🚨"
     ]
+
 }
