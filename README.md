@@ -68,7 +68,8 @@ Use simple, intuitive commands to interact with the bot:
    - Install [Python 3.10](https://www.python.org/downloads/).
    - Install the required dependencies:
      ```bash
-     pip install -r requirements.txt
+     pip install uv
+     uv sync
      ```
 
 4. **Add Your Bot to Your Discord Server**
@@ -105,4 +106,11 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 For support or feature requests, please create an issue on the GitHub repository.
 Let me know if you'd like any adjustments! Quick links at the top of the README.
+
+## Update libs
+
+```bash
+uv lock --upgrade
+uv sync
+```
 
