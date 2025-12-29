@@ -1,5 +1,6 @@
-from modules.AudioFile import AudioFile
 import eyed3
+
+from modules.AudioFile import AudioFile
 
 
 def get_music_returns_correct_data():
