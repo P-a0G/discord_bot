@@ -1,6 +1,6 @@
 import requests
-from .queues import QUEUE_ID_TO_NAME
 
+from .queues import QUEUE_ID_TO_NAME
 
 
 class RiotClient:
