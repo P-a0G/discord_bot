@@ -106,7 +106,6 @@ async def daily_check_for_new_musics(ctx, days: int):
 
     await progress_message.edit(content=f"✅ Update process completed. {days} days check done")
 
-
 @bot.event
 async def on_ready():
     print('Bot is ready to go!')
@@ -143,7 +142,6 @@ async def unsubscribe(ctx, *, channel_name):
         await ctx.send(f"{channel_name} removed from subscribed list")
     else:
         await ctx.send(f"{channel_name} wasn't in subscribed list")
-
 
 executor = ThreadPoolExecutor()
 
@@ -225,33 +223,28 @@ async def ping(ctx):
     await ctx.send('🏓 pong!')
 
 
-async def send_message_to_me(message, is_file=False):
+async def send_message_to_me(message, is_file=False, is_embed=False):
     user = bot.get_guild(int(id_file["guild_id"])).get_member(int(id_file["my_id"]))
-
     if user:
         if is_file:
             await user.send(file=message)
+        elif is_embed:
+            await user.send(embed=message)
         else:
             await user.send(message)
     else:
         print("[Error] Couldn't send message to me")
 
-
 async def send_message_to_user(message, user_id, is_file=False):
     try:
-        # Fetch the user object by ID
         user = await bot.fetch_user(int(user_id))
-
-        # Send the message or file
         if is_file:
             await user.send(file=message)
         else:
             await user.send(message)
-
     except Exception as e:
         user_name = bot.get_user(int(user_id)).name
         print(f"[Error] Couldn't send message to user {user_name} ({user_id}): {e}")
-
 
 @bot.event
 async def on_message(message):
