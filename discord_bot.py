@@ -143,10 +143,6 @@ async def unsubscribe(ctx, *, channel_name):
     else:
         await ctx.send(f"{channel_name} wasn't in subscribed list")
 
-    # Start the new match checker
-    if not check_new_matches.is_running():
-        check_new_matches.start()
-
 executor = ThreadPoolExecutor()
 
 
