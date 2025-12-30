@@ -133,6 +133,11 @@ async def add_user(ctx, *, args: str):
         return
 
     discord_id = ctx.author.id
+
+    if ctx.guild is None:
+        await ctx.send("This command can only be used in a server.")
+        return
+
     guild_id = ctx.guild.id
 
     try:

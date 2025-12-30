@@ -8,7 +8,7 @@ class RiotAccount:
     tag_line: str
     region: str
     puuid: str
-    latest_match_seen_date: int
+    latest_match_seen_date: int = 0
 
 
 @dataclass
