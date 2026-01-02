@@ -111,8 +111,6 @@ async def bash_users():
                 channel = bot.get_guild(int(guild_id)).get_channel(channel_id)
                 await channel.send(msg)
 
-    await send_message_to_me(f"Bash User Check Done")
-
 @bot.command(name="add_user")
 async def add_user(ctx, *, args: str):
     """Add a new Discord user with one Riot account, or add a Riot account to an existing user."""
