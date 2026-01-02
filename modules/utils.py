@@ -90,7 +90,7 @@ def show_message_info(message):
 def make_embed_history(matches):
     # Prepare blue embed
     embed = discord.Embed(
-        title=f"Lastest games:",
+        title=f"Latest games:",
         color=discord.Color.blue()
     )
     embed.set_footer(text="Match history")
