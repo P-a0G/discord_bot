@@ -1,6 +1,7 @@
 import datetime
 import os
 import random
+from collections import defaultdict
 
 import discord
 from discord.ext import commands, tasks
@@ -28,6 +29,8 @@ async def on_ready():
     print('Bot is ready to go!')
     if not birthday_check.is_running():
         birthday_check.start()
+
+    await send_message_to_me("I'm online!")
 
 
 @tasks.loop(time=time_birthday_check)
@@ -134,17 +137,50 @@ async def show_all(ctx):
     if ctx.author.id != my_id:
         return
 
-    for guild_id in anniversaries.keys():
-        for user_id_or_name, birthday_date in anniversaries[guild_id].items():
-            try:
-                user = bot.get_guild(int(guild_id)).get_member(int(user_id_or_name))
-            except Exception:
-                user = None
+    today = datetime.date.today()
+    grouped = defaultdict(list)
 
-            if user:
-                await ctx.send(f"\t{user.name}: {birthday_date['day']}/{birthday_date['mounth']}")
+    for guild_id in anniversaries.keys():
+        guild = bot.get_guild(int(guild_id))
+        if not guild:
+            continue
+
+        for user_id_or_name, birthday in anniversaries[guild_id].items():
+            try:
+                day = int(birthday["day"])
+                month = int(birthday["mounth"])
+            except (KeyError, ValueError):
+                continue
+
+            # Compute next birthday
+            next_birthday = datetime.date(today.year, month, day)
+            if next_birthday < today:
+                next_birthday = datetime.date(today.year + 1, month, day)
+
+            # Resolve display name
+            try:
+                member = guild.get_member(int(user_id_or_name))
+                name = member.name if member else user_id_or_name
+            except Exception:
+                name = user_id_or_name
+
+            grouped[month].append((next_birthday, name, day))
+
+    # Sort months chronologically starting from current month
+    ordered_months = sorted(grouped.keys(),
+                            key=lambda m: (m < today.month, m))
+
+    for month in ordered_months:
+        # Sort users inside the month
+        grouped[month].sort(key=lambda x: x[0])
+
+        await ctx.send(f"\n📅 **{datetime.date(2000, month, 1).strftime('%B')}**")
+
+        for next_date, name, day in grouped[month]:
+            if next_date == today:
+                await ctx.send(f"🎉 **{name} — TODAY! ({day}/{month})**")
             else:
-                await ctx.send(f"\t{user_id_or_name}: {birthday_date['day']}/{birthday_date['mounth']}")
+                await ctx.send(f"• {name}: {day}/{month}")
 
 
 @bot.event
