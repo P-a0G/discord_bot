@@ -89,7 +89,6 @@ async def check_new_matches():
 
         embed = make_embed_history(new_matches)
 
-        await send_message_to_me(f"New matches detected:")
         await send_message_to_me(embed, is_embed=True)
 
 @tasks.loop(seconds=14400)  # 4 hours
