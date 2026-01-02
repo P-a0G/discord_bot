@@ -142,8 +142,6 @@ async def show_all(ctx):
 
     for guild_id in anniversaries.keys():
         guild = bot.get_guild(int(guild_id))
-        if not guild:
-            continue
 
         for user_id_or_name, birthday in anniversaries[guild_id].items():
             try:
