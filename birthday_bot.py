@@ -138,7 +138,7 @@ async def show_all(ctx):
         return
 
     today = datetime.date.today()
-    grouped = defaultdict(list)
+    users = {}  # key = user_id or name, value = (next_birthday, name, day, month)
 
     for guild_id in anniversaries.keys():
         guild = bot.get_guild(int(guild_id))
@@ -157,21 +157,29 @@ async def show_all(ctx):
             if next_birthday < today:
                 next_birthday = datetime.date(today.year + 1, month, day)
 
-            # Resolve display name
+            # Resolve user name
             try:
                 member = guild.get_member(int(user_id_or_name))
                 name = member.name if member else user_id_or_name
+                unique_id = str(member.id) if member else str(user_id_or_name)
             except Exception:
                 name = user_id_or_name
+                unique_id = str(user_id_or_name)
 
-            grouped[month].append((next_birthday, name, day))
+            # Deduplicate: keep the earliest upcoming birthday
+            if unique_id not in users or next_birthday < users[unique_id][0]:
+                users[unique_id] = (next_birthday, name, day, month)
 
-    # Sort months chronologically starting from current month
+    # Group by month
+    grouped = defaultdict(list)
+    for next_date, name, day, month in users.values():
+        grouped[month].append((next_date, name, day))
+
+    # Sort months starting from current
     ordered_months = sorted(grouped.keys(),
                             key=lambda m: (m < today.month, m))
 
     for month in ordered_months:
-        # Sort users inside the month
         grouped[month].sort(key=lambda x: x[0])
 
         await ctx.send(f"\n📅 **{datetime.date(2000, month, 1).strftime('%B')}**")
