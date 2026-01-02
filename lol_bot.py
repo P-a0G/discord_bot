@@ -91,7 +91,8 @@ async def check_new_matches():
 
         await send_message_to_me(embed, is_embed=True)
 
-@tasks.loop(seconds=14400)  # 4 hours
+
+@tasks.loop(seconds=1800)  # 30 minutes
 async def bash_users():
     for discord_user in discord_users.values():
         discord_id = discord_user.discord_id
