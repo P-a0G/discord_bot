@@ -12,7 +12,7 @@ from .queues import QUEUE_ID_TO_NAME
 MatchTuple = Tuple[str, Dict[str, Any]]
 ParsedMatch = Dict[str, Any]
 
-FOUR_HOURS = 4
+THIRTY_MINUTES = 30
 
 
 # ============================================================
@@ -29,8 +29,8 @@ def _safe_get_match_timestamp(match: Dict[str, Any]) -> Optional[datetime]:
         return None
 
 
-def filter_recent_matches(history: Iterable[MatchTuple], hours: int):
-    cutoff = datetime.now(timezone.utc) - timedelta(hours=hours)
+def filter_recent_matches(history: Iterable[MatchTuple], minutes: int):
+    cutoff = datetime.now(timezone.utc) - timedelta(minutes=minutes)
     return [
         (puuid, match)
         for puuid, match in history or []
@@ -144,7 +144,7 @@ def get_event_from_result(player, streak_len) -> str:
     if not player["win"] and player["kda_ratio"] <= 0.4:
         return "big_loss"
 
-    if player["win"] and player["kda_ratio"] >= 8 and player_contrib_ratio > 0.8:
+    if player["win"] and player["kda_ratio"] >= 8 and player_contrib_ratio >= 0.7:
         return "big_win"
 
     return ""
@@ -271,7 +271,7 @@ def bash_user(discord_user, history: Optional[Iterable[MatchTuple]]) -> Optional
     if not history:
         return None
 
-    recent = filter_recent_matches(history, FOUR_HOURS)
+    recent = filter_recent_matches(history, THIRTY_MINUTES)
 
     if not recent:
         return None  # no new games → no message
