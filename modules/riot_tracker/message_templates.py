@@ -7,7 +7,7 @@ TEMPLATES = {
     ],
     "win_streak": [
         "{streak_len} victoires d'affilée pour {mention} ! Ca va tag Caliste à la prochaine soloQ 🚀",
-        "{streak_len} victoires de suite, plus que 1245 wins de suite pour le top 1 du ladder {mention} ! 🏆",
+        "{streak_len} victoires de suite, plus que 1245 wins pour le top 1 du ladder {mention} ! 🏆",
         "L'autoroute des LP pour {mention}ç ça grind sévère ! {streak_len} wins d'affilée ! 🛣️",
         "{mention} en mode rouleau compresseur avec {streak_len} victoires consécutives ! 💪",
         "{mention}, {streak_len} wins de suite tu peux partager la faille de l'Algorithme stp ? 🤖",
