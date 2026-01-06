@@ -276,7 +276,7 @@ def bash_user(discord_user, history: Optional[Iterable[MatchTuple]]) -> Optional
     if not recent:
         return None  # no new games → no message
 
-    parsed = build_parsed_history(recent)
+    parsed = build_parsed_history(history)
     if not parsed:
         return None
 
