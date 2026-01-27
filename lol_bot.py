@@ -101,7 +101,11 @@ async def bash_users():
         for channel in channels.values():
             guild_id, channel_id = channel.guild_id, channel.channel_id
 
-            user = bot.get_guild(int(guild_id)).get_member(discord_id)
+            guild = bot.get_guild(int(guild_id))
+            if guild is None:
+                continue
+
+            user = guild.get_member(discord_id)
 
             if user is None:
                 continue
