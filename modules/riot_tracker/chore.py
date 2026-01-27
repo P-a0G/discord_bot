@@ -68,7 +68,7 @@ def get_full_data_history(discord_users, riot_client, discord_id, last: int = 10
                 (account.puuid, riot_client.get_match(match_id))
             )
 
-    matchs.sort(key=lambda x: x["info"]["gameStartTimestamp"], reverse=True)
+    matchs.sort(key=lambda x: x["info"]["gameStartTimestamp"], reverse=False)
 
     return matchs
 
