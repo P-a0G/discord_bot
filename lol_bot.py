@@ -12,7 +12,7 @@ from modules.riot_tracker.chore import (
     add_channel_lol_bot
 )
 from modules.riot_tracker.client import RiotClient
-from modules.riot_tracker.lol_basher import bash_user
+from modules.riot_tracker.lol_basher import bash_user, filter_recent_matches
 from modules.riot_tracker.storage import JsonStorage, JsonChannelStorage
 from modules.utils import read_json, make_embed_history
 
@@ -111,6 +111,9 @@ async def bash_users():
                 continue
 
             msg = bash_user(user, history)
+
+            await send_message_to_me(f"recent matches (2h): {filter_recent_matches(history, 120)}")
+            await send_message_to_me(f"msg: {msg} to user {user.name}")
 
             if msg:
                 channel = bot.get_guild(int(guild_id)).get_channel(channel_id)
