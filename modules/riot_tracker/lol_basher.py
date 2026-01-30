@@ -21,7 +21,7 @@ THIRTY_MINUTES = 30
 
 def _safe_get_match_timestamp(match: Dict[str, Any]) -> Optional[datetime]:
     try:
-        ms = match.get("info", {}).get("gameStartTimestamp")
+        ms = match.get("info", {}).get("gameEndTimestamp")
         if not ms:
             return None
         return datetime.fromtimestamp(ms / 1000, tz=timezone.utc)
