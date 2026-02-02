@@ -31,15 +31,13 @@ class JsonStorage:
             riot_accounts = []
 
             for acc_data in data.get("riot_accounts", []):
-                # Backward compatibility: default to 0 if missing
-                acc_data.setdefault("latest_match_seen_date", 0)
-
                 riot_accounts.append(RiotAccount(**acc_data))
 
             users[int(uid)] = DiscordUser(
                 discord_id=int(uid),
                 guild_id=data.get("guild_id", 0),
                 riot_accounts=riot_accounts,
+                latest_match_seen_date=data.get("latest_match_seen_date", 0),
             )
 
         return users

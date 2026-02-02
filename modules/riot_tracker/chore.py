@@ -68,7 +68,7 @@ def get_full_data_history(discord_users, riot_client, discord_id, last: int = 10
                 (account.puuid, riot_client.get_match(match_id))
             )
 
-    matchs.sort(key=lambda x: x[1]["info"]["gameStartTimestamp"], reverse=False)
+    matchs.sort(key=lambda x: x[1]["info"]["gameEndTimestamp"], reverse=False)
 
     return matchs
 
@@ -105,18 +105,17 @@ def get_new_matches(discord_users, discord_id, riot_client):
 
     notifications = []
 
-
+    new_last_date = user.latest_match_seen_date
     for account in user.riot_accounts:
         match_ids = riot_client.get_match_ids(account.puuid, count=10)
 
-        new_last_date = account.latest_match_seen_date
         for match_id in match_ids:
             match_details = riot_client.get_match_summary(match_id, puuid=account.puuid)
 
-            if match_details["date"] > account.latest_match_seen_date:
+            if match_details["date"] > user.latest_match_seen_date:
                 new_last_date = max(match_details["date"], new_last_date)
                 notifications.append((user.discord_id, match_details["date"], account, match_details))
 
-        account.latest_match_seen_date = new_last_date
+        user.latest_match_seen_date = max(new_last_date, user.latest_match_seen_date)
 
     return notifications

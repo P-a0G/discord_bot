@@ -28,17 +28,6 @@ def _safe_get_match_timestamp(match: Dict[str, Any]) -> Optional[datetime]:
     except Exception:
         return None
 
-
-def filter_recent_matches(history: Iterable[MatchTuple], minutes: int):
-    cutoff = datetime.now(timezone.utc) - timedelta(minutes=minutes)
-    return [
-        (puuid, match)
-        for puuid, match in history or []
-        if _safe_get_match_timestamp(match)
-        and _safe_get_match_timestamp(match) >= cutoff
-    ]
-
-
 # ============================================================
 # Parsing
 # ============================================================
@@ -267,17 +256,28 @@ def generate_message(mention: str, matches: List[ParsedMatch]) -> str:
 # Public API
 # ============================================================
 
-def bash_user(discord_user, history: Optional[Iterable[MatchTuple]]) -> Optional[str]:
+def bash_user(user, discord_user, history: Optional[Iterable[MatchTuple]]) -> Optional[str]:
     if not history:
         return None
 
-    recent = filter_recent_matches(history, THIRTY_MINUTES)
+    last_match = history[-1][1]
+    last_match_time = _safe_get_match_timestamp(last_match)
+    if not last_match_time:
+        print(f"DEBUG: could not get timestamp for last match for {user.name}")
+        return None
 
-    if not recent:
+    if discord_user.latest_match_seen_date == last_match_time:
+        print(f"DEBUG: no new game for {user.name}")
         return None  # no new games → no message
+
+    print(f"DEBUG: found new games for {user.name}")
+    print(f"DEBUG: last match time: {last_match_time}, stored latest match seen date: {discord_user.latest_match_seen_date}")
+
+    discord_user.latest_match_seen_date = last_match_time
 
     parsed = build_parsed_history(history)
     if not parsed:
+        print(f"DEBUG: could not parse matches for {user.name}")
         return None
 
-    return generate_message(discord_user.mention, parsed)
+    return generate_message(user.mention, parsed)
