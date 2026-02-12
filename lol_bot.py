@@ -70,9 +70,6 @@ async def on_ready():
     if not check_new_matches.is_running():
         check_new_matches.start()
 
-    if not bash_users.is_running():
-        bash_users.start()
-
     await send_message_to_me("I'm online! 🍄")
 
 @tasks.loop(seconds=300)
@@ -91,11 +88,6 @@ async def check_new_matches():
 
         await send_message_to_me(embed, is_embed=True)
 
-
-@tasks.loop(seconds=1800)  # 30 minutes
-async def bash_users():
-    for discord_user in discord_users.values():
-        discord_id = discord_user.discord_id
         history = get_full_data_history(discord_users, riot_client, discord_id)
 
         for channel in channels.values():
@@ -107,10 +99,13 @@ async def bash_users():
 
             user = guild.get_member(discord_id)
 
-            if user is None:
-                continue
+            discord_user = discord_users.get(discord_id)
 
-            msg = bash_user(user, history)
+            print("DEBUG: checking user", user.name, "in guild", guild.name)
+
+            msg = bash_user(user, discord_user, history)
+
+            print("DEBUG: bash_user returned msg:", msg)
 
             if msg:
                 channel = bot.get_guild(int(guild_id)).get_channel(channel_id)

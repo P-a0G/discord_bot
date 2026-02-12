@@ -266,14 +266,14 @@ def bash_user(user, discord_user, history: Optional[Iterable[MatchTuple]]) -> Op
         print(f"DEBUG: could not get timestamp for last match for {user.name}")
         return None
 
-    if discord_user.latest_match_seen_date == last_match_time:
+    if discord_user.latest_match_seen_date and datetime.fromtimestamp(discord_user.latest_match_seen_date / 1000, tz=timezone.utc) == last_match_time:
         print(f"DEBUG: no new game for {user.name}")
         return None  # no new games → no message
 
     print(f"DEBUG: found new games for {user.name}")
     print(f"DEBUG: last match time: {last_match_time}, stored latest match seen date: {discord_user.latest_match_seen_date}")
 
-    discord_user.latest_match_seen_date = last_match_time
+    discord_user.latest_match_seen_date = int(last_match_time.timestamp() * 1000)
 
     parsed = build_parsed_history(history)
     if not parsed:
