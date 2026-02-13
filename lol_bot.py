@@ -76,43 +76,52 @@ async def on_ready():
 
 @tasks.loop(seconds=300)
 async def check_new_matches():
-    for discord_id in discord_users:
+    for discord_id, discord_user in discord_users.items():
+        # Check new matches
         notifications = get_new_matches(discord_users, discord_id, riot_client)
-
-        storage.save(discord_users)  # saving latest data after the check
+        storage.save(discord_users)  # save after checking
 
         new_matches = [(t, a, d) for (_, t, a, d) in notifications]
-
         if not new_matches:
             continue
 
+        # Build embed for notifications
         embed = make_embed_history(new_matches)
-
         await send_message_to_me(embed, is_embed=True)
 
+        # Get full history
         history = get_full_data_history(discord_users, riot_client, discord_id)
 
-        for channel in channels.values():
-            guild_id, channel_id = channel.guild_id, channel.channel_id
+        # Collect all channels this user is registered in
+        user_channels = [
+            channel for channel in channels.values()
+            if channel.guild_id in [g.id for g in bot.guilds]  # make sure guild exists
+        ]
 
-            guild = bot.get_guild(int(guild_id))
+        # Find the first channel where this user is present
+        sent = False
+        for channel_info in user_channels:
+            guild = bot.get_guild(int(channel_info.guild_id))
             if guild is None:
                 continue
 
-            user = guild.get_member(discord_id)
+            member = guild.get_member(discord_id)
+            if member is None:
+                continue
 
-            discord_user = discord_users.get(discord_id)
+            # Only send **one message per user**
+            if not sent:
+                msg = bash_user(member, discord_user, history)
+                if msg:
+                    channel_obj = guild.get_channel(channel_info.channel_id)
+                    if channel_obj:
+                        await channel_obj.send(msg)
+                        await send_message_to_me(f"msg: {msg} to user {member.name}")
+                sent = True
+            else:
+                # Optional: log skipped channels
+                print(f"DEBUG: skipped sending to {guild.name} for user {member.name}")
 
-            print("DEBUG: checking user", user.name, "in guild", guild.name)
-
-            msg = bash_user(user, discord_user, history)
-
-            print("DEBUG: bash_user returned msg:", msg)
-
-            if msg:
-                channel = bot.get_guild(int(guild_id)).get_channel(channel_id)
-                await channel.send(msg)
-                await send_message_to_me(f"msg: {msg} to user {user.name}")
 
 
 @bot.command(name="add_user",
@@ -262,6 +271,6 @@ async def on_message(message):
     await bot.process_commands(message)
 
 if __name__ == '__main__':
-    token = read_json("files/tokens.json")["lol_bot"]
+    token = read_json("files/tokens.json")["debug"]
     my_id = int(id_file["my_id"])
     bot.run(token)
