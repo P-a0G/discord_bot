@@ -1,5 +1,5 @@
 import random
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from .message_templates import TEMPLATES
@@ -166,7 +166,7 @@ def analyze_last_game(matches: List[ParsedMatch], streak_len: int):
     def best_player(players):
         if not players:
             return None
-        p = max(players, key=lambda x: x["kills"] + x["assists"] - x["deaths"])
+        p = max(players, key=lambda x: (x["kills"] + x["assists"]) / x["deaths"])
         return {
             "name": p.get("puuid"),
             "champion": p.get("championName"),
@@ -176,7 +176,7 @@ def analyze_last_game(matches: List[ParsedMatch], streak_len: int):
     def worst_player(players):
         if not players:
             return None
-        p = min(players, key=lambda x: x["kills"] + x["assists"] - x["deaths"])
+        p = min(players, key=lambda x: (x["kills"] + x["assists"]) / x["deaths"])
         return {
             "name": p.get("puuid"),
             "champion": p.get("championName"),
@@ -184,20 +184,20 @@ def analyze_last_game(matches: List[ParsedMatch], streak_len: int):
         }
 
     # Best/worst players
-    best_team = best_player(team)
-    worst_team = worst_player(team)
-    best_enemy = best_player(enemies)
-    worst_enemy = worst_player(enemies)
+    best_team_player = best_player(team)
+    worst_team_player = worst_player(team)
+    best_enemy_player = best_player(enemies)
+    worst_enemy_player = worst_player(enemies)
 
     message_key = get_event_from_result(player_game_results, streak_len)
 
     # Return full analysis
     return {
         "player_result": player_game_results,
-        "best_team_player": best_team,
-        "worst_team_player": worst_team,
-        "best_enemy_player": best_enemy,
-        "worst_enemy_player": worst_enemy,
+        "best_team_player": best_team_player,
+        "worst_team_player": worst_team_player,
+        "best_enemy_player": best_enemy_player,
+        "worst_enemy_player": worst_enemy_player,
         "message_key": message_key
     }
 
@@ -211,10 +211,10 @@ def _format_template(template_key: str, mention: str, player_result: ParsedMatch
     """
     Generic formatter for TEMPLATES using player's own champion and optional best/worst player info.
     """
-    best_team = events.get("best_team_player")
-    worst_team = events.get("worst_team_player")
-    best_enemy = events.get("best_enemy_player")
-    worst_enemy = events.get("worst_enemy_player")
+    best_team_player = events.get("best_team_player")
+    worst_team_player = events.get("worst_team_player")
+    best_enemy_player = events.get("best_enemy_player")
+    worst_enemy_player = events.get("worst_enemy_player")
 
     # Build placeholder dict
     placeholders = {
@@ -225,14 +225,14 @@ def _format_template(template_key: str, mention: str, player_result: ParsedMatch
         "a": player_result.get("assists", 0),
         "kda": player_result.get("kda_ratio", 0),
         "streak_len": streak_len,
-        "best_team_champ": best_team.get("champion") if best_team else "???",
-        "best_team_score": best_team.get("score") if best_team else "???",
-        "worst_team_champ": worst_team.get("champion") if worst_team else "???",
-        "worst_team_score": worst_team.get("score") if worst_team else "???",
-        "best_enemy_champ": best_enemy.get("champion") if best_enemy else "???",
-        "best_enemy_score": best_enemy.get("score") if best_enemy else "???",
-        "worst_enemy_champ": worst_enemy.get("champion") if worst_enemy else "???",
-        "worst_enemy_score": worst_enemy.get("score") if worst_enemy else "???",
+        "best_team_champ": best_team_player.get("champion") if best_team_player else "???",
+        "best_team_score": best_team_player.get("score") if best_team_player else "???",
+        "worst_team_champ": worst_team_player.get("champion") if worst_team_player else "???",
+        "worst_team_score": worst_team_player.get("score") if worst_team_player else "???",
+        "best_enemy_champ": best_enemy_player.get("champion") if best_enemy_player else "???",
+        "best_enemy_score": best_enemy_player.get("score") if best_enemy_player else "???",
+        "worst_enemy_champ": worst_enemy_player.get("champion") if worst_enemy_player else "???",
+        "worst_enemy_score": worst_enemy_player.get("score") if worst_enemy_player else "???",
     }
 
     template = random.choice(TEMPLATES[template_key])
