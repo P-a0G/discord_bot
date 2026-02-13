@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 
 import discord
@@ -6,6 +7,7 @@ from discord.ext import commands, tasks
 from modules.riot_tracker.chore import (
     add_user_riot,
     remove_riot_account,
+    remove_all_riot_accounts,
     get_history,
     get_new_matches,
     get_full_data_history,
@@ -112,7 +114,9 @@ async def check_new_matches():
                 await channel.send(msg)
                 await send_message_to_me(f"msg: {msg} to user {user.name}")
 
-@bot.command(name="add_user")
+
+@bot.command(name="add_user",
+             help="Add a new Discord user with one Riot account, or add a Riot account to an existing user. Usage: !add_user <game_name>#<tag_line>")
 async def add_user(ctx, *, args: str):
     """Add a new Discord user with one Riot account, or add a Riot account to an existing user."""
 
@@ -154,16 +158,67 @@ async def add_user(ctx, *, args: str):
         await ctx.send(f"Error adding user: {e}")
 
 
-@bot.command(name="delete_account")
-async def delete_account(ctx, discord_id: int, game_name: str, tag_line: str):
-    """Delete a Riot account from a Discord user."""
+@bot.command(name="delete_account",
+             help="Delete a linked Riot account from your profile. Usage: !delete_account <game_name>#<tag_line> or `all`")
+async def delete_account(ctx, *, args: str):
+    discord_id = ctx.author.id
+
+    if ctx.guild is None:
+        await ctx.send("This command can only be used in a server.")
+        return
+
+    if args.lower().strip() == "all":
+        # confirmation
+        await ctx.send(
+            "⚠️ This will delete **all** your Riot accounts.\n"
+            "Type `confirm` to proceed."
+        )
+
+        def check(m):
+            return (
+                    m.author == ctx.author
+                    and m.channel == ctx.channel
+                    and m.content.lower() == "confirm"
+            )
+
+        try:
+            await bot.wait_for("message", check=check, timeout=20)
+        except asyncio.TimeoutError:
+            await ctx.send("❌ Cancelled.")
+            return
+
+        msg = remove_all_riot_accounts(storage, discord_id, discord_users)
+        await ctx.send(msg)
+        return
+
+    # single account deletion
+    if "#" not in args:
+        await ctx.send("Usage: !delete_account <game_name>#<tag_line> or `all`")
+        return
+
+    game_name, tag_line = args.rsplit("#", 1)
+    game_name = game_name.strip()
+    tag_line = tag_line.strip()
+
+    if not game_name or not tag_line:
+        await ctx.send("Usage: !delete_account <game_name>#<tag_line>")
+        return
+
     try:
-        msg = remove_riot_account(storage, discord_id, discord_users, game_name, tag_line)
+        msg = remove_riot_account(
+            storage,
+            discord_id,
+            discord_users,
+            game_name,
+            tag_line,
+        )
         await ctx.send(msg)
     except Exception as e:
         await ctx.send(f"Error deleting account: {e}")
 
-@bot.command(name="history")
+
+@bot.command(name="history",
+             help="Display your recent match history for all saved Riot accounts. Usage: !history [last]")
 async def history(ctx, last: int = 5):
     """
     Display your recent match history for all saved Riot accounts.
@@ -189,7 +244,9 @@ async def history(ctx, last: int = 5):
 
     await ctx.send(embed=embed)
 
-@bot.command(name="setup_channel")
+
+@bot.command(name="setup_channel",
+             help="Set up the current channel to receive match notifications. Usage: !setup_channel")
 async def setup_channel(ctx):
     guild_id = ctx.guild.id
     channel_id = ctx.channel.id
