@@ -99,7 +99,8 @@ async def check_new_matches():
         ]
 
         # Find the first channel where this user is present
-        sent = False
+        stored_msg = False
+        msg = ""
         for channel_info in user_channels:
             guild = bot.get_guild(int(channel_info.guild_id))
             if guild is None:
@@ -110,17 +111,14 @@ async def check_new_matches():
                 continue
 
             # Only send **one message per user**
-            if not sent:
+            if not stored_msg:
                 msg = bash_user(member, discord_user, history)
-                if msg:
-                    channel_obj = guild.get_channel(channel_info.channel_id)
-                    if channel_obj:
-                        await channel_obj.send(msg)
-                        await send_message_to_me(f"msg: {msg} to user {member.name}")
-                sent = True
-            else:
-                # Optional: log skipped channels
-                print(f"DEBUG: skipped sending to {guild.name} for user {member.name}")
+                stored_msg = True
+            if msg:
+                channel_obj = guild.get_channel(channel_info.channel_id)
+                if channel_obj:
+                    await channel_obj.send(msg)
+                    await send_message_to_me(f"msg: {msg} to user {member.name}")
 
 
 
@@ -271,6 +269,6 @@ async def on_message(message):
     await bot.process_commands(message)
 
 if __name__ == '__main__':
-    token = read_json("files/tokens.json")["lol_bot"]
+    token = read_json("files/tokens.json")["debug"]
     my_id = int(id_file["my_id"])
     bot.run(token)
