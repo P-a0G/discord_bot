@@ -37,6 +37,19 @@ def add_user_riot(storage, riot_client, discord_id: int, guild_id: int, discord_
     return msg
 
 
+def remove_all_riot_accounts(storage, discord_id, discord_users):
+    user = discord_users.get(discord_id)
+
+    if not user or not user.riot_accounts:
+        return "You have no Riot accounts to delete."
+
+    count = len(user.riot_accounts)
+    user.riot_accounts.clear()
+
+    storage.save(discord_users)
+    return f"✅ Removed {count} Riot account(s)."
+
+
 def remove_riot_account(storage, discord_id: int, discord_users, game_name: str, tag_line: str):
     if discord_id not in discord_users:
         return f"No user with Discord ID {discord_id}"
