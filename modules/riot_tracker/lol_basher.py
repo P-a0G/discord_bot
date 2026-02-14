@@ -116,10 +116,10 @@ def get_event_from_result(player, streak_len) -> str:
 
     player_contrib_ratio = (player["kills"] + player["assists"]) / max(1, player["team_kills"])
 
-    if player["kda_ratio"] <= 0.8 and player["win"] and player_contrib_ratio < 0.15:
+    if player["kda_ratio"] <= 0.8 and player["win"] and player_contrib_ratio < 0.25:
         return "low_kda_but_win"
 
-    if player["kda_ratio"] >= 7.0 and not player["win"] and player_contrib_ratio > 0.7:
+    if player["kda_ratio"] >= 5.0 and not player["win"] and player_contrib_ratio > 0.6:
         return "carried_but_lost"
 
     if player["damage"] > 100_000:
@@ -131,10 +131,10 @@ def get_event_from_result(player, streak_len) -> str:
         else:
             return "lose_streak"
 
-    if not player["win"] and player["kda_ratio"] <= 0.4:
+    if not player["win"] and player["kda_ratio"] <= 0.5:
         return "big_loss"
 
-    if player["win"] and player["kda_ratio"] >= 8 and player_contrib_ratio >= 0.7:
+    if player["win"] and player["kda_ratio"] >= 5 and player_contrib_ratio >= 0.7:
         return "big_win"
 
     return ""
@@ -233,7 +233,8 @@ def _format_template(template_key: str, mention: str, player_result: ParsedMatch
         "best_enemy_score": best_enemy_player.get("score") if best_enemy_player else "???",
         "worst_enemy_champ": worst_enemy_player.get("champion") if worst_enemy_player else "???",
         "worst_enemy_score": worst_enemy_player.get("score") if worst_enemy_player else "???",
-        "damage": player_result.get("damage", 0)
+        "damage": player_result.get("damage", 0),
+        "largest_multi_kill": player_result.get("largest_multi_kill", 0),
     }
 
     template = random.choice(TEMPLATES[template_key])
