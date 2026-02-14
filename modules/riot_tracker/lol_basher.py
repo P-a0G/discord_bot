@@ -233,6 +233,7 @@ def _format_template(template_key: str, mention: str, player_result: ParsedMatch
         "best_enemy_score": best_enemy_player.get("score") if best_enemy_player else "???",
         "worst_enemy_champ": worst_enemy_player.get("champion") if worst_enemy_player else "???",
         "worst_enemy_score": worst_enemy_player.get("score") if worst_enemy_player else "???",
+        "damage": player_result.get("damage", 0)
     }
 
     template = random.choice(TEMPLATES[template_key])
