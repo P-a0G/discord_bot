@@ -18,7 +18,7 @@ TEMPLATES = {
         "Si la défaite était un art, {mention} serait Picasso avec son {player_champ} 🎨 en {k}/{d}/{a} 😭",
         "Alors {mention}, {best_enemy_champ} t’a montré comment jouer son champion correctement? 🤯👏",
         "On t'a payé combien {mention} 💸 pour que tu pick {player_champ} contre {best_enemy_champ}? 😏",
-        "Ton {player_champ} voulait sûrement participer à un festival de kills, {mention}, t'as assuré le show! 💀",
+        "Ton/Ta {player_champ} voulait sûrement participer à un festival de kills, {mention}, t'as assuré le show avec ton {k}/{d}/{a}! 💀",
         "Des éclats de rire à chaque fois que {mention} respawn, c'est le stand-up préféré d'la faille 🎤",
         "La statistique la plus surréaliste de ce match: {mention} avec {d} morts 👻",
         "Ton feed a mis la game plus penchée que la Tour de Pise, {mention} 🤷",
