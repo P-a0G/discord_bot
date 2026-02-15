@@ -166,7 +166,7 @@ def analyze_last_game(matches: List[ParsedMatch], streak_len: int):
     def best_player(players):
         if not players:
             return None
-        p = max(players, key=lambda x: (x["kills"] + x["assists"]) / min(x["deaths"], 1))
+        p = max(players, key=lambda x: (x["kills"] + x["assists"]) / max(x["deaths"], 1))
         return {
             "name": p.get("puuid"),
             "champion": p.get("championName"),
@@ -176,7 +176,7 @@ def analyze_last_game(matches: List[ParsedMatch], streak_len: int):
     def worst_player(players):
         if not players:
             return None
-        p = min(players, key=lambda x: (x["kills"] + x["assists"]) / min(x["deaths"], 1))
+        p = min(players, key=lambda x: (x["kills"] + x["assists"]) / max(x["deaths"], 1))
         return {
             "name": p.get("puuid"),
             "champion": p.get("championName"),
