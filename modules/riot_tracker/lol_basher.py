@@ -166,7 +166,7 @@ def analyze_last_game(matches: List[ParsedMatch], streak_len: int):
     def best_player(players):
         if not players:
             return None
-        p = max(players, key=lambda x: (x["kills"] + x["assists"]) / x["deaths"])
+        p = max(players, key=lambda x: (x["kills"] + x["assists"]) / min(x["deaths"], 1))
         return {
             "name": p.get("puuid"),
             "champion": p.get("championName"),
@@ -176,7 +176,7 @@ def analyze_last_game(matches: List[ParsedMatch], streak_len: int):
     def worst_player(players):
         if not players:
             return None
-        p = min(players, key=lambda x: (x["kills"] + x["assists"]) / x["deaths"])
+        p = min(players, key=lambda x: (x["kills"] + x["assists"]) / min(x["deaths"], 1))
         return {
             "name": p.get("puuid"),
             "champion": p.get("championName"),
@@ -235,6 +235,7 @@ def _format_template(template_key: str, mention: str, player_result: ParsedMatch
         "worst_enemy_score": worst_enemy_player.get("score") if worst_enemy_player else "???",
         "damage": player_result.get("damage", 0),
         "largest_multi_kill": player_result.get("largest_multi_kill", 0),
+        "queue": player_result.get("queue", "???")
     }
 
     template = random.choice(TEMPLATES[template_key])
