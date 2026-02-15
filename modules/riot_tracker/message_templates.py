@@ -22,7 +22,7 @@ TEMPLATES = {
         "Des éclats de rire à chaque fois que {mention} respawn, c'est le stand-up préféré d'la faille 🎤",
         "La statistique la plus surréaliste de ce match: {mention} avec {d} morts 👻",
         "Ton feed a mis la game plus penchée que la Tour de Pise, {mention} 🤷",
-        "Même Gandalf ferait demi-tour en te voyant mourir autant 🔄"
+        "Même Gandalf ferait demi-tour en te voyant mourir autant {mention} 🔄"
     ],
     "carried_but_lost": [
         "Merci à {worst_team_champ} pour le feed, {worst_team_score} ça fait trop lourd dans le sac à dos {mention}?",
