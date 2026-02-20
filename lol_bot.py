@@ -65,6 +65,8 @@ async def send_message_to_user(message, user_id, is_file=False):
         user_name = bot.get_user(int(user_id)).name
         print(f"[Error] Couldn't send message to user {user_name} ({user_id}): {e}")
 
+TIME_TO_CHECK_ONE_USER = 10  # seconds, estimated time to check one user for new matches
+SAFE_LOOP_INTERVAL = max(300, len(discord_users) * TIME_TO_CHECK_ONE_USER)  # at least 5 minutes, or more if many users
 @bot.event
 async def on_ready():
     print('Bot is ready to go!')
@@ -72,9 +74,12 @@ async def on_ready():
     if not check_new_matches.is_running():
         check_new_matches.start()
 
-    await send_message_to_me("I'm online! 🍄")
+    await send_message_to_me(f"I'm online! 🍄\n"
+                             f"Parameters:\n"
+                             f"- safe loop interval: {SAFE_LOOP_INTERVAL}s\n"
+                             f"- nb user registered: {len(discord_users)}")
 
-@tasks.loop(seconds=300)
+@tasks.loop(seconds=SAFE_LOOP_INTERVAL)
 async def check_new_matches():
     for discord_id, discord_user in discord_users.items():
         # Check new matches
