@@ -66,7 +66,8 @@ async def send_message_to_user(message, user_id, is_file=False):
         print(f"[Error] Couldn't send message to user {user_name} ({user_id}): {e}")
 
 TIME_TO_CHECK_ONE_USER = 10  # seconds, estimated time to check one user for new matches
-SAFE_LOOP_INTERVAL = max(300, len(discord_users) * TIME_TO_CHECK_ONE_USER * 2)  # at least 5 minutes, or more if many users
+SAFE_LOOP_INTERVAL = max(10,
+                         len(discord_users) * TIME_TO_CHECK_ONE_USER * 2)  # at least 5 minutes, or more if many users
 @bot.event
 async def on_ready():
     print('Bot is ready to go!')
