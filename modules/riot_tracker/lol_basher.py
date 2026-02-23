@@ -279,9 +279,10 @@ def bash_user(user, discord_user, history: Optional[Iterable[MatchTuple]]) -> Op
 
     discord_user.latest_match_seen_date = int(last_match_time.timestamp() * 1000)
 
+    print("DEBUG: parsing match history for message generation...")
     parsed = build_parsed_history(history)
     if not parsed:
         print(f"DEBUG: could not parse matches for {user.name}")
         return None
-
+    print("DEBUG: successfully parsed matches for {user.name}, generating message...")
     return generate_message(user.mention, parsed)
