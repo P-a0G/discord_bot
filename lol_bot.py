@@ -80,14 +80,37 @@ async def on_ready():
                              f"- nb user registered: {len(discord_users)}")
 
 @tasks.loop(seconds=SAFE_LOOP_INTERVAL)
-async def check_new_matches():
+async def check_new_matches() -> None:
+    print(f"Starting new match check loop at {datetime.datetime.now()} (interval: {SAFE_LOOP_INTERVAL}s)")
+    try:
+        await _run_match_check()
+    except Exception as e:
+        import traceback
+        print(f"[Error] Unhandled exception in check_new_matches: {e}")
+        traceback.print_exc()
+
+
+@check_new_matches.error
+async def check_new_matches_error(error: Exception) -> None:
+    import traceback
+    print(f"[Error] check_new_matches task crashed: {error}")
+    traceback.print_exc()
+
+
+async def _run_match_check() -> None:
     for discord_id, discord_user in discord_users.items():
+        print("Checking new matches for user ID:", discord_id)
         # Check new matches
-        notifications = get_new_matches(discord_users, discord_id, riot_client)
+        try:
+            notifications = get_new_matches(discord_users, discord_id, riot_client)
+        except Exception as e:
+            print(f"[Error] Failed to get new matches for user ID {discord_id}: {e}")
+            continue
         storage.save(discord_users)  # save after checking
 
         new_matches = [(t, a, d) for (_, t, a, d) in notifications]
         if not new_matches:
+            print("No new matches for user ID:", discord_id)
             continue
 
         # Build embed for notifications
@@ -96,6 +119,7 @@ async def check_new_matches():
 
         # Get full history
         history = get_full_data_history(discord_users, riot_client, discord_id)
+        print(f"Full history for user ID {discord_id} has {len(history)} matches.")
 
         # Collect all channels this user is registered in
         user_channels = [
@@ -109,16 +133,19 @@ async def check_new_matches():
         for channel_info in user_channels:
             guild = bot.get_guild(int(channel_info.guild_id))
             if guild is None:
+                print("[Warning] Guild not found for channel info:", channel_info)
                 continue
 
             member = guild.get_member(discord_id)
             if member is None:
+                print("[Warning] Member not found in guild for user ID:", discord_id)
                 continue
 
             # Only send **one message per user**
             if not stored_msg:
                 msg = bash_user(member, discord_user, history)
                 stored_msg = True
+                print(f"Built message for user {member.name} ({discord_id}): {msg}")
             if msg:
                 channel_obj = guild.get_channel(channel_info.channel_id)
                 if channel_obj:
@@ -170,7 +197,7 @@ async def add_user(ctx, *, args: str):
         await ctx.send(f"Error adding user: {e}")
 
 
-@bot.command(name="delete_account",
+@bot.command(name="delete_user",
              help="Delete a linked Riot account from your profile. Usage: !delete_account <game_name>#<tag_line> or `all`")
 async def delete_account(ctx, *, args: str):
     discord_id = ctx.author.id
