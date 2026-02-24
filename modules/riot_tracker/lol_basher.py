@@ -131,7 +131,7 @@ def get_event_from_result(player, streak_len) -> str:
         else:
             return "lose_streak"
 
-    if not player["win"] and player["kda_ratio"] <= 0.5:
+    if not player["win"] and player["kda_ratio"] <= 0.5 and player["deaths"] >= 5:
         return "big_loss"
 
     if player["win"] and player["kda_ratio"] >= 5 and player_contrib_ratio >= 0.7:
