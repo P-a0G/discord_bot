@@ -67,7 +67,7 @@ def parse_participant_entry(puuid: str, match: Dict[str, Any]) -> Optional[Parse
                     "enemy_deaths": enemy_deaths,
                     "enemy_assists": enemy_assists,
                     "queue_id": queue_id,
-                    "queue": QUEUE_ID_TO_NAME[queue_id],
+                    "queue": QUEUE_ID_TO_NAME.get(queue_id, "Other"),
                     "raw_participants": participants
                 }
     except Exception:
