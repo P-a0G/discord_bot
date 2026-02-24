@@ -11,7 +11,7 @@ QUEUE_ID_TO_NAME = {
     440: "Ranked Flex",
     450: "ARAM",
     700: "Clash",
-    900: "ARAM Mayem",
+    900: "ARURF",
     1700: "Arena",
     1710: "Arena (other)",
 }
