@@ -67,7 +67,7 @@ def parse_participant_entry(puuid: str, match: Dict[str, Any]) -> Optional[Parse
                     "enemy_deaths": enemy_deaths,
                     "enemy_assists": enemy_assists,
                     "queue_id": queue_id,
-                    "queue": QUEUE_ID_TO_NAME[queue_id],
+                    "queue": QUEUE_ID_TO_NAME.get(queue_id, "Other"),
                     "raw_participants": participants
                 }
     except Exception:
@@ -131,10 +131,10 @@ def get_event_from_result(player, streak_len) -> str:
         else:
             return "lose_streak"
 
-    if not player["win"] and player["kda_ratio"] <= 0.5:
+    if not player["win"] and player["kda_ratio"] <= 0.5 and player["deaths"] >= 5:
         return "big_loss"
 
-    if player["win"] and player["kda_ratio"] >= 5 and player_contrib_ratio >= 0.7:
+    if player["win"] and player["kda_ratio"] >= 5 and player["assists"] + player["kills"] >= 10:
         return "big_win"
 
     return ""
@@ -279,9 +279,10 @@ def bash_user(user, discord_user, history: Optional[Iterable[MatchTuple]]) -> Op
 
     discord_user.latest_match_seen_date = int(last_match_time.timestamp() * 1000)
 
+    print("DEBUG: parsing match history for message generation...")
     parsed = build_parsed_history(history)
     if not parsed:
         print(f"DEBUG: could not parse matches for {user.name}")
         return None
-
+    print("DEBUG: successfully parsed matches for {user.name}, generating message...")
     return generate_message(user.mention, parsed)
