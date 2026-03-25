@@ -1,3 +1,4 @@
+import threading
 import time
 from collections import deque
 
@@ -7,38 +8,40 @@ from .queues import QUEUE_ID_TO_NAME
 
 
 class RateLimiter:
-    """Sliding-window rate limiter supporting multiple limit buckets."""
+    """Thread-safe sliding-window rate limiter supporting multiple limit buckets."""
 
     def __init__(self, limits: list[tuple[int, float]]) -> None:
         # limits: list of (max_requests, window_seconds)
         self._limits = limits
         self._timestamps: list[deque] = [deque() for _ in limits]
+        self._lock = threading.Lock()
 
     def wait(self) -> None:
         """Block until a request can safely be sent according to all buckets."""
         while True:
-            now = time.monotonic()
-            sleep_needed = 0.0
+            with self._lock:
+                now = time.monotonic()
+                sleep_needed = 0.0
 
-            for i, (max_req, window) in enumerate(self._limits):
-                dq = self._timestamps[i]
-                while dq and now - dq[0] >= window:
-                    dq.popleft()
+                for i, (max_req, window) in enumerate(self._limits):
+                    dq = self._timestamps[i]
+                    while dq and now - dq[0] >= window:
+                        dq.popleft()
 
-                if len(dq) >= max_req:
-                    # Sleep until the oldest entry leaves the window
-                    wait_until = dq[0] + window + 0.05
-                    sleep_needed = max(sleep_needed, wait_until - now)
+                    if len(dq) >= max_req:
+                        wait_until = dq[0] + window + 0.05
+                        sleep_needed = max(sleep_needed, wait_until - now)
 
-            if sleep_needed <= 0:
-                break
+                if sleep_needed <= 0:
+                    # Slot is free: record the request atomically and return
+                    now = time.monotonic()
+                    for dq in self._timestamps:
+                        dq.append(now)
+                    return
 
+            # Sleep outside the lock so other threads can check concurrently
             print(f"[RateLimiter] Waiting {sleep_needed:.2f}s to respect API limits...")
             time.sleep(sleep_needed)
-
-        now = time.monotonic()
-        for dq in self._timestamps:
-            dq.append(now)
 
 
 class RiotClient:

@@ -109,13 +109,14 @@ async def check_new_matches_error(error: Exception) -> None:
 async def _run_match_check() -> None:
     for discord_id, discord_user in discord_users.items():
         print("Checking new matches for user ID:", discord_id)
-        # Check new matches
         try:
-            notifications = get_new_matches(discord_users, discord_id, riot_client)
+            notifications = await asyncio.to_thread(
+                get_new_matches, discord_users, discord_id, riot_client
+            )
         except Exception as e:
             print(f"[Error] Failed to get new matches for user ID {discord_id}: {e}")
             continue
-        storage.save(discord_users)  # save after checking
+        await asyncio.to_thread(storage.save, discord_users)
 
         new_matches = [(t, a, d) for (_, t, a, d) in notifications]
         if not new_matches:
@@ -127,7 +128,9 @@ async def _run_match_check() -> None:
         await send_message_to_me(embed, is_embed=True)
 
         # Get full history
-        history = get_full_data_history(discord_users, riot_client, discord_id)
+        history = await asyncio.to_thread(
+            get_full_data_history, discord_users, riot_client, discord_id
+        )
         print(f"Full history for user ID {discord_id} has {len(history)} matches.")
 
         # Collect all channels this user is registered in
@@ -191,14 +194,9 @@ async def add_user(ctx, *, args: str):
     guild_id = ctx.guild.id
 
     try:
-        msg = add_user_riot(
-            storage,
-            riot_client,
-            discord_id,
-            guild_id,
-            discord_users,
-            game_name,
-            tag_line,
+        msg = await asyncio.to_thread(
+            add_user_riot,
+            storage, riot_client, discord_id, guild_id, discord_users, game_name, tag_line,
         )
         await ctx.send(msg)
 
@@ -276,7 +274,9 @@ async def history(ctx, last: int = 5):
 
     # Get history using your helper
     try:
-        matches, error_msg = get_history(discord_users, riot_client, discord_id, last)
+        matches, error_msg = await asyncio.to_thread(
+            get_history, discord_users, riot_client, discord_id, last
+        )
         if matches is None:
             await ctx.send(error_msg)
             return
