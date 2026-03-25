@@ -43,16 +43,26 @@ utc = datetime.timezone.utc
 daily_check = datetime.time(hour=2, minute=0, second=0, tzinfo=utc)
 
 async def send_message_to_me(message, is_file=False, is_embed=False):
-    user = bot.get_guild(int(id_file["guild_id"])).get_member(int(id_file["my_id"]))
+    guild = bot.get_guild(int(id_file["guild_id"]))
+
+    if guild is None:
+        print("[Error] Guild not found, can't send message to me")
+        return
+
+    user = guild.get_member(int(id_file["my_id"]))
     if user:
         if is_file:
             await user.send(file=message)
+            return
         elif is_embed:
             await user.send(embed=message)
-        else:
-            await user.send(message)
-    else:
-        print("[Error] Couldn't send message to me")
+            return
+
+        await user.send(message)
+        return
+
+    print("[Error] Couldn't send message to me")
+    return
 
 async def send_message_to_user(message, user_id, is_file=False):
     try:
