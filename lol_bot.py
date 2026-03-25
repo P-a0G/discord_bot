@@ -75,9 +75,7 @@ async def send_message_to_user(message, user_id, is_file=False):
         user_name = bot.get_user(int(user_id)).name
         print(f"[Error] Couldn't send message to user {user_name} ({user_id}): {e}")
 
-TIME_TO_CHECK_ONE_USER = 30  # seconds, estimated time to check one user for new matches
-SAFE_LOOP_INTERVAL = max(10,
-                         len(discord_users) * TIME_TO_CHECK_ONE_USER * 2)  # at least 5 minutes, or more if many users
+SAFE_LOOP_INTERVAL = 60  # seconds between each poll cycle; request pacing is handled by the rate limiter
 @bot.event
 async def on_ready():
     print('Bot is ready to go!')
