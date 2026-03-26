@@ -12,8 +12,6 @@ from .queues import QUEUE_ID_TO_NAME
 MatchTuple = Tuple[str, Dict[str, Any]]
 ParsedMatch = Dict[str, Any]
 
-THIRTY_MINUTES = 30
-
 
 # ============================================================
 # Time helpers
@@ -68,7 +66,8 @@ def parse_participant_entry(puuid: str, match: Dict[str, Any]) -> Optional[Parse
                     "enemy_assists": enemy_assists,
                     "queue_id": queue_id,
                     "queue": QUEUE_ID_TO_NAME.get(queue_id, "Other"),
-                    "raw_participants": participants
+                    "raw_participants": participants,
+                    "remake": p["gameEndedInEarlySurrender"]
                 }
     except Exception:
         pass
@@ -94,11 +93,17 @@ def detect_recent_streak(matches: List[ParsedMatch]):
         return None, 0
 
     last_match = matches[-1]
+
+    if last_match["remake"]:
+        return None, 0
+
     last_win = last_match["win"]
     last_queue_type = last_match.get("queue_id", -1)
     count = 0
 
     for m in reversed(matches):
+        if m["remake"]:
+            continue
         if m["win"] == last_win:
             if m.get("queue_id", -1) == last_queue_type:
                 count += 1
@@ -111,6 +116,9 @@ def detect_recent_streak(matches: List[ParsedMatch]):
 
 
 def get_event_from_result(player, streak_len) -> str:
+    if player["remake"]:
+        return ""  # remake ignore the game
+
     if player["largest_multi_kill"] >= 5:
         return "pentakill"
 
