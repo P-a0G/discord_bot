@@ -133,7 +133,7 @@ def get_event_from_result(player, streak_len) -> str:
     if player["damage"] > 100_000:
         return "very_high_damage"
 
-    if streak_len >= 3:
+    if streak_len >= 5:
         if player["win"]:
             return "win_streak"
         else:
