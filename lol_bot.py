@@ -83,11 +83,6 @@ async def on_ready():
     if not check_new_matches.is_running():
         check_new_matches.start()
 
-    # await send_message_to_me(f"I'm online! 🍄\n"
-    #                          f"Parameters:\n"
-    #                          f"- safe loop interval: {SAFE_LOOP_INTERVAL}s\n"
-    #                          f"- nb user registered: {len(discord_users)}")
-
 @tasks.loop(seconds=SAFE_LOOP_INTERVAL)
 async def check_new_matches() -> None:
     print(f"Starting new match check loop at {datetime.datetime.now()} (interval: {SAFE_LOOP_INTERVAL}s)")

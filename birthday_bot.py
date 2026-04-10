@@ -30,8 +30,6 @@ async def on_ready():
     if not birthday_check.is_running():
         birthday_check.start()
 
-    await send_message_to_me("I'm online!")
-
 
 @tasks.loop(time=time_birthday_check)
 async def birthday_check():
