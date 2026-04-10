@@ -157,7 +157,9 @@ async def _run_match_check() -> None:
                 channel_obj = guild.get_channel(channel_info.channel_id)
                 if channel_obj:
                     await channel_obj.send(msg)
-                    await send_message_to_me(f"msg: {msg} to user {member.name}")
+
+        if msg:
+            await send_message_to_me(f"{msg}")
 
 
 
