@@ -7,8 +7,6 @@ from bs4 import BeautifulSoup
 from eyed3.id3.frames import ImageFrame
 from moviepy import AudioFileClip
 from pytube.exceptions import VideoUnavailable
-from pytubefix import YouTube
-from pytubefix.cli import on_progress
 from yt_dlp import YoutubeDL
 
 from modules.google_utils import execute_request_video
@@ -31,7 +29,6 @@ class AudioFile:
         self._image = None
         self._duration = None
         self._view_count = None if "statistics" not in item else int(item.get("statistics", {}).get("viewCount", None))
-        self.yt = YouTube(self.url, on_progress_callback=on_progress) if self.idx is not None else None
 
     def __repr__(self):
         return f"AudioFile(title='{self.title}', artist='{self.artist}', album='{self.album}', year={self.year})"
