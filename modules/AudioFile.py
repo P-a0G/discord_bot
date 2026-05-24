@@ -174,8 +174,6 @@ class AudioFile:
     def convert_audio_to_mp3(self, extension=".webm"):
         output_path = self.path.replace(extension, ".mp3")
         audio = AudioFileClip(self.path)
-        duration = self.get_duration_in_seconds()
-        audio = audio.subclip(0, duration + 1)
         try:
             audio.write_audiofile(output_path)
         except Exception as e:
